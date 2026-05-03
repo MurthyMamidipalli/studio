@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User, Bell, Shield, LogOut, ChevronRight, Loader2, Camera, Link as LinkIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { User, Bell, Shield, LogOut, ChevronRight, Loader2, Camera, Link as LinkIcon, CheckCircle2 } from "lucide-react";
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking, useAuth } from "@/firebase";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
@@ -23,9 +24,15 @@ const profileSchema = z.object({
   photoURL: z.string().url("Please enter a valid image URL").or(z.literal("")),
   weight: z.coerce.number().optional(),
   height: z.coerce.number().optional(),
+  emailNotifications: z.boolean().default(true),
+  pushNotifications: z.boolean().default(true),
+  publicProfile: z.boolean().default(false),
+  dataSharing: z.boolean().default(true),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+
+type Section = 'personal' | 'notifications' | 'privacy';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -33,6 +40,7 @@ export default function ProfilePage() {
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const [activeSection, setActiveSection] = useState<Section>('personal');
 
   const profileRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -49,6 +57,10 @@ export default function ProfilePage() {
       photoURL: "",
       weight: 0,
       height: 0,
+      emailNotifications: true,
+      pushNotifications: true,
+      publicProfile: false,
+      dataSharing: true,
     },
   });
 
@@ -60,6 +72,10 @@ export default function ProfilePage() {
         photoURL: profile.photoURL || "",
         weight: profile.weight || 0,
         height: profile.height || 0,
+        emailNotifications: profile.settings?.emailNotifications ?? true,
+        pushNotifications: profile.settings?.pushNotifications ?? true,
+        publicProfile: profile.settings?.publicProfile ?? false,
+        dataSharing: profile.settings?.dataSharing ?? true,
       });
     } else if (user) {
       form.reset({
@@ -68,6 +84,10 @@ export default function ProfilePage() {
         photoURL: user.photoURL || "",
         weight: 0,
         height: 0,
+        emailNotifications: true,
+        pushNotifications: true,
+        publicProfile: false,
+        dataSharing: true,
       });
     }
   }, [profile, user, form]);
@@ -75,8 +95,16 @@ export default function ProfilePage() {
   const onSubmit = (values: ProfileFormValues) => {
     if (!profileRef || !user) return;
 
+    const { emailNotifications, pushNotifications, publicProfile, dataSharing, ...personal } = values;
+
     const data = {
-      ...values,
+      ...personal,
+      settings: {
+        emailNotifications,
+        pushNotifications,
+        publicProfile,
+        dataSharing,
+      },
       id: user.uid,
       updatedAt: serverTimestamp(),
       ...(profile ? {} : { createdAt: serverTimestamp() }),
@@ -109,7 +137,7 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-headline font-bold text-primary">User Profile</h1>
-        <p className="text-muted-foreground">Manage your account and app preferences.</p>
+        <p className="text-muted-foreground">Manage your account, notifications, and privacy preferences.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -126,12 +154,27 @@ export default function ProfilePage() {
                 </div>
               </div>
               <CardTitle className="font-headline text-xl mt-4">{form.watch("name") || "User"}</CardTitle>
-              <CardDescription>Account ID: {user?.uid.substring(0, 8)}...</CardDescription>
+              <CardDescription>Member since {profile?.createdAt ? (new Date(profile.createdAt.seconds * 1000).toLocaleDateString()) : 'Today'}</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <ProfileMenuItem icon={User} label="Personal Details" active />
-              <ProfileMenuItem icon={Bell} label="Notifications" />
-              <ProfileMenuItem icon={Shield} label="Privacy & Security" />
+              <ProfileMenuItem 
+                icon={User} 
+                label="Personal Details" 
+                active={activeSection === 'personal'} 
+                onClick={() => setActiveSection('personal')}
+              />
+              <ProfileMenuItem 
+                icon={Bell} 
+                label="Notifications" 
+                active={activeSection === 'notifications'} 
+                onClick={() => setActiveSection('notifications')}
+              />
+              <ProfileMenuItem 
+                icon={Shield} 
+                label="Privacy & Security" 
+                active={activeSection === 'privacy'} 
+                onClick={() => setActiveSection('privacy')}
+              />
               <ProfileMenuItem icon={LogOut} label="Log Out" color="text-destructive" onClick={handleLogout} />
             </CardContent>
           </Card>
@@ -140,90 +183,197 @@ export default function ProfilePage() {
         <div className="md:col-span-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Card className="border-none shadow-sm">
-                <CardHeader>
-                  <CardTitle className="font-headline">Account Information</CardTitle>
-                  <CardDescription>Update your personal details and profile picture here.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Alex Johnson" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email Address</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="alex.j@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="photoURL"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Profile Picture URL</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="https://example.com/image.jpg" className="pl-9" {...field} />
+              {activeSection === 'personal' && (
+                <Card className="border-none shadow-sm animate-in fade-in duration-300">
+                  <CardHeader>
+                    <CardTitle className="font-headline">Account Information</CardTitle>
+                    <CardDescription>Update your personal details and profile picture here.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Alex Johnson" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="alex.j@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="photoURL"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Profile Picture URL</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                              <Input placeholder="https://example.com/image.jpg" className="pl-9" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Enter a direct URL to an image.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="weight"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Weight (lbs)</FormLabel>
+                            <FormControl>
+                              <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="height"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Height (in)</FormLabel>
+                            <FormControl>
+                              <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4">
+                    <Button type="submit">Save Changes</Button>
+                  </CardFooter>
+                </Card>
+              )}
+
+              {activeSection === 'notifications' && (
+                <Card className="border-none shadow-sm animate-in fade-in duration-300">
+                  <CardHeader>
+                    <CardTitle className="font-headline">Notification Preferences</CardTitle>
+                    <CardDescription>Choose how you want to be alerted about your progress.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="emailNotifications"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Email Notifications</FormLabel>
+                            <FormDescription>Receive weekly summaries and goal updates via email.</FormDescription>
                           </div>
-                        </FormControl>
-                        <FormDescription>
-                          Enter a direct URL to an image.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="weight"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Weight (lbs)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="height"
+                      name="pushNotifications"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Height (in)</FormLabel>
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Push Notifications</FormLabel>
+                            <FormDescription>Get instant alerts for streaks and challenge invites.</FormDescription>
+                          </div>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-end border-t bg-muted/5 p-4">
-                  <Button type="submit">Save Changes</Button>
-                </CardFooter>
-              </Card>
+                  </CardContent>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4">
+                    <Button type="submit">Update Preferences</Button>
+                  </CardFooter>
+                </Card>
+              )}
+
+              {activeSection === 'privacy' && (
+                <Card className="border-none shadow-sm animate-in fade-in duration-300">
+                  <CardHeader>
+                    <CardTitle className="font-headline">Privacy & Security</CardTitle>
+                    <CardDescription>Manage your visibility and data settings.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="publicProfile"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Public Profile</FormLabel>
+                            <FormDescription>Allow other users to find you and see your leaderboard rank.</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dataSharing"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Share Fitness Data</FormLabel>
+                            <FormDescription>Participate in anonymous research to improve AI coaching.</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="pt-4 border-t">
+                      <Button variant="outline" className="w-full text-destructive hover:bg-destructive/5" type="button">
+                        Permanently Delete My Data
+                      </Button>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4">
+                    <Button type="submit">Save Security Settings</Button>
+                  </CardFooter>
+                </Card>
+              )}
             </form>
           </Form>
         </div>

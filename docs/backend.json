@@ -54,6 +54,15 @@
         "height": {
           "type": "number"
         },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "emailNotifications": { "type": "boolean" },
+            "pushNotifications": { "type": "boolean" },
+            "publicProfile": { "type": "boolean" },
+            "dataSharing": { "type": "boolean" }
+          }
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
