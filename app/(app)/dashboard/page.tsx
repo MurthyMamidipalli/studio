@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,13 +24,13 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 const weeklyData = [
-  { day: "Mon", calories: 350 },
-  { day: "Tue", calories: 520 },
-  { day: "Wed", calories: 210 },
-  { day: "Thu", calories: 640 },
-  { day: "Fri", calories: 480 },
-  { day: "Sat", calories: 890 },
-  { day: "Sun", calories: 120 },
+  { day: "Mon", calories: 350, distance: 3.2 },
+  { day: "Tue", calories: 520, distance: 5.1 },
+  { day: "Wed", calories: 210, distance: 2.0 },
+  { day: "Thu", calories: 640, distance: 7.2 },
+  { day: "Fri", calories: 480, distance: 4.5 },
+  { day: "Sat", calories: 890, distance: 10.1 },
+  { day: "Sun", calories: 120, distance: 1.2 },
 ];
 
 const activityData = [
@@ -85,62 +84,57 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-sm border-none bg-card/50 overflow-hidden">
+        <Card className="lg:col-span-2 shadow-sm border-none bg-card/50">
           <CardHeader>
             <CardTitle className="font-headline text-lg">Weekly Calories Burned</CardTitle>
             <CardDescription>Visualizing your energy expenditure over the last 7 days</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6">
-            <div className="h-[300px] w-full">
-              <ChartContainer 
-                config={{ 
-                  calories: { label: "Calories", color: "hsl(var(--primary))" }
-                }}
-                className="aspect-auto h-full w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickLine={false} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="calories" fill="var(--color-calories)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+          <CardContent className="h-[300px] w-full">
+            <ChartContainer 
+              config={{ 
+                calories: { label: "Calories", color: "hsl(var(--primary))" }
+              }}
+              className="aspect-auto h-full w-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="calories" fill="var(--color-calories)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none bg-card/50 overflow-hidden">
+        <Card className="shadow-sm border-none bg-card/50">
           <CardHeader>
             <CardTitle className="font-headline text-lg">Active Minutes Trend</CardTitle>
             <CardDescription>Monthly intensity overview</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6">
-            <div className="h-[300px] w-full">
-              <ChartContainer 
-                config={{ 
-                  minutes: { label: "Minutes", color: "hsl(var(--accent))" }
-                }}
-                className="aspect-auto h-full w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={activityData}>
-                    <defs>
-                      <linearGradient id="colorMin" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-minutes)" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="var(--color-minutes)" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" hide />
-                    <YAxis hide />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area type="monotone" dataKey="minutes" stroke="var(--color-minutes)" fillOpacity={1} fill="url(#colorMin)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+          <CardContent className="h-[300px] w-full">
+            <ChartContainer 
+              config={{ 
+                minutes: { label: "Minutes", color: "hsl(var(--accent))" }
+              }}
+              className="aspect-auto h-full w-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={activityData}>
+                  <defs>
+                    <linearGradient id="colorMin" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-minutes)" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="var(--color-minutes)" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" hide />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area type="monotone" dataKey="minutes" stroke="var(--color-minutes)" fillOpacity={1} fill="url(#colorMin)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
