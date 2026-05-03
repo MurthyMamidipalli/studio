@@ -1,23 +1,21 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { useState, useMemo, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
   Apple, 
-  Plus, 
   History, 
   Trash2, 
   Utensils, 
-  Flame, 
   Loader2,
   ChevronDown
 } from "lucide-react";
 import { useUser, useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
-import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp, where } from "firebase/firestore";
+import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -40,9 +38,11 @@ export default function NutritionPage() {
   const db = useFirestore();
   const { toast } = useToast();
   const [showHistory, setShowHistory] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const nutritionQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -56,7 +56,10 @@ export default function NutritionPage() {
   const { data: logs, isLoading } = useCollection(nutritionQuery);
 
   const dailyTotals = useMemo(() => {
-    if (!logs) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    if (!logs || !mounted) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     const todayLogs = logs.filter(log => {
       const logDate = log.logDate instanceof Timestamp ? log.logDate.toDate() : new Date(log.logDate);
       return logDate >= startOfToday;
@@ -68,7 +71,7 @@ export default function NutritionPage() {
       carbs: acc.carbs + (Number(log.carbs) || 0),
       fat: acc.fat + (Number(log.fat) || 0),
     }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-  }, [logs]);
+  }, [logs, mounted]);
 
   const form = useForm<NutritionFormValues>({
     resolver: zodResolver(nutritionSchema),
@@ -101,6 +104,8 @@ export default function NutritionPage() {
     toast({ title: "Log Deleted", description: "Entry removed successfully." });
   };
 
+  if (!mounted) return null;
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
@@ -109,7 +114,6 @@ export default function NutritionPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Today's Summary */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="border-none shadow-sm bg-primary/5">
             <CardHeader>
@@ -132,7 +136,6 @@ export default function NutritionPage() {
           </Card>
         </div>
 
-        {/* Log Meal Form */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-sm">
             <CardHeader>
@@ -209,7 +212,7 @@ export default function NutritionPage() {
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground">
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                     <Apple className="h-4 w-4 mr-2" /> Log Meal
                   </Button>
                 </form>
@@ -217,7 +220,6 @@ export default function NutritionPage() {
             </CardContent>
           </Card>
 
-          {/* History */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-headline font-bold text-lg flex items-center gap-2">
