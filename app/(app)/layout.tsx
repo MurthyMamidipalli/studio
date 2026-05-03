@@ -52,18 +52,18 @@ export default function AppLayout({
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen">
+      <SidebarInset className="flex flex-col min-h-screen relative">
         <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur-md md:px-6">
           <SidebarTrigger className="text-primary hover:bg-primary/10 rounded-lg p-2" />
           <div className="flex-1" />
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium hidden sm:inline-block">Welcome back, {displayName}</span>
-            <div className="h-9 w-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-sm font-medium hidden sm:inline-block">Welcome, {displayName}</span>
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm shrink-0">
               <img src={photoURL} alt={displayName} className="h-full w-full object-cover" />
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full max-w-full">
+        <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full max-w-7xl mx-auto">
           {children}
         </main>
       </SidebarInset>

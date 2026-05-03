@@ -25,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useAuth } from "@/firebase";
@@ -51,7 +52,7 @@ export function AppSidebar() {
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = React.useState(false);
+  const { openMobile, setOpenMobile } = useSidebar();
 
   const handleLogout = async () => {
     try {
@@ -83,7 +84,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent className="px-3 mt-4 overflow-hidden flex-1">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full pr-2">
           <SidebarMenu className="gap-2 pb-4">
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -135,8 +136,8 @@ export function AppSidebar() {
           style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation Menu</SheetTitle>
-            <SheetDescription>Access your fitness dashboard and logs</SheetDescription>
+            <SheetTitle>FitStride Navigation</SheetTitle>
+            <SheetDescription>Access your dashboard, logs, and community challenges.</SheetDescription>
           </SheetHeader>
           {SidebarInner}
         </SheetContent>
