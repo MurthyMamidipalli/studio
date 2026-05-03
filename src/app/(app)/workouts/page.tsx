@@ -92,6 +92,7 @@ export default function WorkoutsPage() {
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
     const now = Timestamp.now();
     
+    // Denormalize distance and calories for dashboard efficiency
     const sessionData = {
       id: sessionId,
       userId: user.uid,
@@ -99,6 +100,7 @@ export default function WorkoutsPage() {
       durationMinutes: values.duration,
       notes: values.name,
       estimatedCaloriesBurned: values.calories,
+      distance: values.distance,
       type: "Cardio",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -127,6 +129,7 @@ export default function WorkoutsPage() {
       durationMinutes: 45, 
       notes: values.name,
       estimatedCaloriesBurned: totalReps * 0.5,
+      distance: 0,
       type: "Strength",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),

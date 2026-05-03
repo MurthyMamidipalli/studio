@@ -54,6 +54,7 @@ export default function DashboardPage() {
     startOfWeek.setDate(now.getDate() - now.getDay());
     startOfWeek.setHours(0,0,0,0);
 
+    // Initialize 7-day view with zero values
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(now.getDate() - (6 - i));
@@ -83,7 +84,7 @@ export default function DashboardPage() {
       const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
       const workoutDateStr = workoutDate.toDateString();
       
-      // Weekly Chart Data
+      // Weekly Chart Data (matching specific dates)
       const chartDay = last7Days.find(d => d.dateStr === workoutDateStr);
       if (chartDay) {
         chartDay.calories += Number(w.estimatedCaloriesBurned) || 0;
@@ -96,14 +97,13 @@ export default function DashboardPage() {
         totalDistanceToday += Number(w.distance) || 0; 
       }
 
-      // Weekly Metrics
+      // Weekly Metrics (since Sunday)
       if (workoutDate >= startOfWeek) {
         totalWorkoutsThisWeek++;
         totalCaloriesThisWeek += Number(w.estimatedCaloriesBurned) || 0;
       }
     });
 
-    // Remove hardcoded past trend values to reflect real zeroed state
     const activityTrend = [
       { name: "W1", minutes: 0 },
       { name: "W2", minutes: 0 },
@@ -183,7 +183,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[1px]">
                <div className="text-center p-6 bg-card rounded-xl shadow-lg border">
                   <Info className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm font-medium">No workout data for this week</p>
+                  <p className="text-sm font-medium">No workout data found</p>
                   <Link href="/workouts" className="text-xs text-primary hover:underline mt-1 block">Log your first session</Link>
                </div>
             </div>
