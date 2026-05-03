@@ -36,21 +36,17 @@ service cloud.firestore {
     }
 
     match /groups/{groupId} {
-      // Allow reading if it's public OR if the user is a member
-      allow read: if isSignedIn() && (
-        resource.data.isPublic == true || 
-        request.auth.uid in resource.data.members
-      );
-      
-      // Allow search (list) only for public groups or groups where user is a member
+      allow read: if isSignedIn();
       allow list: if isSignedIn();
-
       allow create: if isSignedIn();
       
       allow update: if isSignedIn() && (
+        // Admin can do anything
         request.auth.uid == resource.data.ownerId || 
-        // Allow users to join if it's public OR via invite (membership modification)
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+        // Public Join
+        (resource.data.isPublic == true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])) ||
+        // Private Request
+        (resource.data.isPublic == false && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingRequests']))
       );
       
       allow delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
