@@ -7,18 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User, Bell, Shield, LogOut, ChevronRight, Loader2 } from "lucide-react";
-import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from "@/firebase";
+import { Settings, User, Bell, Shield, LogOut, ChevronRight, Loader2, Camera, Link as LinkIcon } from "lucide-react";
+import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking, useAuth } from "@/firebase";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
+  photoURL: z.string().url("Please enter a valid image URL").or(z.literal("")),
   weight: z.coerce.number().optional(),
   height: z.coerce.number().optional(),
 });
@@ -27,12 +29,13 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const db = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
 
   const profileRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
-    // Correct path according to backend.json and firestore.rules
     return doc(db, "users", user.uid, "profile");
   }, [db, user?.uid]);
 
@@ -43,6 +46,7 @@ export default function ProfilePage() {
     defaultValues: {
       name: "",
       email: "",
+      photoURL: "",
       weight: 0,
       height: 0,
     },
@@ -53,6 +57,7 @@ export default function ProfilePage() {
       form.reset({
         name: profile.name || "",
         email: profile.email || "",
+        photoURL: profile.photoURL || "",
         weight: profile.weight || 0,
         height: profile.height || 0,
       });
@@ -60,6 +65,7 @@ export default function ProfilePage() {
       form.reset({
         name: user.displayName || "",
         email: user.email || "",
+        photoURL: user.photoURL || "",
         weight: 0,
         height: 0,
       });
@@ -84,6 +90,11 @@ export default function ProfilePage() {
     });
   };
 
+  const handleLogout = async () => {
+    await auth.signOut();
+    router.push("/login");
+  };
+
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -91,6 +102,8 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const currentPhotoURL = form.watch("photoURL") || `https://picsum.photos/seed/${user?.uid}/200/200`;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -105,11 +118,11 @@ export default function ProfilePage() {
             <CardHeader className="bg-primary/5 text-center pt-8 pb-4">
               <div className="relative inline-block mx-auto">
                 <Avatar className="h-24 w-24 border-4 border-white shadow-md">
-                  <AvatarImage src={`https://picsum.photos/seed/${user?.uid}/200/200`} alt={form.getValues("name")} />
+                  <AvatarImage src={currentPhotoURL} alt={form.getValues("name")} />
                   <AvatarFallback>{form.getValues("name")?.substring(0, 2).toUpperCase() || "AX"}</AvatarFallback>
                 </Avatar>
                 <div className="absolute bottom-0 right-0 p-1 bg-accent rounded-full border-2 border-white shadow-sm">
-                  <Settings className="h-4 w-4 text-accent-foreground" />
+                  <Camera className="h-4 w-4 text-accent-foreground" />
                 </div>
               </div>
               <CardTitle className="font-headline text-xl mt-4">{form.watch("name") || "User"}</CardTitle>
@@ -119,17 +132,7 @@ export default function ProfilePage() {
               <ProfileMenuItem icon={User} label="Personal Details" active />
               <ProfileMenuItem icon={Bell} label="Notifications" />
               <ProfileMenuItem icon={Shield} label="Privacy & Security" />
-              <ProfileMenuItem icon={LogOut} label="Log Out" color="text-destructive" />
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-sm bg-accent/10 border-accent/20">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase text-accent tracking-widest">Premium Plan</p>
-                <p className="text-sm font-medium mt-1">Status: Active</p>
-              </div>
-              <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">Manage</Button>
+              <ProfileMenuItem icon={LogOut} label="Log Out" color="text-destructive" onClick={handleLogout} />
             </CardContent>
           </Card>
         </div>
@@ -140,7 +143,7 @@ export default function ProfilePage() {
               <Card className="border-none shadow-sm">
                 <CardHeader>
                   <CardTitle className="font-headline">Account Information</CardTitle>
-                  <CardDescription>Update your personal details here.</CardDescription>
+                  <CardDescription>Update your personal details and profile picture here.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -165,6 +168,25 @@ export default function ProfilePage() {
                         <FormControl>
                           <Input type="email" placeholder="alex.j@example.com" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="photoURL"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profile Picture URL</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="https://example.com/image.jpg" className="pl-9" {...field} />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Enter a direct URL to an image.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -204,52 +226,23 @@ export default function ProfilePage() {
               </Card>
             </form>
           </Form>
-
-          <div className="mt-6 space-y-6">
-            <Card className="border-none shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-headline">App Preferences</CardTitle>
-                <CardDescription>Customize your experience.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <PreferenceToggle label="Push Notifications" desc="Stay updated with goal progress and coach tips." defaultChecked />
-                <PreferenceToggle label="Email Summaries" desc="Receive weekly reports of your fitness journey." defaultChecked />
-                <PreferenceToggle label="Public Profile" desc="Allow other users to see your badges and achievements." />
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function ProfileMenuItem({ icon: Icon, label, active, color }: any) {
+function ProfileMenuItem({ icon: Icon, label, active, color, onClick }: any) {
   return (
-    <div className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${active ? 'bg-primary/5 text-primary border-r-2 border-primary' : 'hover:bg-muted/50 text-foreground'}`}>
+    <div 
+      onClick={onClick}
+      className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${active ? 'bg-primary/5 text-primary border-r-2 border-primary' : 'hover:bg-muted/50 text-foreground'}`}
+    >
       <div className={`flex items-center gap-3 ${color || ''}`}>
         <Icon className="h-5 w-5" />
         <span className="text-sm font-medium">{label}</span>
       </div>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
-    </div>
-  );
-}
-
-function PreferenceToggle({ label, desc, defaultChecked }: any) {
-  const [checked, setChecked] = useState(defaultChecked);
-  return (
-    <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
-      <div className="space-y-0.5">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground">{desc}</p>
-      </div>
-      <div 
-        onClick={() => setChecked(!checked)}
-        className={`h-6 w-11 rounded-full relative cursor-pointer flex items-center px-1 transition-colors ${checked ? 'bg-primary' : 'bg-muted'}`}
-      >
-        <div className={`h-4 w-4 bg-white rounded-full shadow-sm transition-transform ${checked ? 'translate-x-5' : ''}`} />
-      </div>
     </div>
   );
 }

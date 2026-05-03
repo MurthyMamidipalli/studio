@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   Dumbbell, 
@@ -23,6 +23,8 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -34,6 +36,26 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully signed out.",
+      });
+      router.push("/login");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Logout Error",
+        description: error.message,
+      });
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -67,7 +89,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout">
+            <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
               <LogOut className="h-5 w-5" />
               <span>Logout</span>
             </SidebarMenuButton>

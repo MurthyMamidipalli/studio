@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -18,6 +19,10 @@
           "type": "string",
           "description": "The user's email address, used for communication and profile identification.",
           "format": "email"
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "The URL of the user's profile picture."
         },
         "dateOfBirth": {
           "type": "string",
@@ -384,11 +389,11 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores a user's personal profile information. The `id` field within the document will match the `{userId}` path parameter, ensuring authorization independence.",
+          "description": "Stores a user's personal profile information.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user, corresponding to `request.auth.uid`."
+              "description": "The unique identifier of the user."
             }
           ]
         }
@@ -400,11 +405,11 @@
           "schema": {
             "$ref": "#/backend/entities/Exercise"
           },
-          "description": "A global, read-only catalog of exercises available in the application. Accessible to all authenticated users.",
+          "description": "A global catalog of exercises.",
           "params": [
             {
               "name": "exerciseId",
-              "description": "The unique identifier for a specific exercise in the catalog."
+              "description": "The unique identifier for an exercise."
             }
           ]
         }
@@ -416,15 +421,15 @@
           "schema": {
             "$ref": "#/backend/entities/WorkoutSession"
           },
-          "description": "Stores a specific workout session logged by a user. Includes denormalized `userId` for authorization independence.",
+          "description": "Stores workout sessions.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns this workout session."
+              "description": "Owner UID."
             },
             {
               "name": "workoutSessionId",
-              "description": "The unique identifier for a specific workout session."
+              "description": "Session ID."
             }
           ]
         }
@@ -436,19 +441,19 @@
           "schema": {
             "$ref": "#/backend/entities/LoggedExercise"
           },
-          "description": "Represents an individual exercise performed within a workout session. Includes denormalized `userId` (inherited from the parent `WorkoutSession`) for authorization independence.",
+          "description": "Individual exercise within a session.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns this logged exercise."
+              "description": "Owner UID."
             },
             {
               "name": "workoutSessionId",
-              "description": "The unique identifier of the parent workout session."
+              "description": "Session ID."
             },
             {
               "name": "loggedExerciseId",
-              "description": "The unique identifier for this specific logged exercise."
+              "description": "Logged exercise ID."
             }
           ]
         }
@@ -460,23 +465,23 @@
           "schema": {
             "$ref": "#/backend/entities/CardioDetails"
           },
-          "description": "Stores specific details for a cardio exercise logged within a workout session. Includes denormalized `userId` for authorization independence. The `cardioDetailsId` can be the same as `loggedExerciseId` for 1:1 mapping.",
+          "description": "Cardio specifics.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns these cardio details."
+              "description": "Owner UID."
             },
             {
               "name": "workoutSessionId",
-              "description": "The unique identifier of the parent workout session."
+              "description": "Session ID."
             },
             {
               "name": "loggedExerciseId",
-              "description": "The unique identifier of the parent logged exercise."
+              "description": "Exercise ID."
             },
             {
               "name": "cardioDetailsId",
-              "description": "The unique identifier for these cardio details. Typically matches `loggedExerciseId`."
+              "description": "Details ID."
             }
           ]
         }
@@ -488,23 +493,23 @@
           "schema": {
             "$ref": "#/backend/entities/StrengthDetails"
           },
-          "description": "Stores general details for a strength training exercise logged within a workout session. Includes denormalized `userId` for authorization independence. The `strengthDetailsId` can be the same as `loggedExerciseId` for 1:1 mapping.",
+          "description": "Strength specifics.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns these strength details."
+              "description": "Owner UID."
             },
             {
               "name": "workoutSessionId",
-              "description": "The unique identifier of the parent workout session."
+              "description": "Session ID."
             },
             {
               "name": "loggedExerciseId",
-              "description": "The unique identifier of the parent logged exercise."
+              "description": "Exercise ID."
             },
             {
               "name": "strengthDetailsId",
-              "description": "The unique identifier for these strength details. Typically matches `loggedExerciseId`."
+              "description": "Details ID."
             }
           ]
         }
@@ -516,27 +521,27 @@
           "schema": {
             "$ref": "#/backend/entities/SetDetails"
           },
-          "description": "Records the specifics of a single set performed during a strength training exercise. Includes denormalized `userId` for authorization independence.",
+          "description": "Set specifics.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns these set details."
+              "description": "Owner UID."
             },
             {
               "name": "workoutSessionId",
-              "description": "The unique identifier of the parent workout session."
+              "description": "Session ID."
             },
             {
               "name": "loggedExerciseId",
-              "description": "The unique identifier of the parent logged exercise."
+              "description": "Exercise ID."
             },
             {
               "name": "strengthDetailsId",
-              "description": "The unique identifier of the parent strength details."
+              "description": "Details ID."
             },
             {
               "name": "setDetailsId",
-              "description": "The unique identifier for this specific set."
+              "description": "Set ID."
             }
           ]
         }
@@ -548,20 +553,19 @@
           "schema": {
             "$ref": "#/backend/entities/FitnessGoal"
           },
-          "description": "Defines a fitness goal set by a user. Includes denormalized `userId` for authorization independence.",
+          "description": "Fitness goals.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns this fitness goal."
+              "description": "Owner UID."
             },
             {
               "name": "fitnessGoalId",
-              "description": "The unique identifier for a specific fitness goal."
+              "description": "Goal ID."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The recommended Firestore structure for FitStride prioritizes security, scalability, and debuggability by strictly adhering to the core design principles. The structure uses a hierarchical, user-centric model for all personal data and a flat, global collection for shared, read-only data. \n\n**Authorization Independence (CRITICAL):** This design achieves Authorization Independence by explicitly denormalizing the `userId` into *every* document that belongs to a specific user. For example, `WorkoutSession`, `LoggedExercise`, `CardioDetails`, `StrengthDetails`, `SetDetails`, and `FitnessGoal` documents will all contain a `userId` field matching the `id` of the owning `UserProfile`. This allows Firestore Security Rules to directly check `request.auth.uid == resource.data.userId` and `request.auth.uid == userId` (from the path wildcard) on any document operation without needing to perform `get()` calls to parent documents to verify ownership. This avoids complex rule logic, prevents breaking atomic write operations (like transactions or batched writes), and significantly improves rule performance and debuggability.\n\n**QAPs (Rules are not Filters):** This structure supports Query-Aware Permissions (QAPs) through robust structural segregation:\n1.  **Private User Data:** All user-specific data is stored under `/users/{userId}/...`. Security rules will enforce that `request.auth.uid` must match the `{userId}` wildcard in the path for any read or write operation within these subcollections. This guarantees that `list` operations (queries) for a user's `workoutSessions`, `fitnessGoals`, or nested data will *only* return data owned by the authenticated user, without needing client-side filtering or server-side rule-based filtering that incurs performance penalties and security risks. The structure inherently prevents unauthorized users from even attempting to query another user's private data.\n2.  **Public Catalog Data:** The `/exercises/{exerciseId}` collection is a global, read-only catalog. Rules will permit `read` access to all authenticated users. This clear segregation ensures that querying `/exercises` will yield a complete list of available exercises for all users, again without requiring filtering by rules.\n\n**General Principles:**\n*   **Structural Segregation:** Data with different security postures (private user data vs. public catalog) is placed in distinct top-level collections, simplifying security rules immensely.\n*   **Access Modeling:** Path-based ownership (`/users/{userId}/...`) is consistently used for all user-owned data, creating a clear and intuitive hierarchy. This ensures that a user's `WorkoutSession` is nested under their `UserProfile`, and `LoggedExercise` under `WorkoutSession`, and so on, making ownership self-evident in the path.\n*   **Data Clarity:** Wildcards are descriptive (e.g., `{userId}`, `{workoutSessionId}`), and the explicit `userId` field provides clear ownership metadata within each document."
+    ]
   }
 }
