@@ -44,11 +44,11 @@ export default function DashboardPage() {
 
   const { data: workouts, isLoading } = useCollection(workoutsQuery);
 
-  // Process data for charts and metrics
   const processedData = useMemo(() => {
-    if (!workouts) return { weeklyData: [], activityData: [], metrics: {}, recent: [] };
-
+    // Baseline for empty state
+    const emptyMetrics = { calories: 0, minutes: 0, weeklyWorkouts: 0 };
     const now = new Date();
+    
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(now.getDate() - (6 - i));
@@ -58,6 +58,20 @@ export default function DashboardPage() {
         calories: 0 
       };
     });
+
+    if (!workouts || workouts.length === 0) {
+      return { 
+        weeklyData: last7Days, 
+        activityData: [
+          { name: "W1", minutes: 0 },
+          { name: "W2", minutes: 0 },
+          { name: "W3", minutes: 0 },
+          { name: "Current", minutes: 0 }
+        ], 
+        metrics: emptyMetrics, 
+        recent: [] 
+      };
+    }
 
     let totalCaloriesToday = 0;
     let totalMinutesToday = 0;
@@ -71,30 +85,27 @@ export default function DashboardPage() {
       const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
       const workoutDateStr = workoutDate.toDateString();
       
-      // Weekly Chart
       const chartDay = last7Days.find(d => d.dateStr === workoutDateStr);
       if (chartDay) {
-        chartDay.calories += w.estimatedCaloriesBurned || 0;
+        chartDay.calories += Number(w.estimatedCaloriesBurned) || 0;
       }
 
-      // Today's metrics
       if (workoutDateStr === now.toDateString()) {
-        totalCaloriesToday += w.estimatedCaloriesBurned || 0;
-        totalMinutesToday += w.durationMinutes || 0;
+        totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
+        totalMinutesToday += Number(w.durationMinutes) || 0;
       }
 
-      // Weekly Target progress
       if (workoutDate >= startOfWeek) {
         totalWorkoutsThisWeek++;
       }
     });
 
-    // Activity Trend (last 4 weeks - Simplified for MVP)
+    // Activity Trend - now properly reactive to current data
     const activityData = [
-      { name: "W1", minutes: 120 },
-      { name: "W2", minutes: totalMinutesToday > 0 ? 150 : 120 },
-      { name: "W3", minutes: 180 },
-      { name: "Current", minutes: totalMinutesToday || 45 },
+      { name: "W1", minutes: 0 },
+      { name: "W2", minutes: 0 },
+      { name: "W3", minutes: 0 },
+      { name: "Current", minutes: totalMinutesToday },
     ];
 
     return {
@@ -127,7 +138,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard 
           title="Daily Calories" 
-          value={processedData.metrics.calories || "0"} 
+          value={processedData.metrics.calories} 
           unit="kcal" 
           icon={Flame} 
           color="text-orange-500"
@@ -135,7 +146,7 @@ export default function DashboardPage() {
         />
         <MetricCard 
           title="Active Time" 
-          value={processedData.metrics.minutes || "0"} 
+          value={processedData.metrics.minutes} 
           unit="min" 
           icon={Timer} 
           color="text-primary"
@@ -232,7 +243,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-6">
             <GoalProgress title="Weekly workout sessions" progress={Math.min((processedData.metrics.weeklyWorkouts / 5) * 100, 100)} current={processedData.metrics.weeklyWorkouts} target="5" unit="sessions" />
             <GoalProgress title="Active minutes today" progress={Math.min((processedData.metrics.minutes / 45) * 100, 100)} current={processedData.metrics.minutes} target="45" unit="min" />
-            <GoalProgress title="Burn 3000 calories this week" progress={35} current="--" target="3000" unit="kcal" />
+            <GoalProgress title="Burn 3000 calories this week" progress={0} current="0" target="3000" unit="kcal" />
           </CardContent>
         </Card>
 
