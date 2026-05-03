@@ -9,7 +9,6 @@ import {
   Flame, 
   Timer, 
   TrendingUp, 
-  Calendar,
   ChevronRight,
   Trophy,
   Loader2,
@@ -86,7 +85,6 @@ export default function DashboardPage() {
 
     let totalCaloriesToday = 0;
     let totalMinutesToday = 0;
-    let totalWorkoutsThisWeek = 0;
     let totalStepsToday = 0;
     let totalDistanceToday = 0;
     let latestHeartRate = 0;
@@ -100,9 +98,6 @@ export default function DashboardPage() {
           totalStepsToday += Number(w.steps) || 0;
           totalDistanceToday += Number(w.distance) || 0;
           if (w.heartRate > 0) latestHeartRate = w.heartRate;
-        }
-        if (workoutDate >= startOfWeek) {
-          totalWorkoutsThisWeek++;
         }
       });
     }
@@ -141,7 +136,6 @@ export default function DashboardPage() {
       metrics: {
         calories: Math.round(totalCaloriesToday),
         minutes: totalMinutesToday,
-        weeklyWorkouts: totalWorkoutsThisWeek,
         nutritionCalories: Math.round(nutritionCaloriesToday),
         steps: totalStepsToday,
         heartRate: latestHeartRate,

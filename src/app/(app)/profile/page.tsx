@@ -97,11 +97,11 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         variant: "destructive",
         title: "File too large",
-        description: "Please choose an image under 1MB.",
+        description: "Please choose an image under 2MB.",
       });
       return;
     }
@@ -177,6 +177,7 @@ export default function ProfilePage() {
                   <AvatarFallback className="text-2xl">{form.getValues("name")?.substring(0, 2).toUpperCase() || "FT"}</AvatarFallback>
                 </Avatar>
                 <button 
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="absolute bottom-1 right-1 p-2 bg-primary text-primary-foreground rounded-full border-2 border-white shadow-lg hover:scale-110 transition-transform"
                 >
@@ -218,8 +219,9 @@ export default function ProfilePage() {
                     )} />
                     <div className="pt-2">
                       <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                        <Upload className="h-4 w-4 mr-2" /> {uploading ? "Processing..." : "Upload New Photo"}
+                        <Upload className="h-4 w-4 mr-2" /> {uploading ? "Processing..." : "Change Photo"}
                       </Button>
+                      <p className="text-[10px] text-muted-foreground mt-2 italic">Supports JPG, PNG (Max 2MB)</p>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit">Save Changes</Button></CardFooter>
