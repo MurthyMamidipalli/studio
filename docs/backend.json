@@ -70,9 +70,10 @@
         "description": { "type": "string" },
         "ownerId": { "type": "string" },
         "members": { "type": "array", "items": { "type": "string" } },
+        "isPublic": { "type": "boolean", "description": "Whether the group is visible to the public." },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "name", "ownerId", "members", "createdAt"]
+      "required": ["id", "name", "ownerId", "members", "isPublic", "createdAt"]
     }
   },
   "auth": {

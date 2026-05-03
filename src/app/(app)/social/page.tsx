@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { 
   Trophy, 
   Users, 
@@ -26,7 +27,9 @@ import {
   Trash2,
   MailPlus,
   Share2,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Globe,
+  Lock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -52,6 +55,7 @@ function SocialContent() {
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDesc, setNewGroupDesc] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [loading, setLoading] = useState(false);
 
   // Invite state
@@ -78,12 +82,16 @@ function SocialContent() {
 
   const groupsQuery = useMemoFirebase(() => {
     if (!db) return null;
-    return query(collection(db, "groups"), orderBy("createdAt", "desc"), limit(20));
+    return query(collection(db, "groups"), orderBy("createdAt", "desc"), limit(50));
   }, [db]);
 
   const { data: leaderboard, isLoading: isLeaderboardLoading } = useCollection(leaderboardQuery);
   const { data: challenges, isLoading: isChallengesLoading } = useCollection(challengesQuery);
-  const { data: groups, isLoading: isGroupsLoading } = useCollection(groupsQuery);
+  const { data: allGroups, isLoading: isGroupsLoading } = useCollection(groupsQuery);
+
+  // Filter groups
+  const publicGroups = allGroups?.filter(g => g.isPublic) || [];
+  const myGroups = allGroups?.filter(g => g.members?.includes(user?.uid)) || [];
 
   // Handle joining via link
   useEffect(() => {
@@ -126,12 +134,17 @@ function SocialContent() {
       description: newGroupDesc,
       ownerId: user.uid,
       members: [user.uid],
+      isPublic: isPublic,
       createdAt: serverTimestamp(),
     }, { merge: true });
 
-    toast({ title: "Group Created", description: `"${newGroupName}" is now active!` });
+    toast({ 
+      title: "Group Created", 
+      description: `"${newGroupName}" is now ${isPublic ? 'public' : 'private'}.` 
+    });
     setNewGroupName("");
     setNewGroupDesc("");
+    setIsPublic(true);
     setIsGroupDialogOpen(false);
     setLoading(false);
   };
@@ -250,6 +263,18 @@ function SocialContent() {
                 <Label htmlFor="group-desc">Description</Label>
                 <Textarea id="group-desc" placeholder="What is this group about?" value={newGroupDesc} onChange={(e) => setNewGroupDesc(e.target.value)} />
               </div>
+              <div className="flex items-center justify-between p-3 border rounded-xl">
+                <div className="space-y-0.5">
+                  <Label className="flex items-center gap-2">
+                    {isPublic ? <Globe className="h-4 w-4 text-primary" /> : <Lock className="h-4 w-4 text-accent" />}
+                    {isPublic ? "Public Group" : "Private Group"}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {isPublic ? "Anyone can find and join." : "Invite-only. Requires link or email."}
+                  </p>
+                </div>
+                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+              </div>
             </div>
             <DialogFooter>
               <Button onClick={handleCreateGroup} disabled={loading || !newGroupName}>
@@ -317,95 +342,54 @@ function SocialContent() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="groups" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {isGroupsLoading ? (
-              <div className="col-span-full flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-            ) : groups && groups.length > 0 ? (
-              groups.map((group) => {
-                const isMember = group.members?.includes(user?.uid);
-                const isOwner = group.ownerId === user?.uid;
-                return (
-                  <Card key={group.id} className="border-none shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="font-headline text-xl truncate">{group.name}</CardTitle>
-                        {isOwner && <Badge className="bg-primary/10 text-primary border-none">OWNER</Badge>}
-                      </div>
-                      <CardDescription className="line-clamp-2 min-h-[40px]">{group.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{group.members?.length || 0} Members</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="border-t bg-muted/5 p-4 flex flex-wrap gap-2">
-                      {isMember ? (
-                        <div className="flex w-full gap-2">
-                          <Button variant="outline" className="flex-1" onClick={() => handleLeaveGroup(group.id)}>
-                            <DoorOpen className="h-4 w-4 mr-2" /> Leave
-                          </Button>
-                          <Button variant="secondary" className="flex-1" onClick={() => copyInviteLink(group.id)}>
-                            <LinkIcon className="h-4 w-4 mr-2" /> Link
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button className="flex-1 bg-primary" onClick={() => handleJoinGroup(group.id)}>
-                          <UserPlus className="h-4 w-4 mr-2" /> Join Group
-                        </Button>
-                      )}
-                      
-                      {isOwner && (
-                        <div className="flex w-full gap-2 mt-2">
-                          <Dialog open={invitingGroupId === group.id} onOpenChange={(open) => setInvitingGroupId(open ? group.id : null)}>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/10">
-                                <MailPlus className="h-4 w-4 mr-2" /> Invite Email
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Add Member to {group.name}</DialogTitle>
-                                <DialogDescription>Enter the email address of the user you'd like to add.</DialogDescription>
-                              </DialogHeader>
-                              <div className="py-4">
-                                <Label htmlFor="invite-email">User Email</Label>
-                                <Input 
-                                  id="invite-email" 
-                                  type="email" 
-                                  placeholder="user@example.com" 
-                                  value={inviteEmail} 
-                                  onChange={(e) => setInviteEmail(e.target.value)} 
-                                />
-                              </div>
-                              <DialogFooter>
-                                <Button 
-                                  onClick={() => handleAddMemberByEmail(group.id)} 
-                                  disabled={loading || !inviteEmail}
-                                >
-                                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Group"}
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          
-                          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGroup(group.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </CardFooter>
-                  </Card>
-                );
-              })
-            ) : (
-              <div className="col-span-full text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
-                <Users className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-bold">No groups found</h3>
-                <p className="text-muted-foreground mt-2">Be the first to create a fitness community!</p>
-              </div>
-            )}
+        <TabsContent value="groups" className="mt-6 space-y-8">
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-500" /> My Groups
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {isGroupsLoading ? (
+                <div className="col-span-full flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+              ) : myGroups.length > 0 ? (
+                myGroups.map((group) => (
+                  <GroupCard 
+                    key={group.id} 
+                    group={group} 
+                    user={user} 
+                    onLeave={handleLeaveGroup} 
+                    onDelete={handleDeleteGroup} 
+                    onCopyLink={copyInviteLink} 
+                    onInviteClick={(id) => setInvitingGroupId(id)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 bg-muted/10 rounded-xl border border-dashed">
+                  <p className="text-sm text-muted-foreground">You haven't joined any groups yet.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <Globe className="h-5 w-5 text-primary" /> Discover Public Groups
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publicGroups.filter(g => !g.members?.includes(user?.uid)).length > 0 ? (
+                publicGroups.filter(g => !g.members?.includes(user?.uid)).map((group) => (
+                  <GroupCard 
+                    key={group.id} 
+                    group={group} 
+                    user={user} 
+                    onJoin={handleJoinGroup}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 bg-muted/10 rounded-xl border border-dashed">
+                  <p className="text-sm text-muted-foreground">No other public groups found.</p>
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
 
@@ -459,7 +443,98 @@ function SocialContent() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Invite Dialog */}
+      <Dialog open={!!invitingGroupId} onOpenChange={(open) => !open && setInvitingGroupId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Member to Group</DialogTitle>
+            <DialogDescription>Enter the email address of the user you'd like to add.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="invite-email">User Email</Label>
+            <Input 
+              id="invite-email" 
+              type="email" 
+              placeholder="user@example.com" 
+              value={inviteEmail} 
+              onChange={(e) => setInviteEmail(e.target.value)} 
+            />
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={() => invitingGroupId && handleAddMemberByEmail(invitingGroupId)} 
+              disabled={loading || !inviteEmail}
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Group"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function GroupCard({ group, user, onJoin, onLeave, onDelete, onCopyLink, onInviteClick }: any) {
+  const isMember = group.members?.includes(user?.uid);
+  const isOwner = group.ownerId === user?.uid;
+
+  return (
+    <Card className="border-none shadow-sm flex flex-col hover:shadow-md transition-shadow">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <CardTitle className="font-headline text-xl truncate">{group.name}</CardTitle>
+          <div className="flex flex-col items-end gap-1">
+            {isOwner && <Badge className="bg-primary/10 text-primary border-none">OWNER</Badge>}
+            <Badge variant="outline" className="text-[10px] h-4">
+              {group.isPublic ? <Globe className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+              {group.isPublic ? "Public" : "Private"}
+            </Badge>
+          </div>
+        </div>
+        <CardDescription className="line-clamp-2 min-h-[40px]">{group.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Users className="h-4 w-4" />
+          <span>{group.members?.length || 0} Members</span>
+        </div>
+      </CardContent>
+      <CardFooter className="border-t bg-muted/5 p-4 flex flex-wrap gap-2">
+        {isMember ? (
+          <div className="flex w-full gap-2">
+            {!isOwner && (
+              <Button variant="outline" className="flex-1" onClick={() => onLeave(group.id)}>
+                <DoorOpen className="h-4 w-4 mr-2" /> Leave
+              </Button>
+            )}
+            <Button variant="secondary" className="flex-1" onClick={() => onCopyLink(group.id)}>
+              <LinkIcon className="h-4 w-4 mr-2" /> Link
+            </Button>
+          </div>
+        ) : (
+          <Button className="flex-1 bg-primary" onClick={() => onJoin(group.id)}>
+            <UserPlus className="h-4 w-4 mr-2" /> Join Group
+          </Button>
+        )}
+        
+        {isOwner && (
+          <div className="flex w-full gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              className="flex-1 border-primary text-primary hover:bg-primary/10"
+              onClick={() => onInviteClick(group.id)}
+            >
+              <MailPlus className="h-4 w-4 mr-2" /> Invite
+            </Button>
+            
+            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => onDelete(group.id)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </CardFooter>
+    </Card>
   );
 }
 
