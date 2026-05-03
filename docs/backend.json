@@ -49,10 +49,16 @@
           "description": "Timestamp of the last logged workout or meal."
         },
         "weight": {
-          "type": "number"
+          "type": "number",
+          "description": "Current weight in lbs or kg."
         },
         "height": {
-          "type": "number"
+          "type": "number",
+          "description": "Current height in inches or cm."
+        },
+        "age": {
+          "type": "number",
+          "description": "User's age in years."
         },
         "settings": {
           "type": "object",
@@ -109,6 +115,9 @@
         "notes": { "type": "string" },
         "estimatedCaloriesBurned": { "type": "number" },
         "type": { "type": "string" },
+        "steps": { "type": "number", "description": "Number of steps taken during session." },
+        "heartRate": { "type": "number", "description": "Average heart rate in bpm." },
+        "distance": { "type": "number", "description": "Distance covered in miles or km." },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "userId", "sessionDateTime", "durationMinutes", "type", "createdAt"]
@@ -121,7 +130,7 @@
         "id": { "type": "string" },
         "userId": { "type": "string" },
         "name": { "type": "string" },
-        "category": { "type": "string" },
+        "category": { "type": "string", "enum": ["Steps", "Weight Loss", "Calories", "Activity", "Cardio", "Strength"] },
         "targetValue": { "type": "number" },
         "currentValue": { "type": "number" },
         "targetUnit": { "type": "string" },

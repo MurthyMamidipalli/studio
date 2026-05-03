@@ -16,7 +16,9 @@ import {
   Loader2,
   Trash2,
   Share2,
-  Calendar as CalendarIcon
+  Heart,
+  MapPin,
+  Clock
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,18 +31,22 @@ import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp } fr
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
 const cardioSchema = z.object({
   name: z.string().min(1, "Workout name is required"),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
-  distance: z.coerce.number().min(0, "Distance cannot be negative"),
+  distance: z.coerce.number().min(0, "Distance cannot be negative").optional(),
+  steps: z.coerce.number().min(0, "Steps cannot be negative").optional(),
+  heartRate: z.coerce.number().min(0, "Heart rate cannot be negative").optional(),
   calories: z.coerce.number().min(0, "Calories cannot be negative"),
 });
 
 const strengthSchema = z.object({
   name: z.string().min(1, "Workout name is required"),
+  duration: z.coerce.number().min(1).default(45),
+  heartRate: z.coerce.number().min(0).optional(),
   exercises: z.array(z.object({
     name: z.string().min(1, "Exercise name is required"),
     sets: z.coerce.number().min(1, "At least 1 set"),
@@ -78,12 +84,12 @@ export default function WorkoutsPage() {
 
   const cardioForm = useForm<CardioFormValues>({
     resolver: zodResolver(cardioSchema),
-    defaultValues: { name: "", duration: 0, distance: 0, calories: 0 },
+    defaultValues: { name: "", duration: 0, distance: 0, steps: 0, heartRate: 0, calories: 0 },
   });
 
   const strengthForm = useForm<StrengthFormValues>({
     resolver: zodResolver(strengthSchema),
-    defaultValues: { name: "", exercises: [{ name: "", sets: 1, reps: 10, weight: 0 }] },
+    defaultValues: { name: "", duration: 45, heartRate: 0, exercises: [{ name: "", sets: 1, reps: 10, weight: 0 }] },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -142,6 +148,9 @@ export default function WorkoutsPage() {
       durationMinutes: values.duration,
       notes: values.name,
       estimatedCaloriesBurned: values.calories,
+      steps: values.steps || 0,
+      heartRate: values.heartRate || 0,
+      distance: values.distance || 0,
       type: "Cardio",
       createdAt: serverTimestamp(),
     }, { merge: true });
@@ -160,9 +169,10 @@ export default function WorkoutsPage() {
       id: sessionId,
       userId: user.uid,
       sessionDateTime: Timestamp.now(),
-      durationMinutes: 45, 
+      durationMinutes: values.duration, 
       notes: values.name,
       estimatedCaloriesBurned: totalReps * 0.5,
+      heartRate: values.heartRate || 0,
       type: "Strength",
       createdAt: serverTimestamp(),
     }, { merge: true });
@@ -188,11 +198,11 @@ export default function WorkoutsPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-headline font-bold text-primary">Workout Log</h1>
-          <p className="text-muted-foreground">Keep your streak alive and earn more XP.</p>
+          <p className="text-muted-foreground">Record your activity and track your performance gains.</p>
         </div>
         <Button onClick={() => setActiveTab("log")} className="bg-accent text-accent-foreground hover:bg-accent/90">
           <Plus className="h-4 w-4 mr-2" /> New Workout
@@ -218,7 +228,9 @@ export default function WorkoutsPage() {
                       date={workout.sessionDateTime instanceof Timestamp ? workout.sessionDateTime.toDate().toLocaleDateString() : "Today"} 
                       name={workout.notes || "Workout"} 
                       type={workout.type} 
-                      stats={`${workout.durationMinutes} mins • ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal`} 
+                      stats={`${workout.durationMinutes}m • ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal`} 
+                      extra={workout.steps ? `${workout.steps} steps` : workout.distance ? `${workout.distance} mi` : undefined}
+                      hr={workout.heartRate}
                       onDelete={() => handleDelete(workout.id)}
                       onShare={() => handleShare(workout)}
                     />
@@ -234,7 +246,7 @@ export default function WorkoutsPage() {
         <TabsContent value="log" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="border-none shadow-sm">
-              <CardHeader><CardTitle>Cardio (+50 XP)</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Footprints className="h-5 w-5 text-accent" /> Cardio Log</CardTitle></CardHeader>
               <CardContent>
                 <Form {...cardioForm}>
                   <form onSubmit={cardioForm.handleSubmit(onCardioSubmit)} className="space-y-4">
@@ -246,45 +258,68 @@ export default function WorkoutsPage() {
                         <FormItem><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={cardioForm.control} name="calories" render={({ field }) => (
-                        <FormItem><FormLabel>Calories</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Calories Burned</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={cardioForm.control} name="distance" render={({ field }) => (
+                        <FormItem><FormLabel>Distance (mi)</FormLabel><FormControl><Input type="number" step="0.1" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={cardioForm.control} name="steps" render={({ field }) => (
+                        <FormItem><FormLabel>Steps</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={cardioForm.control} name="heartRate" render={({ field }) => (
+                        <FormItem><FormLabel>Avg Heart Rate</FormLabel><FormControl><Input type="number" placeholder="bpm" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                     </div>
-                    <Button type="submit" className="w-full"><Footprints className="h-4 w-4 mr-2" /> Log Session</Button>
+                    <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4 mr-2" /> Log Session</Button>
                   </form>
                 </Form>
               </CardContent>
             </Card>
 
             <Card className="border-none shadow-sm">
-              <CardHeader><CardTitle>Strength (+50 XP)</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Dumbbell className="h-5 w-5 text-primary" /> Strength Log</CardTitle></CardHeader>
               <CardContent>
                 <Form {...strengthForm}>
                   <form onSubmit={strengthForm.handleSubmit(onStrengthSubmit)} className="space-y-4">
                     <FormField control={strengthForm.control} name="name" render={({ field }) => (
-                      <FormItem><FormLabel>Session Name</FormLabel><FormControl><Input placeholder="Full Body" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Session Name</FormLabel><FormControl><Input placeholder="Upper Body" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField control={strengthForm.control} name="duration" render={({ field }) => (
+                        <FormItem><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={strengthForm.control} name="heartRate" render={({ field }) => (
+                        <FormItem><FormLabel>Avg Heart Rate</FormLabel><FormControl><Input type="number" placeholder="bpm" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                    </div>
                     <div className="space-y-4">
+                      <FormLabel>Exercises</FormLabel>
                       {fields.map((field, index) => (
-                        <div key={field.id} className="space-y-4 border rounded-lg p-4 bg-muted/30">
+                        <div key={field.id} className="space-y-3 border rounded-lg p-3 bg-muted/30 relative">
                           <FormField control={strengthForm.control} name={`exercises.${index}.name`} render={({ field }) => (
-                            <FormItem><FormControl><Input placeholder="Bench Press" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormControl><Input placeholder="Exercise Name" {...field} /></FormControl><FormMessage /></FormItem>
                           )} />
                           <div className="grid grid-cols-3 gap-2">
                             <FormField control={strengthForm.control} name={`exercises.${index}.sets`} render={({ field }) => (
-                              <FormItem><FormLabel className="text-[10px] uppercase">Sets</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormItem /></FormItem>
+                              <FormItem><FormLabel className="text-[10px] uppercase">Sets</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
                             )} />
                             <FormField control={strengthForm.control} name={`exercises.${index}.reps`} render={({ field }) => (
-                              <FormItem><FormLabel className="text-[10px] uppercase">Reps</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormItem /></FormItem>
+                              <FormItem><FormLabel className="text-[10px] uppercase">Reps</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
                             )} />
                             <FormField control={strengthForm.control} name={`exercises.${index}.weight`} render={({ field }) => (
-                              <FormItem><FormLabel className="text-[10px] uppercase">Weight</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormItem /></FormItem>
+                              <FormItem><FormLabel className="text-[10px] uppercase">Weight</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
                             )} />
                           </div>
+                          {fields.length > 1 && (
+                            <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive" onClick={() => remove(index)}>
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>
                     <Button type="button" variant="outline" className="w-full border-dashed" onClick={() => append({ name: "", sets: 1, reps: 10, weight: 0 })}>Add Exercise</Button>
-                    <Button type="submit" className="w-full"><Dumbbell className="h-4 w-4 mr-2" /> Log Strength</Button>
+                    <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90"><Plus className="h-4 w-4 mr-2" /> Log Strength</Button>
                   </form>
                 </Form>
               </CardContent>
@@ -296,16 +331,18 @@ export default function WorkoutsPage() {
   );
 }
 
-function WorkoutRow({ date, name, type, stats, onDelete, onShare }: any) {
+function WorkoutRow({ date, name, type, stats, extra, hr, onDelete, onShare }: any) {
   return (
     <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-muted/30 transition-all">
       <div className="flex items-center gap-4">
         <div>
           <p className="text-[10px] uppercase font-bold text-muted-foreground">{date}</p>
-          <p className="font-semibold">{name}</p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <p className="font-bold text-sm md:text-base">{name}</p>
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase ${type === 'Strength' ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>{type}</span>
-            <p className="text-xs text-muted-foreground">{stats}</p>
+            <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {stats}</span>
+            {extra && <span className="text-xs text-primary font-bold">• {extra}</span>}
+            {hr > 0 && <span className="text-xs text-red-500 font-bold flex items-center gap-1"><Heart className="h-3 w-3 fill-red-500" /> {hr} bpm</span>}
           </div>
         </div>
       </div>
