@@ -1,11 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, 
@@ -17,7 +16,8 @@ import {
   MoreVertical,
   ChevronDown,
   Loader2,
-  Trash2
+  Trash2,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
 import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,9 +88,11 @@ export default function WorkoutsPage() {
   const onCardioSubmit = (values: CardioFormValues) => {
     if (!db || !user?.uid) return;
 
-    const sessionId = doc(collection(db, "dummy")).id;
+    // Generate consistent IDs
+    const sessionId = doc(collection(db, "users", user.uid, "workoutSessions")).id;
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
-
+    
+    // 1. Save main session
     const sessionData = {
       id: sessionId,
       userId: user.uid,
@@ -105,8 +107,26 @@ export default function WorkoutsPage() {
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
 
-    // In a real app, we'd add nested LoggedExercise and CardioDetails here.
-    // For MVP, we've saved the primary session data.
+    // 2. Save nested LoggedExercise and CardioDetails for data integrity
+    const exerciseId = doc(collection(sessionRef, "loggedExercises")).id;
+    const exerciseRef = doc(sessionRef, "loggedExercises", exerciseId);
+    
+    setDocumentNonBlocking(exerciseRef, {
+      id: exerciseId,
+      workoutSessionId: sessionId,
+      exerciseId: "cardio-generic", // simplified
+      orderInSession: 1,
+      notes: values.name
+    }, { merge: true });
+
+    const detailsRef = doc(exerciseRef, "cardioDetails", exerciseId);
+    setDocumentNonBlocking(detailsRef, {
+      id: exerciseId,
+      loggedExerciseId: exerciseId,
+      distance: values.distance,
+      distanceUnit: "mi",
+      caloriesBurned: values.calories,
+    }, { merge: true });
 
     toast({ title: "Workout Logged", description: "Cardio session saved successfully." });
     cardioForm.reset();
@@ -116,24 +136,35 @@ export default function WorkoutsPage() {
   const onStrengthSubmit = (values: StrengthFormValues) => {
     if (!db || !user?.uid) return;
 
-    const sessionId = doc(collection(db, "dummy")).id;
+    const sessionId = doc(collection(db, "users", user.uid, "workoutSessions")).id;
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
 
-    const totalReps = values.exercises.reduce((acc, ex) => acc + (ex.sets * ex.reps), 0);
-    
     const sessionData = {
       id: sessionId,
       userId: user.uid,
       sessionDateTime: serverTimestamp(),
-      durationMinutes: 45, // Default or calculated
+      durationMinutes: 45, 
       notes: values.name,
-      estimatedCaloriesBurned: values.exercises.length * 50, // rough estimate
+      estimatedCaloriesBurned: values.exercises.length * 50,
       type: "Strength",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
+
+    // Save each exercise
+    values.exercises.forEach((ex, idx) => {
+      const exId = doc(collection(sessionRef, "loggedExercises")).id;
+      const exRef = doc(sessionRef, "loggedExercises", exId);
+      setDocumentNonBlocking(exRef, {
+        id: exId,
+        workoutSessionId: sessionId,
+        exerciseId: "strength-generic",
+        orderInSession: idx + 1,
+        notes: ex.name
+      }, { merge: true });
+    });
 
     toast({ title: "Workout Logged", description: "Strength session saved successfully." });
     strengthForm.reset();
@@ -145,6 +176,13 @@ export default function WorkoutsPage() {
     const docRef = doc(db, "users", user.uid, "workoutSessions", id);
     deleteDocumentNonBlocking(docRef);
     toast({ title: "Workout Deleted", description: "Session has been removed." });
+  };
+
+  const formatDate = (val: any) => {
+    if (!val) return "Today";
+    const date = val instanceof Timestamp ? val.toDate() : new Date(val);
+    if (isNaN(date.getTime())) return "Today";
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   return (
@@ -198,7 +236,7 @@ export default function WorkoutsPage() {
                     <WorkoutRow 
                       key={workout.id}
                       id={workout.id}
-                      date={workout.sessionDateTime ? (workout.sessionDateTime instanceof Timestamp ? workout.sessionDateTime.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : new Date(workout.sessionDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : "Today"} 
+                      date={formatDate(workout.sessionDateTime)} 
                       name={workout.notes || "Workout"} 
                       type={workout.type} 
                       stats={`${workout.durationMinutes} mins • ${workout.estimatedCaloriesBurned} kcal`} 
@@ -393,12 +431,14 @@ export default function WorkoutsPage() {
 }
 
 function WorkoutRow({ id, date, name, type, stats, onDelete }: any) {
+  const [month, day] = date.includes(' ') ? date.split(' ') : [date, ""];
+  
   return (
     <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-muted/30 transition-all cursor-pointer">
       <div className="flex items-center gap-4">
         <div className="text-center w-12 shrink-0">
-          <p className="text-[10px] uppercase font-bold text-muted-foreground">{date.split(' ')[0]}</p>
-          <p className="text-xl font-headline font-bold text-primary leading-tight">{date.split(' ')[1]}</p>
+          <p className="text-[10px] uppercase font-bold text-muted-foreground">{month}</p>
+          <p className="text-xl font-headline font-bold text-primary leading-tight">{day || <CalendarIcon className="h-4 w-4 mx-auto" />}</p>
         </div>
         <div className="h-10 w-px bg-border" />
         <div>
