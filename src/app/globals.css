@@ -31,8 +31,8 @@
     --chart-4: 165 50% 40%;
     --chart-5: 200 60% 70%;
     
-    /* High-contrast Sidebar Theme for perfect mobile visibility */
-    --sidebar-background: 200 50% 8%;
+    /* Ultra-High Contrast Sidebar Theme */
+    --sidebar-background: 200 50% 6%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 196 73% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -79,7 +79,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
