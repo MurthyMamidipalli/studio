@@ -26,7 +26,8 @@ export default function AppLayout({
 
   const profileRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
-    return doc(db, "users", user.uid, "profile");
+    // Profile is now stored directly on the user document
+    return doc(db, "users", user.uid);
   }, [db, user?.uid]);
 
   const { data: profile } = useDoc(profileRef);
