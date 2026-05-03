@@ -72,7 +72,7 @@ export default function DashboardPage() {
     let totalWorkoutsThisWeek = 0;
     let totalCaloriesThisWeek = 0;
 
-    if (workouts) {
+    if (workouts && workouts.length > 0) {
       workouts.forEach(w => {
         const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
         if (workoutDate >= startOfToday) {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
 
     // Nutrition stats
     let nutritionCaloriesToday = 0;
-    if (nutrition) {
+    if (nutrition && nutrition.length > 0) {
       nutrition.forEach(n => {
         const logDate = n.logDate instanceof Timestamp ? n.logDate.toDate() : new Date(n.logDate);
         if (logDate >= startOfToday) {
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         minutes: totalMinutesToday,
         distance: totalDistanceToday.toFixed(1),
         weeklyWorkouts: totalWorkoutsThisWeek,
-        nutritionCalories: nutritionCaloriesToday
+        nutritionCalories: Math.round(nutritionCaloriesToday)
       },
       recent: workouts ? workouts.slice(0, 3) : []
     };
