@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -64,12 +65,12 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="border-r bg-sidebar text-sidebar-foreground">
-      <SidebarHeader className="p-4 sm:p-6">
+      <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
           <div className="bg-primary p-2 rounded-xl">
             <Activity className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="font-headline font-bold text-xl tracking-tight">
+          <span className="font-headline font-bold text-xl tracking-tight text-white">
             FitStride
           </span>
         </div>
@@ -82,14 +83,14 @@ export function AppSidebar() {
                 asChild 
                 isActive={pathname === item.href}
                 tooltip={item.label}
-                className={`flex items-center gap-3 py-6 px-4 rounded-xl transition-colors ${
+                className={`flex items-center gap-3 py-6 px-4 rounded-xl transition-all ${
                   pathname === item.href 
-                    ? 'bg-primary text-primary-foreground font-bold' 
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    ? 'bg-primary text-white font-bold shadow-lg scale-105' 
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-white'
                 }`}
               >
                 <Link href={item.href}>
-                  <item.icon className={`h-5 w-5 ${pathname === item.href ? 'text-primary-foreground' : 'text-sidebar-foreground/70'}`} />
+                  <item.icon className={`h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-sidebar-foreground/70'}`} />
                   <span className="text-base">{item.label}</span>
                 </Link>
               </SidebarMenuButton>
@@ -97,14 +98,14 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarSeparator className="my-4 opacity-10" />
+      <SidebarSeparator className="my-4 opacity-10 bg-white" />
       <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Logout" 
               onClick={handleLogout}
-              className="flex items-center gap-3 py-6 px-4 rounded-xl text-sidebar-foreground/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="flex items-center gap-3 py-6 px-4 rounded-xl text-sidebar-foreground/80 hover:bg-destructive/20 hover:text-red-400 transition-colors"
             >
               <LogOut className="h-5 w-5" />
               <span className="text-base">Logout</span>
