@@ -396,7 +396,10 @@ function SocialContent() {
       {/* Invite Modal */}
       <Dialog open={!!invitingGroupId} onOpenChange={o => !o && setInvitingGroupId(null)}>
         <DialogContent className="rounded-2xl">
-          <DialogHeader><DialogTitle>Invite Member</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Invite Member</DialogTitle>
+            <DialogDescription>Add a friend to your group or share a link.</DialogDescription>
+          </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">User Email</Label>
@@ -422,7 +425,10 @@ function SocialContent() {
       {/* Review Requests Modal */}
       <Dialog open={!!reviewGroupId} onOpenChange={o => !o && setReviewGroupId(null)}>
         <DialogContent className="max-w-md rounded-2xl">
-          <DialogHeader><DialogTitle className="font-headline">Review Join Requests</DialogTitle><DialogDescription>Applicants for "{reviewGroup?.name}"</DialogDescription></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="font-headline">Review Join Requests</DialogTitle>
+            <DialogDescription>Review applicants for "{reviewGroup?.name}"</DialogDescription>
+          </DialogHeader>
           <ScrollArea className="max-h-[400px] mt-4">
             <div className="space-y-4 pr-4">
               {pendingUsers.length > 0 ? pendingUsers.map(u => (
