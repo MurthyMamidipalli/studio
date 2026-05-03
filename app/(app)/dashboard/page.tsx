@@ -11,11 +11,10 @@ import {
   TrendingUp, 
   Calendar,
   ChevronRight,
-  Target,
+  Trophy,
   Loader2,
   Apple,
-  Star,
-  Trophy
+  Star
 } from "lucide-react";
 import { 
   BarChart, 
@@ -149,25 +148,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-headline font-bold text-primary">Dashboard</h1>
-          <p className="text-muted-foreground">Keep pushing toward your fitness milestones.</p>
+          <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Keep pushing toward your fitness milestones.</p>
         </div>
-        <div className="flex items-center gap-4">
-           <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
-              <Star className="h-5 w-5 text-primary fill-primary" />
-              <span className="font-bold text-primary">{profile?.points || 0} XP</span>
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0">
+           <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0">
+              <Star className="h-4 w-4 md:h-5 md:w-5 text-primary fill-primary" />
+              <span className="font-bold text-sm md:text-base text-primary">{profile?.points || 0} XP</span>
            </div>
-           <div className="flex items-center gap-2 bg-orange-500/10 px-4 py-2 rounded-full">
-              <Flame className="h-5 w-5 text-orange-500 fill-orange-500" />
-              <span className="font-bold text-orange-500">{profile?.currentStreak || 0} Day Streak</span>
+           <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0">
+              <Flame className="h-4 w-4 md:h-5 md:w-5 text-orange-500 fill-orange-500" />
+              <span className="font-bold text-sm md:text-base text-orange-500">{profile?.currentStreak || 0} Day Streak</span>
            </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <MetricCard title="Daily Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
         <MetricCard title="Calories In" value={processedData.metrics.nutritionCalories} unit="kcal" icon={Apple} color="text-green-500" />
         <MetricCard title="Active Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
@@ -180,14 +179,14 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-lg">Weekly Activity</CardTitle>
             <CardDescription>Calories burned over the last 7 days</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6">
-            <div className="h-[300px] w-full">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-[250px] md:h-[300px] w-full">
               <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full aspect-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickLine={false} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={12} />
+                    <YAxis axisLine={false} tickLine={false} fontSize={12} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar dataKey="calories" fill="var(--color-calories)" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -197,7 +196,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none">
+        <Card className="shadow-sm border-none bg-card">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-500" /> Achievements
@@ -206,7 +205,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-6">
             <div className="text-center py-2">
                <p className="text-sm text-muted-foreground mb-4">You have earned {profile?.earnedBadges?.length || 0} badges so far.</p>
-               <Link href="/achievements">
+               <Link href="/achievements" className="w-full">
                   <Button variant="outline" className="w-full">View My Trophies</Button>
                </Link>
             </div>
@@ -235,7 +234,7 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-8">
                 <p className="text-muted-foreground text-sm">No activity recorded yet.</p>
-                <Link href="/workouts" className="text-xs text-primary font-bold mt-2 inline-block">Start your journey</Link>
+                <Link href="/workouts" className="text-xs text-primary font-bold mt-2 inline-block hover:underline">Start your journey</Link>
               </div>
             )}
           </CardContent>
@@ -250,9 +249,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground">Log your meals to maintain your streak and earn points for healthy choices.</p>
+               <p className="text-sm text-muted-foreground leading-relaxed">Log your meals to maintain your streak and earn points for healthy choices.</p>
                <Link href="/nutrition">
-                  <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                  <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">
                     Go to Nutrition Tracker <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                </Link>
@@ -266,18 +265,18 @@ export default function DashboardPage() {
 
 function MetricCard({ title, value, unit, icon: Icon, color }: any) {
   return (
-    <Card className="shadow-sm border-none overflow-hidden">
-      <CardContent className="p-6">
+    <Card className="shadow-sm border-none overflow-hidden hover:shadow-md transition-shadow">
+      <CardContent className="p-5 md:p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className={`p-2 rounded-lg bg-background ${color}`}>
-            <Icon className="h-6 w-6" />
+          <div className={`p-2 rounded-lg bg-background ${color} shadow-sm`}>
+            <Icon className="h-5 w-5 md:h-6 md:w-6" />
           </div>
         </div>
         <div>
           <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-headline font-bold">{value}</span>
-            <span className="text-sm text-muted-foreground">{unit}</span>
+            <span className="text-xl md:text-2xl font-headline font-bold">{value}</span>
+            <span className="text-xs md:text-sm text-muted-foreground">{unit}</span>
           </div>
         </div>
       </CardContent>
@@ -288,28 +287,28 @@ function MetricCard({ title, value, unit, icon: Icon, color }: any) {
 function GoalProgress({ title, progress, current, target, unit }: any) {
   return (
     <div className="space-y-2">
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs md:text-sm">
         <span className="font-medium">{title}</span>
         <span className="text-muted-foreground">{current}/{target} {unit}</span>
       </div>
-      <Progress value={progress} className="h-2" />
+      <Progress value={progress} className="h-1.5 md:h-2" />
     </div>
   );
 }
 
 function RecentWorkoutItem({ type, name, time, result }: any) {
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50">
       <div className="flex items-center gap-3">
-        <div className={`w-2 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
+        <div className={`w-1.5 h-8 md:h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
         <div>
-          <p className="font-medium text-sm truncate max-w-[120px]">{name}</p>
+          <p className="font-medium text-sm truncate max-w-[100px] sm:max-w-[150px]">{name}</p>
           <p className="text-[10px] text-muted-foreground">{time}</p>
         </div>
       </div>
       <div className="text-right">
         <p className="text-xs font-semibold">{result}</p>
-        <p className="text-[10px] text-muted-foreground uppercase">{type}</p>
+        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">{type}</p>
       </div>
     </div>
   );

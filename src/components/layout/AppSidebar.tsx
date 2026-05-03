@@ -64,40 +64,47 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="p-4 flex items-center gap-2">
-        <div className="bg-primary p-2 rounded-lg">
-          <Activity className="h-6 w-6 text-primary-foreground" />
+    <Sidebar collapsible="offcanvas" side="left" className="border-r">
+      <SidebarHeader className="p-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
+            <Activity className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <span className="font-headline font-bold text-xl tracking-tight text-primary">
+            FitStride
+          </span>
         </div>
-        <span className="font-headline font-bold text-xl group-data-[collapsible=icon]:hidden">
-          FitStride
-        </span>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu className="px-2">
+      <SidebarContent className="px-3">
+        <SidebarMenu className="gap-2">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton 
                 asChild 
                 isActive={pathname === item.href}
                 tooltip={item.label}
+                className={`transition-all duration-200 py-6 ${pathname === item.href ? 'bg-primary/10 text-primary hover:bg-primary/15' : 'hover:bg-muted'}`}
               >
-                <Link href={item.href}>
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
+                <Link href={item.href} className="flex items-center gap-4">
+                  <item.icon className={`h-5 w-5 ${pathname === item.href ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-medium">{item.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarSeparator />
+      <SidebarSeparator className="my-4 opacity-50" />
       <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
+            <SidebarMenuButton 
+              tooltip="Logout" 
+              onClick={handleLogout}
+              className="hover:bg-destructive/10 hover:text-destructive text-muted-foreground py-6"
+            >
               <LogOut className="h-5 w-5" />
-              <span>Logout</span>
+              <span className="font-medium">Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
