@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useUser, useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
 import { collection, query, orderBy, limit, doc, arrayUnion, serverTimestamp, arrayRemove, where, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -21,13 +21,15 @@ import {
   Star,
   CheckCircle2,
   Plus,
-  Search,
   UserPlus,
   DoorOpen,
   Trash2,
-  MailPlus
+  MailPlus,
+  Share2,
+  Link as LinkIcon
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -38,10 +40,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function SocialPage() {
+function SocialContent() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
   const [activeTab, setActiveTab] = useState("leaderboard");
   const [mounted, setMounted] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
@@ -79,6 +84,26 @@ export default function SocialPage() {
   const { data: leaderboard, isLoading: isLeaderboardLoading } = useCollection(leaderboardQuery);
   const { data: challenges, isLoading: isChallengesLoading } = useCollection(challengesQuery);
   const { data: groups, isLoading: isGroupsLoading } = useCollection(groupsQuery);
+
+  // Handle joining via link
+  useEffect(() => {
+    const joinId = searchParams.get("join");
+    if (joinId && user && db && mounted) {
+      const groupRef = doc(db, "groups", joinId);
+      updateDocumentNonBlocking(groupRef, {
+        members: arrayUnion(user.uid)
+      });
+      toast({
+        title: "Joined via link!",
+        description: "You've been added to the group.",
+      });
+      // Clean up URL
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete("join");
+      router.replace(`/social?${newParams.toString()}`);
+      setActiveTab("groups");
+    }
+  }, [searchParams, user, db, mounted, router, toast]);
 
   const handleJoinChallenge = (challengeId: string) => {
     if (!db || !user?.uid) return;
@@ -177,6 +202,16 @@ export default function SocialPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const copyInviteLink = (groupId: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const link = `${origin}/social?join=${groupId}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Invite Link Copied!",
+      description: "Send this link to friends to let them join the group.",
+    });
   };
 
   if (!mounted) {
@@ -307,9 +342,14 @@ export default function SocialPage() {
                     </CardContent>
                     <CardFooter className="border-t bg-muted/5 p-4 flex flex-wrap gap-2">
                       {isMember ? (
-                        <Button variant="outline" className="flex-1" onClick={() => handleLeaveGroup(group.id)}>
-                          <DoorOpen className="h-4 w-4 mr-2" /> Leave
-                        </Button>
+                        <div className="flex w-full gap-2">
+                          <Button variant="outline" className="flex-1" onClick={() => handleLeaveGroup(group.id)}>
+                            <DoorOpen className="h-4 w-4 mr-2" /> Leave
+                          </Button>
+                          <Button variant="secondary" className="flex-1" onClick={() => copyInviteLink(group.id)}>
+                            <LinkIcon className="h-4 w-4 mr-2" /> Link
+                          </Button>
+                        </div>
                       ) : (
                         <Button className="flex-1 bg-primary" onClick={() => handleJoinGroup(group.id)}>
                           <UserPlus className="h-4 w-4 mr-2" /> Join Group
@@ -317,11 +357,11 @@ export default function SocialPage() {
                       )}
                       
                       {isOwner && (
-                        <>
+                        <div className="flex w-full gap-2 mt-2">
                           <Dialog open={invitingGroupId === group.id} onOpenChange={(open) => setInvitingGroupId(open ? group.id : null)}>
                             <DialogTrigger asChild>
-                              <Button variant="secondary" className="flex-1">
-                                <MailPlus className="h-4 w-4 mr-2" /> Invite
+                              <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/10">
+                                <MailPlus className="h-4 w-4 mr-2" /> Invite Email
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
@@ -353,7 +393,7 @@ export default function SocialPage() {
                           <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGroup(group.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                        </>
+                        </div>
                       )}
                     </CardFooter>
                   </Card>
@@ -423,3 +463,14 @@ export default function SocialPage() {
   );
 }
 
+export default function SocialPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <SocialContent />
+    </Suspense>
+  );
+}
