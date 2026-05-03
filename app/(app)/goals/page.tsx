@@ -58,7 +58,6 @@ export default function GoalsPage() {
     setMounted(true);
   }, []);
 
-  // Form State
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Activity");
   const [target, setTarget] = useState("");
@@ -97,11 +96,7 @@ export default function GoalsPage() {
 
     setDocumentNonBlocking(goalRef, newGoal, { merge: true });
     
-    toast({
-      title: "Goal Created",
-      description: `You've set a new goal for ${title}!`,
-    });
-
+    toast({ title: "Goal Created", description: `New goal set for ${title}!` });
     setTitle("");
     setTarget("");
     setIsDialogOpen(false);
@@ -112,16 +107,12 @@ export default function GoalsPage() {
     if (!db || !user?.uid) return;
     const goalRef = doc(db, "users", user.uid, "fitnessGoals", id);
     deleteDocumentNonBlocking(goalRef);
-    toast({
-      title: "Goal Deleted",
-      description: "The goal has been removed.",
-    });
+    toast({ title: "Goal Deleted" });
   };
 
   const stats = useMemo(() => {
     if (!goals || goals.length === 0) return { success: 0, active: 0, topCategory: "None" };
-    const completed = goals.filter(g => g.status === "Completed" || (g.currentValue / g.targetValue >= 1)).length;
-    
+    const completed = goals.filter(g => g.status === "Completed" || (g.currentValue >= g.targetValue)).length;
     const categories = goals.map(g => g.category);
     const mostFrequent = categories.sort((a,b) =>
       categories.filter(v => v===a).length - categories.filter(v => v===b).length
@@ -129,31 +120,37 @@ export default function GoalsPage() {
 
     return {
       success: Math.round((completed / goals.length) * 100),
-      active: goals.filter(g => g.status === "In Progress" && (g.currentValue / g.targetValue < 1)).length,
+      active: goals.filter(g => g.status === "In Progress" && (g.currentValue < g.targetValue)).length,
       topCategory: mostFrequent || "None"
     };
   }, [goals]);
 
-  if (!mounted) return null;
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-headline font-bold text-primary">Fitness Goals</h1>
-          <p className="text-muted-foreground">Set new milestones and track your journey to success.</p>
+          <p className="text-muted-foreground">Set new milestones and track your journey.</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" /> Set New Goal
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Fitness Goal</DialogTitle>
-              <DialogDescription>Define what you want to achieve.</DialogDescription>
+              <DialogTitle>New Fitness Goal</DialogTitle>
+              <DialogDescription>What do you want to achieve?</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -164,9 +161,7 @@ export default function GoalsPage() {
                 <div className="grid gap-2">
                   <Label>Category</Label>
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Cardio">Cardio</SelectItem>
                       <SelectItem value="Strength">Strength</SelectItem>
@@ -178,9 +173,7 @@ export default function GoalsPage() {
                 <div className="grid gap-2">
                   <Label>Unit</Label>
                   <Select value={unit} onValueChange={setUnit}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="miles">Miles</SelectItem>
                       <SelectItem value="sessions">Sessions</SelectItem>
@@ -206,57 +199,33 @@ export default function GoalsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-primary/5 border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-yellow-500" /> Success Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-headline font-bold">{stats.success}%</p>
-            <p className="text-xs text-muted-foreground mt-1">Completion rate</p>
-          </CardContent>
+        <Card className="bg-primary/5 border-none shadow-sm p-6">
+           <Trophy className="h-4 w-4 text-yellow-500 mb-2" />
+           <p className="text-3xl font-headline font-bold">{stats.success}%</p>
+           <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
         </Card>
-        <Card className="bg-accent/5 border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Target className="h-4 w-4 text-accent" /> Active Goals
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-headline font-bold">{stats.active}</p>
-            <p className="text-xs text-muted-foreground mt-1">Currently in progress</p>
-          </CardContent>
+        <Card className="bg-accent/5 border-none shadow-sm p-6">
+           <Target className="h-4 w-4 text-accent mb-2" />
+           <p className="text-3xl font-headline font-bold">{stats.active}</p>
+           <p className="text-xs text-muted-foreground mt-1">Active Pursuits</p>
         </Card>
-        <Card className="bg-purple-500/5 border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-purple-500" /> Focus Category
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-headline font-bold">{stats.topCategory}</p>
-            <p className="text-xs text-muted-foreground mt-1">Most frequent goal type</p>
-          </CardContent>
+        <Card className="bg-purple-500/5 border-none shadow-sm p-6">
+           <TrendingUp className="h-4 w-4 text-purple-500 mb-2" />
+           <p className="text-3xl font-headline font-bold truncate">{stats.topCategory}</p>
+           <p className="text-xs text-muted-foreground mt-1">Focus Area</p>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {isLoading ? (
-          <div className="col-span-full flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : goals && goals.length > 0 ? (
+        {goals && goals.length > 0 ? (
           goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} onDelete={() => handleDeleteGoal(goal.id)} />
           ))
         ) : (
-          <div className="col-span-full text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed">
+          <div className="col-span-full text-center py-20 bg-muted/10 rounded-2xl border-2 border-dashed">
             <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-bold">No active goals found</h3>
-            <p className="text-muted-foreground max-w-xs mx-auto mt-2">
-              Your goals list is currently empty. Start tracking your fitness milestones today!
-            </p>
+            <h3 className="text-lg font-bold">No goals set yet</h3>
+            <p className="text-muted-foreground max-w-xs mx-auto mt-2">Start your journey by defining your first fitness target above!</p>
           </div>
         )}
       </div>
@@ -271,39 +240,20 @@ function GoalCard({ goal, onDelete }: any) {
   const isCompleted = goal.status === "Completed" || percentage >= 100;
 
   return (
-    <Card className={`border-none shadow-sm overflow-hidden transition-all hover:shadow-md ${isCompleted ? 'bg-accent/5' : 'bg-card'}`}>
+    <Card className={`border-none shadow-sm overflow-hidden ${isCompleted ? 'bg-accent/5' : 'bg-card'}`}>
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
-          <Badge variant={isCompleted ? "default" : "secondary"} className={isCompleted ? "bg-accent text-accent-foreground border-none" : "bg-primary/10 text-primary border-none"}>
-            {goal.category}
-          </Badge>
+          <Badge variant={isCompleted ? "default" : "secondary"} className={isCompleted ? "bg-accent text-accent-foreground" : "bg-primary/10 text-primary"}>{goal.category}</Badge>
           <CardTitle className="font-headline text-xl mt-2">{goal.name}</CardTitle>
-          <CardDescription>Target: {target} {goal.targetUnit}</CardDescription>
+          <CardDescription>Goal: {target} {goal.targetUnit}</CardDescription>
         </div>
-        <div className="flex gap-2">
-          {isCompleted ? (
-            <CheckCircle2 className="h-8 w-8 text-accent shrink-0" />
-          ) : (
-            <Circle className="h-8 w-8 text-muted shrink-0" />
-          )}
-        </div>
+        {isCompleted ? <CheckCircle2 className="h-8 w-8 text-accent" /> : <Circle className="h-8 w-8 text-muted" />}
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm font-medium">
-            <span>Progress</span>
-            <span>{percentage}%</span>
-          </div>
-          <Progress value={percentage} className={`h-3 ${isCompleted ? 'bg-accent/20' : ''}`} />
-        </div>
+        <Progress value={percentage} className="h-3" />
         <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-headline font-bold text-primary">{current}</span>
-            <span className="text-sm text-muted-foreground">{goal.targetUnit} achieved</span>
-          </div>
-          <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 mr-1" /> Delete
-          </Button>
+          <p className="text-2xl font-headline font-bold text-primary">{current} <span className="text-sm font-normal text-muted-foreground">{goal.targetUnit}</span></p>
+          <Button variant="ghost" size="sm" className="text-destructive" onClick={onDelete}><Trash2 className="h-4 w-4" /></Button>
         </div>
       </CardContent>
     </Card>
