@@ -26,9 +26,11 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useAuth } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -41,11 +43,15 @@ const navItems = [
   { icon: User, label: "Profile", href: "/profile" },
 ];
 
+const SIDEBAR_WIDTH_MOBILE = "18rem";
+
 export function AppSidebar() {
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [openMobile, setOpenMobile] = React.useState(false);
 
   const handleLogout = async () => {
     try {
@@ -64,8 +70,8 @@ export function AppSidebar() {
     }
   };
 
-  return (
-    <Sidebar collapsible="offcanvas" side="left" className="bg-sidebar border-r border-sidebar-border shadow-xl">
+  const SidebarInner = (
+    <div className="flex h-full w-full flex-col bg-sidebar">
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
           <div className="bg-primary p-2 rounded-xl shadow-lg shrink-0">
@@ -76,7 +82,7 @@ export function AppSidebar() {
           </span>
         </div>
       </SidebarHeader>
-      <SidebarContent className="px-3 mt-4 overflow-hidden">
+      <SidebarContent className="px-3 mt-4 overflow-hidden flex-1">
         <ScrollArea className="h-full">
           <SidebarMenu className="gap-2 pb-4">
             {navItems.map((item) => (
@@ -85,14 +91,15 @@ export function AppSidebar() {
                   asChild 
                   isActive={pathname === item.href}
                   tooltip={item.label}
+                  onClick={() => isMobile && setOpenMobile(false)}
                   className={`flex items-center gap-3 py-6 px-4 rounded-xl transition-all duration-200 ${
                     pathname === item.href 
                       ? 'bg-primary text-primary-foreground font-bold shadow-lg scale-[1.02] hover:bg-primary/90' 
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                   }`}
                 >
                   <Link href={item.href}>
-                    <item.icon className={`h-5 w-5 shrink-0 ${pathname === item.href ? 'text-primary-foreground' : 'text-sidebar-foreground/60'}`} />
+                    <item.icon className={`h-5 w-5 shrink-0 ${pathname === item.href ? 'text-primary-foreground' : 'text-sidebar-foreground'}`} />
                     <span className="text-base font-medium truncate">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -108,7 +115,7 @@ export function AppSidebar() {
             <SidebarMenuButton 
               tooltip="Logout" 
               onClick={handleLogout}
-              className="flex items-center gap-3 py-6 px-4 rounded-xl text-sidebar-foreground/70 hover:bg-destructive/20 hover:text-destructive transition-all"
+              className="flex items-center gap-3 py-6 px-4 rounded-xl text-sidebar-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
             >
               <LogOut className="h-5 w-5 shrink-0" />
               <span className="text-base font-medium truncate">Logout</span>
@@ -116,6 +123,30 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+        <SheetContent
+          side="left"
+          className="p-0 border-none bg-sidebar w-[--sidebar-width]"
+          style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties}
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetDescription>Access your fitness dashboard and logs</SheetDescription>
+          </SheetHeader>
+          {SidebarInner}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Sidebar collapsible="offcanvas" side="left" className="bg-sidebar border-r border-sidebar-border shadow-xl">
+      {SidebarInner}
     </Sidebar>
   );
 }
