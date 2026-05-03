@@ -7,17 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signInAnonymously 
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,6 @@ export default function LoginPage() {
     setLoading(true);
     
     if (isSignUp) {
-      // Non-blocking signup
       createUserWithEmailAndPassword(auth, email, password)
         .catch((error: any) => {
           setLoading(false);
@@ -49,7 +49,6 @@ export default function LoginPage() {
           });
         });
     } else {
-      // Non-blocking sign-in
       signInWithEmailAndPassword(auth, email, password)
         .catch((error: any) => {
           setLoading(false);
@@ -62,16 +61,34 @@ export default function LoginPage() {
     }
   };
 
-  const handleAnonymous = () => {
-    setLoading(true);
-    signInAnonymously(auth).catch((error: any) => {
-      setLoading(false);
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
       toast({
         variant: "destructive",
-        title: "Guest Login Failed",
-        description: error.message,
+        title: "Error",
+        description: "Please enter your email address.",
       });
-    });
+      return;
+    }
+    setLoading(true);
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        setLoading(false);
+        toast({
+          title: "Reset Email Sent",
+          description: "Check your inbox for instructions to reset your password.",
+        });
+        setIsForgotPassword(false);
+      })
+      .catch((error: any) => {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      });
   };
 
   if (isUserLoading) {
@@ -90,100 +107,136 @@ export default function LoginPage() {
             <Activity className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
-          <p className="text-muted-foreground text-lg">Your journey to peak fitness starts here.</p>
+          <p className="text-muted-foreground text-lg">Your fitness journey starts here.</p>
         </div>
 
         <Card className="border-none shadow-2xl bg-card">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex items-center gap-2">
-              {isSignUp ? <UserPlus className="h-6 w-6 text-accent" /> : <LogIn className="h-6 w-6 text-accent" />}
-              {isSignUp ? "Create an Account" : "Welcome Back"}
+              {isForgotPassword ? (
+                <RefreshCcw className="h-6 w-6 text-accent" />
+              ) : isSignUp ? (
+                <UserPlus className="h-6 w-6 text-accent" />
+              ) : (
+                <LogIn className="h-6 w-6 text-accent" />
+              )}
+              {isForgotPassword ? "Reset Password" : isSignUp ? "Create an Account" : "Welcome Back"}
             </CardTitle>
             <CardDescription className="text-base">
-              {isSignUp 
+              {isForgotPassword 
+                ? "Enter your email and we'll send you a link to reset your password."
+                : isSignUp 
                 ? "Join the FitStride community today." 
                 : "Enter your credentials to access your dashboard."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAuth} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="name@example.com" 
-                    className="pl-9 h-11"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+            {isForgotPassword ? (
+              <form onSubmit={handleResetPassword} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email-reset">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="email-reset" 
+                      type="email" 
+                      placeholder="name@example.com" 
+                      className="pl-9 h-11"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-9 h-11"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <>
+                      Send Reset Link
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+                <button 
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="w-full text-sm text-muted-foreground hover:text-primary transition-colors mt-2 font-medium"
+                >
+                  Back to Login
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleAuth} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="name@example.com" 
+                      className="pl-9 h-11"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
-                {isSignUp && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Password must be at least 6 characters long.
-                  </p>
-                )}
-              </div>
-              <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
-                {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                ) : (
-                  <>
-                    {isSignUp ? "Sign Up" : "Log In"}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-3 text-muted-foreground font-medium">Or continue as</span>
-              </div>
-            </div>
-
-            <Button variant="outline" className="w-full h-11" onClick={handleAnonymous} disabled={loading}>
-              Try Guest Access
-            </Button>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    {!isSignUp && (
+                      <button 
+                        type="button"
+                        onClick={() => setIsForgotPassword(true)}
+                        className="text-xs text-primary hover:underline font-semibold"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      placeholder="••••••••" 
+                      className="pl-9 h-11"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <>
+                      {isSignUp ? "Sign Up" : "Log In"}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            )}
           </CardContent>
           <CardFooter className="justify-center border-t bg-muted/5 py-4">
-            <button 
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setEmail("");
-                setPassword("");
-              }}
-              className="text-sm text-primary hover:underline font-bold transition-all"
-            >
-              {isSignUp ? "Already have an account? Log In" : "New to FitStride? Create an Account"}
-            </button>
+            {!isForgotPassword && (
+              <button 
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setEmail("");
+                  setPassword("");
+                }}
+                className="text-sm text-primary hover:underline font-bold transition-all"
+              >
+                {isSignUp ? "Already have an account? Log In" : "New to FitStride? Create an Account"}
+              </button>
+            )}
           </CardFooter>
         </Card>
-
-        <p className="text-center text-xs text-muted-foreground px-8">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
-        </p>
       </div>
     </div>
   );

@@ -29,7 +29,6 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only redirect if user is authenticated and loading has finished
     if (user && !isUserLoading) {
       router.push("/dashboard");
     }
@@ -64,14 +63,21 @@ export default function LoginPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter your email address.",
+      });
+      return;
+    }
     setLoading(true);
-    
     sendPasswordResetEmail(auth, email)
       .then(() => {
         setLoading(false);
         toast({
           title: "Reset Email Sent",
-          description: "Check your inbox for password reset instructions.",
+          description: "Check your inbox for instructions to reset your password.",
         });
         setIsForgotPassword(false);
       })
@@ -118,7 +124,7 @@ export default function LoginPage() {
             </CardTitle>
             <CardDescription className="text-base">
               {isForgotPassword 
-                ? "Enter your email to receive a reset link."
+                ? "Enter your email and we'll send you a link to reset your password."
                 : isSignUp 
                 ? "Join the FitStride community today." 
                 : "Enter your credentials to access your dashboard."}
@@ -128,11 +134,11 @@ export default function LoginPage() {
             {isForgotPassword ? (
               <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-email">Email Address</Label>
+                  <Label htmlFor="email-reset-src">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="reset-email" 
+                      id="email-reset-src" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -155,7 +161,7 @@ export default function LoginPage() {
                 <button 
                   type="button"
                   onClick={() => setIsForgotPassword(false)}
-                  className="w-full text-sm text-muted-foreground hover:text-primary transition-colors mt-2"
+                  className="w-full text-sm text-muted-foreground hover:text-primary transition-colors mt-2 font-medium"
                 >
                   Back to Login
                 </button>
@@ -163,11 +169,11 @@ export default function LoginPage() {
             ) : (
               <form onSubmit={handleAuth} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email-src">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="email" 
+                      id="email-src" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -179,12 +185,12 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password-src">Password</Label>
                     {!isSignUp && (
                       <button 
                         type="button"
                         onClick={() => setIsForgotPassword(true)}
-                        className="text-xs text-primary hover:underline font-medium"
+                        className="text-xs text-primary hover:underline font-semibold"
                       >
                         Forgot password?
                       </button>
@@ -193,7 +199,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="password" 
+                      id="password-src" 
                       type="password" 
                       placeholder="••••••••" 
                       className="pl-9 h-11"
