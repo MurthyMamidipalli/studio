@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -93,7 +92,6 @@ export default function WorkoutsPage() {
     
     const now = Timestamp.now();
     
-    // 1. Save main session
     const sessionData = {
       id: sessionId,
       userId: user.uid,
@@ -108,7 +106,6 @@ export default function WorkoutsPage() {
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
 
-    // 2. Save nested LoggedExercise
     const exerciseId = doc(collection(sessionRef, "loggedExercises")).id;
     const exerciseRef = doc(sessionRef, "loggedExercises", exerciseId);
     
@@ -120,7 +117,6 @@ export default function WorkoutsPage() {
       notes: values.name
     }, { merge: true });
 
-    // 3. Save CardioDetails
     const detailsRef = doc(exerciseRef, "cardioDetails", exerciseId);
     setDocumentNonBlocking(detailsRef, {
       id: exerciseId,
@@ -143,7 +139,6 @@ export default function WorkoutsPage() {
     const now = Timestamp.now();
 
     const totalReps = values.exercises.reduce((acc, ex) => acc + (ex.sets * ex.reps), 0);
-    const totalSets = values.exercises.reduce((acc, ex) => acc + ex.sets, 0);
 
     const sessionData = {
       id: sessionId,
@@ -159,7 +154,6 @@ export default function WorkoutsPage() {
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
 
-    // Save each exercise and its details
     values.exercises.forEach((ex, idx) => {
       const exId = doc(collection(sessionRef, "loggedExercises")).id;
       const exRef = doc(sessionRef, "loggedExercises", exId);
@@ -172,7 +166,6 @@ export default function WorkoutsPage() {
         notes: ex.name
       }, { merge: true });
 
-      // Save StrengthDetails
       const strengthDetailsId = exId;
       const strengthDetailsRef = doc(exRef, "strengthDetails", strengthDetailsId);
       setDocumentNonBlocking(strengthDetailsRef, {
@@ -182,7 +175,6 @@ export default function WorkoutsPage() {
         totalReps: ex.sets * ex.reps,
       }, { merge: true });
 
-      // Save SetDetails for each set
       for (let i = 1; i <= ex.sets; i++) {
         const setDetailsId = doc(collection(strengthDetailsRef, "setDetails")).id;
         const setDetailsRef = doc(strengthDetailsRef, "setDetails", setDetailsId);
