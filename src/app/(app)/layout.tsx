@@ -58,13 +58,15 @@ export default function AppLayout({
           <div className="flex-1" />
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium hidden sm:inline-block">Welcome back, {displayName}</span>
-            <div className="h-9 w-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm">
+            <div className="h-9 w-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm shrink-0">
               <img src={photoURL} alt={displayName} className="h-full w-full object-cover" />
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full max-w-full">
-          {children}
+        <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

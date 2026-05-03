@@ -107,7 +107,7 @@ export default function LoginPage() {
             <Activity className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
-          <p className="text-muted-foreground text-lg">Your fitness journey continues.</p>
+          <p className="text-muted-foreground text-lg">Your fitness journey starts here.</p>
         </div>
 
         <Card className="border-none shadow-2xl bg-card">
@@ -124,7 +124,7 @@ export default function LoginPage() {
             </CardTitle>
             <CardDescription className="text-base">
               {isForgotPassword 
-                ? "Enter your email and we'll send you a link to reset your password."
+                ? "Enter your email and we'll send you a reset link."
                 : isSignUp 
                 ? "Join the FitStride community today." 
                 : "Enter your credentials to access your dashboard."}
@@ -134,11 +134,11 @@ export default function LoginPage() {
             {isForgotPassword ? (
               <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email-reset-src">Email Address</Label>
+                  <Label htmlFor="email-reset">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="email-reset-src" 
+                      id="email-reset" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -169,11 +169,11 @@ export default function LoginPage() {
             ) : (
               <form onSubmit={handleAuth} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email-src">Email Address</Label>
+                  <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="email-src" 
+                      id="email" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -185,7 +185,7 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password-src">Password</Label>
+                    <Label htmlFor="password">Password</Label>
                     {!isSignUp && (
                       <button 
                         type="button"
@@ -199,7 +199,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="password-src" 
+                      id="password" 
                       type="password" 
                       placeholder="••••••••" 
                       className="pl-9 h-11"

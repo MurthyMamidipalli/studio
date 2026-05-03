@@ -148,13 +148,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto px-4 md:px-0">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary">Dashboard</h1>
           <p className="text-sm text-muted-foreground">Keep pushing toward your fitness milestones.</p>
         </div>
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0">
+        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
            <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0">
               <Star className="h-4 w-4 md:h-5 md:w-5 text-primary fill-primary" />
               <span className="font-bold text-sm md:text-base text-primary">{profile?.points || 0} XP</span>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
         <Card className="shadow-sm border-none">
           <CardHeader>
             <div className="flex items-center justify-between">
