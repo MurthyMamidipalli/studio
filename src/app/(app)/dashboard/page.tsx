@@ -17,7 +17,6 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip, 
   ResponsiveContainer,
   AreaChart,
   Area
@@ -90,10 +89,13 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-lg">Weekly Calories Burned</CardTitle>
             <CardDescription>Visualizing your energy expenditure over the last 7 days</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
-            <ChartContainer config={{ 
-              calories: { label: "Calories", color: "hsl(var(--primary))" }
-            }}>
+          <CardContent className="h-[300px] w-full">
+            <ChartContainer 
+              config={{ 
+                calories: { label: "Calories", color: "hsl(var(--primary))" }
+              }}
+              className="aspect-auto h-full w-full"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
@@ -112,10 +114,13 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-lg">Active Minutes Trend</CardTitle>
             <CardDescription>Monthly intensity overview</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
-            <ChartContainer config={{ 
-              minutes: { label: "Minutes", color: "hsl(var(--accent))" }
-            }}>
+          <CardContent className="h-[300px] w-full">
+            <ChartContainer 
+              config={{ 
+                minutes: { label: "Minutes", color: "hsl(var(--accent))" }
+              }}
+              className="aspect-auto h-full w-full"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={activityData}>
                   <defs>
