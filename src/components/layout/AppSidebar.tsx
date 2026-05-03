@@ -136,8 +136,8 @@ export function AppSidebar() {
           style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>FitStride Navigation</SheetTitle>
-            <SheetDescription>Access your dashboard, logs, and community challenges.</SheetDescription>
+            <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetDescription>Access your fitness dashboard, logs, and community challenges.</SheetDescription>
           </SheetHeader>
           {SidebarInner}
         </SheetContent>
