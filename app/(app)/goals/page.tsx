@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -114,9 +113,9 @@ export default function GoalsPage() {
     if (!goals || goals.length === 0) return { success: 0, active: 0, topCategory: "None" };
     const completed = goals.filter(g => g.status === "Completed" || (g.currentValue >= g.targetValue)).length;
     const categories = goals.map(g => g.category);
-    const mostFrequent = categories.sort((a,b) =>
+    const mostFrequent = categories.length > 0 ? categories.sort((a,b) =>
       categories.filter(v => v===a).length - categories.filter(v => v===b).length
-    ).pop();
+    ).pop() : "None";
 
     return {
       success: Math.round((completed / goals.length) * 100),
@@ -134,7 +133,7 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 md:px-0">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-headline font-bold text-primary">Fitness Goals</h1>
@@ -199,18 +198,18 @@ export default function GoalsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-primary/5 border-none shadow-sm p-6">
-           <Trophy className="h-4 w-4 text-yellow-500 mb-2" />
+        <Card className="bg-primary/5 border-none shadow-sm p-6 text-center">
+           <Trophy className="h-4 w-4 text-yellow-500 mx-auto mb-2" />
            <p className="text-3xl font-headline font-bold">{stats.success}%</p>
            <p className="text-xs text-muted-foreground mt-1">Completion Rate</p>
         </Card>
-        <Card className="bg-accent/5 border-none shadow-sm p-6">
-           <Target className="h-4 w-4 text-accent mb-2" />
+        <Card className="bg-accent/5 border-none shadow-sm p-6 text-center">
+           <Target className="h-4 w-4 text-accent mx-auto mb-2" />
            <p className="text-3xl font-headline font-bold">{stats.active}</p>
            <p className="text-xs text-muted-foreground mt-1">Active Pursuits</p>
         </Card>
-        <Card className="bg-purple-500/5 border-none shadow-sm p-6">
-           <TrendingUp className="h-4 w-4 text-purple-500 mb-2" />
+        <Card className="bg-purple-500/5 border-none shadow-sm p-6 text-center">
+           <TrendingUp className="h-4 w-4 text-purple-500 mx-auto mb-2" />
            <p className="text-3xl font-headline font-bold truncate">{stats.topCategory}</p>
            <p className="text-xs text-muted-foreground mt-1">Focus Area</p>
         </Card>
