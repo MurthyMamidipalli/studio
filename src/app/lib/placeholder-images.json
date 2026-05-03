@@ -1,0 +1,23 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-fitness",
+      "description": "Person running on a treadmill",
+      "imageUrl": "https://picsum.photos/seed/fit1/1200/600",
+      "imageHint": "fitness running"
+    },
+    {
+      "id": "strength-training",
+      "description": "Weights and gym equipment",
+      "imageUrl": "https://picsum.photos/seed/fit2/600/400",
+      "imageHint": "gym weights"
+    },
+    {
+      "id": "user-avatar",
+      "description": "Professional athlete profile",
+      "imageUrl": "https://picsum.photos/seed/user1/200/200",
+      "imageHint": "athlete portrait"
+    }
+  ]
+}
