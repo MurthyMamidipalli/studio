@@ -92,24 +92,15 @@ export default function DashboardPage() {
     let latestHeartRate = 0;
 
     if (workouts) {
-      const todayWorkouts = workouts.filter(w => {
-        const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
-        return workoutDate >= startOfToday;
-      });
-
-      todayWorkouts.forEach(w => {
-        totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
-        totalMinutesToday += Number(w.durationMinutes) || 0;
-        totalStepsToday += Number(w.steps) || 0;
-        totalDistanceToday += Number(w.distance) || 0;
-      });
-
-      // Get latest HR if available
-      const hrWorkout = workouts.find(w => w.heartRate > 0);
-      if (hrWorkout) latestHeartRate = hrWorkout.heartRate;
-
       workouts.forEach(w => {
         const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
+        if (workoutDate >= startOfToday) {
+          totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
+          totalMinutesToday += Number(w.durationMinutes) || 0;
+          totalStepsToday += Number(w.steps) || 0;
+          totalDistanceToday += Number(w.distance) || 0;
+          if (w.heartRate > 0) latestHeartRate = w.heartRate;
+        }
         if (workoutDate >= startOfWeek) {
           totalWorkoutsThisWeek++;
         }
@@ -154,7 +145,7 @@ export default function DashboardPage() {
         nutritionCalories: Math.round(nutritionCaloriesToday),
         steps: totalStepsToday,
         heartRate: latestHeartRate,
-        distance: totalDistanceToday.toFixed(2)
+        distance: totalDistanceToday.toFixed(1)
       },
       recent: workouts ? workouts.slice(0, 3) : []
     };
@@ -173,7 +164,7 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Welcome back, {profile?.name || 'Athlete'}. Here's your status.</p>
+          <p className="text-sm text-muted-foreground">Keep pushing toward your fitness milestones.</p>
         </div>
         <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
            <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0">
@@ -187,23 +178,23 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <MetricCard title="Steps" value={processedData.metrics.steps} unit="steps" icon={Footprints} color="text-blue-500" />
-        <MetricCard title="Active Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
         <MetricCard title="Heart Rate" value={processedData.metrics.heartRate || "--"} unit="bpm" icon={Heart} color="text-red-500" />
         <MetricCard title="Distance" value={processedData.metrics.distance} unit="mi" icon={MapPin} color="text-green-500" />
-        <MetricCard title="Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-purple-500" />
-        <MetricCard title="Daily Fuel" value={processedData.metrics.nutritionCalories} unit="kcal" icon={Apple} color="text-emerald-500" />
+        <MetricCard title="Active Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
+        <MetricCard title="Active Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
+        <MetricCard title="Calories In" value={processedData.metrics.nutritionCalories} unit="kcal" icon={Apple} color="text-emerald-500" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-sm border-none bg-card/50 overflow-hidden">
+        <Card className="lg:col-span-2 shadow-sm border-none bg-card/50">
           <CardHeader>
             <CardTitle className="font-headline text-lg">Weekly Activity</CardTitle>
-            <CardDescription>Energy expenditure trends</CardDescription>
+            <CardDescription>Calories burned over the last 7 days</CardDescription>
           </CardHeader>
           <CardContent className="px-2">
-            <div className="h-[300px] w-full">
+            <div className="h-[250px] w-full">
               <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
@@ -222,13 +213,13 @@ export default function DashboardPage() {
         <Card className="shadow-sm border-none bg-card">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" /> Daily Targets
+              <Trophy className="h-5 w-5 text-yellow-500" /> Goal Progress
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <GoalProgress title="Steps goal" progress={Math.min((processedData.metrics.steps / 10000) * 100, 100)} current={processedData.metrics.steps} target="10000" unit="steps" />
+            <GoalProgress title="Daily Steps" progress={Math.min((processedData.metrics.steps / 10000) * 100, 100)} current={processedData.metrics.steps} target="10000" unit="steps" />
             <GoalProgress title="Active minutes" progress={Math.min((processedData.metrics.minutes / 45) * 100, 100)} current={processedData.metrics.minutes} target="45" unit="min" />
-            <GoalProgress title="Distance target" progress={Math.min((Number(processedData.metrics.distance) / 3) * 100, 100)} current={processedData.metrics.distance} target="3.0" unit="mi" />
+            <GoalProgress title="Calories target" progress={Math.min((processedData.metrics.nutritionCalories / 2000) * 100, 100)} current={processedData.metrics.nutritionCalories} target="2000" unit="kcal" />
             <div className="pt-4">
               <Link href="/goals">
                 <Button variant="outline" className="w-full">View All Goals</Button>
@@ -238,13 +229,13 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
         <Card className="shadow-sm border-none">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="font-headline text-lg">Recent Effort</CardTitle>
-                <CardDescription>Your latest workout activities</CardDescription>
+                <CardDescription>Your latest workouts</CardDescription>
               </div>
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
@@ -257,8 +248,7 @@ export default function DashboardPage() {
                   type={w.type} 
                   name={w.notes || "Workout"} 
                   time={w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"} 
-                  result={`${w.durationMinutes}m • ${Math.round(w.estimatedCaloriesBurned || 0)} kcal`} 
-                  sub={w.steps ? `${w.steps} steps` : w.distance ? `${w.distance} mi` : undefined}
+                  result={`${w.durationMinutes} min • ${Math.round(w.estimatedCaloriesBurned || 0)} kcal`} 
                 />
               ))
             ) : (
@@ -273,26 +263,16 @@ export default function DashboardPage() {
         <Card className="shadow-sm border-none bg-accent/5">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2">
-              <Apple className="h-5 w-5 text-accent" /> Nutrition Tracker
+              <Apple className="h-5 w-5 text-accent" /> Nutrition Status
             </CardTitle>
-            <CardDescription>Keep your fuel on track</CardDescription>
+            <CardDescription>Log today's fuel</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground leading-relaxed">Maintaining your weight goals starts in the kitchen. Log your daily intake to see progress.</p>
-               <div className="grid grid-cols-2 gap-4 pb-2">
-                 <div className="text-center p-3 rounded-lg bg-background">
-                    <p className="text-xl font-bold">{processedData.metrics.nutritionCalories}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Calories In</p>
-                 </div>
-                 <div className="text-center p-3 rounded-lg bg-background">
-                    <p className="text-xl font-bold">{Math.max(2000 - processedData.metrics.nutritionCalories, 0)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Remaining</p>
-                 </div>
-               </div>
+               <p className="text-sm text-muted-foreground leading-relaxed">Stay on track by logging your meals. Consistency is the key to progress.</p>
                <Link href="/nutrition">
                   <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">
-                    Log Today's Meal <ChevronRight className="h-4 w-4 ml-1" />
+                    Log Meal <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                </Link>
             </div>
@@ -306,12 +286,12 @@ export default function DashboardPage() {
 function MetricCard({ title, value, unit, icon: Icon, color }: any) {
   return (
     <Card className="shadow-sm border-none overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+      <CardContent className="p-4 md:p-6">
         <div className={`p-2 w-fit rounded-lg bg-background ${color} shadow-sm mb-3`}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
-          <h3 className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-tight">{title}</h3>
+          <h3 className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</h3>
           <div className="flex items-baseline gap-1">
             <span className="text-lg md:text-xl font-headline font-bold">{value}</span>
             <span className="text-[10px] text-muted-foreground">{unit}</span>
@@ -334,17 +314,14 @@ function GoalProgress({ title, progress, current, target, unit }: any) {
   );
 }
 
-function RecentWorkoutItem({ type, name, time, result, sub }: any) {
+function RecentWorkoutItem({ type, name, time, result }: any) {
   return (
     <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50">
       <div className="flex items-center gap-3">
         <div className={`w-1.5 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
         <div>
           <p className="font-medium text-sm truncate max-w-[120px]">{name}</p>
-          <div className="flex items-center gap-2">
-            <p className="text-[10px] text-muted-foreground">{time}</p>
-            {sub && <span className="text-[10px] text-primary font-bold">• {sub}</span>}
-          </div>
+          <p className="text-[10px] text-muted-foreground">{time}</p>
         </div>
       </div>
       <div className="text-right">
