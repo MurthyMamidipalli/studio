@@ -68,8 +68,19 @@ export default function DashboardPage() {
     if (!workouts || workouts.length === 0) {
       return { 
         weeklyData: last7Days, 
-        activityData: [{ name: "W1", minutes: 0 }, { name: "W2", minutes: 0 }, { name: "W3", minutes: 0 }, { name: "Current", minutes: 0 }], 
-        metrics: { calories: 0, minutes: 0, distance: 0, weeklyWorkouts: 0, weeklyCalories: 0 }, 
+        activityData: [
+          { name: "W1", minutes: 0 }, 
+          { name: "W2", minutes: 0 }, 
+          { name: "W3", minutes: 0 }, 
+          { name: "Current", minutes: 0 }
+        ], 
+        metrics: { 
+          calories: 0, 
+          minutes: 0, 
+          distance: "0.0", 
+          weeklyWorkouts: 0, 
+          weeklyCalories: 0 
+        }, 
         recent: [] 
       };
     }
@@ -84,7 +95,7 @@ export default function DashboardPage() {
       const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
       const workoutDateStr = workoutDate.toDateString();
       
-      // Weekly Chart Data (matching specific dates)
+      // Weekly Chart Data
       const chartDay = last7Days.find(d => d.dateStr === workoutDateStr);
       if (chartDay) {
         chartDay.calories += Number(w.estimatedCaloriesBurned) || 0;

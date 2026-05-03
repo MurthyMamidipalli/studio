@@ -68,8 +68,19 @@ export default function DashboardPage() {
     if (!workouts || workouts.length === 0) {
       return { 
         weeklyData: last7Days, 
-        activityData: [{ name: "W1", minutes: 0 }, { name: "W2", minutes: 0 }, { name: "W3", minutes: 0 }, { name: "Current", minutes: 0 }], 
-        metrics: { calories: 0, minutes: 0, distance: 0, weeklyWorkouts: 0, weeklyCalories: 0 }, 
+        activityData: [
+          { name: "W1", minutes: 0 }, 
+          { name: "W2", minutes: 0 }, 
+          { name: "W3", minutes: 0 }, 
+          { name: "Current", minutes: 0 }
+        ], 
+        metrics: { 
+          calories: 0, 
+          minutes: 0, 
+          distance: "0.0", 
+          weeklyWorkouts: 0, 
+          weeklyCalories: 0 
+        }, 
         recent: [] 
       };
     }
@@ -225,7 +236,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle className="font-headline text-lg">Active Minutes Trend</CardTitle>
             <CardDescription>Activity consistency</CardDescription>
-          </Header>
+          </CardHeader>
           <CardContent className="p-0 sm:p-6">
             <div className="h-[300px] w-full">
               <ChartContainer 
@@ -277,7 +288,7 @@ export default function DashboardPage() {
               <CardDescription>Last 3 logged activities</CardDescription>
             </div>
             <TrendingUp className="h-5 w-5 text-primary" />
-          </CardHeader>
+          </Header>
           <CardContent className="space-y-4">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
