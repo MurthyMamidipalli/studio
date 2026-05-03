@@ -32,7 +32,8 @@ export default function ProfilePage() {
 
   const profileRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
-    return doc(db, "users", user.uid, "profile", user.uid);
+    // Correct path according to backend.json and firestore.rules
+    return doc(db, "users", user.uid, "profile");
   }, [db, user?.uid]);
 
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
@@ -112,7 +113,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <CardTitle className="font-headline text-xl mt-4">{form.watch("name") || "User"}</CardTitle>
-              <CardDescription>Member since {profile?.createdAt ? new Date(profile.createdAt.seconds * 1000).toLocaleDateString() : 'Today'}</CardDescription>
+              <CardDescription>Member since {profile?.createdAt ? (profile.createdAt.seconds ? new Date(profile.createdAt.seconds * 1000).toLocaleDateString() : 'Today') : 'Today'}</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <ProfileMenuItem icon={User} label="Personal Details" active />
