@@ -120,6 +120,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "userId", "name", "targetValue", "status", "createdAt"]
+    },
+    "Challenge": {
+      "title": "Challenge",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetValue": { "type": "number" },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -136,24 +150,11 @@
         }
       },
       {
-        "path": "/users/{userId}/nutritionLogs/{nutritionLogId}",
+        "path": "/challenges/{challengeId}",
         "definition": {
-          "entityName": "NutritionLog",
-          "schema": { "$ref": "#/backend/entities/NutritionLog" }
-        }
-      },
-      {
-        "path": "/users/{userId}/workoutSessions/{workoutSessionId}",
-        "definition": {
-          "entityName": "WorkoutSession",
-          "schema": { "$ref": "#/backend/entities/WorkoutSession" }
-        }
-      },
-      {
-        "path": "/users/{userId}/fitnessGoals/{fitnessGoalId}",
-        "definition": {
-          "entityName": "FitnessGoal",
-          "schema": { "$ref": "#/backend/entities/FitnessGoal" }
+          "entityName": "Challenge",
+          "schema": { "$ref": "#/backend/entities/Challenge" },
+          "description": "Global community challenges."
         }
       }
     ]

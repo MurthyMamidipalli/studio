@@ -3,104 +3,38 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
-
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the authenticated user's UID matches the provided userId. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Checks if the user is the owner and the document exists. Used for updates and deletes. */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
-    // --- Collection Rules ---
-
-    /** 
-     * @description Rules for the UserProfile document.
-     * @path /users/{userId}
-     */
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      // Allow any signed-in user to see profiles for the leaderboard
+      allow get, list: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
 
-      /** 
-       * @description Rules for Nutrition Logs.
-       * @path /users/{userId}/nutritionLogs/{nutritionLogId}
-       */
-      match /nutritionLogs/{nutritionLogId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userId == userId;
-        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-        allow delete: if isExistingOwner(userId);
+      match /nutritionLogs/{logId} {
+        allow read, write: if isOwner(userId);
       }
-
-      /** 
-       * @description Rules for Workout Sessions.
-       * @path /users/{userId}/workoutSessions/{workoutSessionId}
-       */
-      match /workoutSessions/{workoutSessionId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userId == userId;
-        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-        allow delete: if isExistingOwner(userId);
-
-        match /loggedExercises/{loggedExerciseId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId) && request.resource.data.workoutSessionId == workoutSessionId;
-          allow update: if isExistingOwner(userId) && request.resource.data.workoutSessionId == resource.data.workoutSessionId;
-          allow delete: if isExistingOwner(userId);
-
-          match /cardioDetails/{cardioDetailsId} {
-            allow get, list: if isOwner(userId);
-            allow create: if isOwner(userId) && request.resource.data.loggedExerciseId == loggedExerciseId;
-            allow update: if isExistingOwner(userId) && request.resource.data.loggedExerciseId == resource.data.loggedExerciseId;
-            allow delete: if isExistingOwner(userId);
-          }
-
-          match /strengthDetails/{strengthDetailsId} {
-            allow get, list: if isOwner(userId);
-            allow create: if isOwner(userId) && request.resource.data.loggedExerciseId == loggedExerciseId;
-            allow update: if isExistingOwner(userId) && request.resource.data.loggedExerciseId == resource.data.loggedExerciseId;
-            allow delete: if isExistingOwner(userId);
-
-            match /setDetails/{setDetailsId} {
-              allow get, list: if isOwner(userId);
-              allow create: if isOwner(userId) && request.resource.data.strengthDetailsId == strengthDetailsId;
-              allow update: if isExistingOwner(userId) && request.resource.data.strengthDetailsId == resource.data.strengthDetailsId;
-              allow delete: if isExistingOwner(userId);
-            }
-          }
-        }
+      match /workoutSessions/{sessionId} {
+        allow read, write: if isOwner(userId);
       }
-
-      /** 
-       * @description Rules for Fitness Goals.
-       * @path /users/{userId}/fitnessGoals/{fitnessGoalId}
-       */
-      match /fitnessGoals/{fitnessGoalId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userId == userId;
-        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-        allow delete: if isExistingOwner(userId);
+      match /fitnessGoals/{goalId} {
+        allow read, write: if isOwner(userId);
       }
     }
 
-    /** 
-     * @description Rules for the global Exercise catalog.
-     * @path /exercises/{exerciseId}
-     */
-    match /exercises/{exerciseId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if false;
+    match /challenges/{challengeId} {
+      allow read: if isSignedIn();
+      // Only allow joining (updating participants list)
+      allow update: if isSignedIn() && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']);
+      allow create, delete: if false; // Admin only in real app
     }
   }
 }

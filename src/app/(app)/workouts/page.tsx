@@ -15,6 +15,7 @@ import {
   MoreVertical,
   Loader2,
   Trash2,
+  Share2,
   Calendar as CalendarIcon
 } from "lucide-react";
 import {
@@ -24,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
-import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp, getDoc } from "firebase/firestore";
+import { collection, query, orderBy, limit, doc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -177,6 +178,15 @@ export default function WorkoutsPage() {
     toast({ title: "Workout Deleted" });
   };
 
+  const handleShare = (workout: any) => {
+    const text = `I just finished a ${workout.type} workout on FitStride! 🏃‍♂️💪\n\nWorkout: ${workout.notes}\nDuration: ${workout.durationMinutes} mins\nBurned: ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal\n\nJoin me on FitStride!`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Link Copied!",
+      description: "Workout summary copied to clipboard.",
+    });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -210,6 +220,7 @@ export default function WorkoutsPage() {
                       type={workout.type} 
                       stats={`${workout.durationMinutes} mins • ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal`} 
                       onDelete={() => handleDelete(workout.id)}
+                      onShare={() => handleShare(workout)}
                     />
                   ))}
                 </div>
@@ -285,7 +296,7 @@ export default function WorkoutsPage() {
   );
 }
 
-function WorkoutRow({ date, name, type, stats, onDelete }: any) {
+function WorkoutRow({ date, name, type, stats, onDelete, onShare }: any) {
   return (
     <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-muted/30 transition-all">
       <div className="flex items-center gap-4">
@@ -298,12 +309,17 @@ function WorkoutRow({ date, name, type, stats, onDelete }: any) {
           </div>
         </div>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem className="text-destructive" onClick={onDelete}><Trash2 className="h-4 w-4 mr-2" /> Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={onShare} title="Share Workout">
+          <Share2 className="h-4 w-4 text-primary" />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="text-destructive" onClick={onDelete}><Trash2 className="h-4 w-4 mr-2" /> Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
