@@ -73,7 +73,6 @@ export default function DashboardPage() {
     startOfWeek.setDate(now.getDate() - now.getDay());
     startOfWeek.setHours(0,0,0,0);
 
-    // Activity stats
     let totalCaloriesToday = 0;
     let totalMinutesToday = 0;
     let totalDistanceToday = 0;
@@ -93,7 +92,6 @@ export default function DashboardPage() {
       });
     }
 
-    // Nutrition stats
     let nutritionCaloriesToday = 0;
     if (nutrition && nutrition.length > 0) {
       nutrition.forEach(n => {
@@ -128,7 +126,7 @@ export default function DashboardPage() {
       metrics: {
         calories: Math.round(totalCaloriesToday),
         minutes: totalMinutesToday,
-        distance: totalDistanceToday.toFixed(1),
+        distance: Number(totalDistanceToday.toFixed(1)),
         weeklyWorkouts: totalWorkoutsThisWeek,
         nutritionCalories: Math.round(nutritionCaloriesToday)
       },

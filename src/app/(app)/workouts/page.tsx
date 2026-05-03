@@ -9,12 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Plus, 
   Search, 
-  Filter, 
   Dumbbell, 
   Footprints, 
   History, 
   MoreVertical,
-  ChevronDown,
   Loader2,
   Trash2,
   Calendar as CalendarIcon
@@ -92,7 +90,6 @@ export default function WorkoutsPage() {
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
     const now = Timestamp.now();
     
-    // Denormalize distance and calories for dashboard efficiency
     const sessionData = {
       id: sessionId,
       userId: user.uid,
