@@ -13,8 +13,7 @@ import {
   Target,
   Loader2,
   Info,
-  Apple,
-  Activity
+  Apple
 } from "lucide-react";
 import { 
   BarChart, 
@@ -151,7 +150,7 @@ export default function DashboardPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-headline font-bold text-primary">Personal Dashboard</h1>
-        <p className="text-muted-foreground">Monitor your fitness journey and nutrition logs.</p>
+        <p className="text-muted-foreground">Monitor your real fitness and nutrition progress.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -185,7 +184,7 @@ export default function DashboardPage() {
           unit="workouts" 
           icon={Calendar} 
           color="text-purple-500"
-          trend={`${Math.min(Math.round((processedData.metrics.weeklyWorkouts / 5) * 100), 100)}% of weekly aim`}
+          trend={`${Math.min(Math.round((processedData.metrics.weeklyWorkouts / 5) * 100), 100)}% of goal`}
         />
       </div>
 
@@ -231,7 +230,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="font-headline text-lg">Daily Goals</CardTitle>
-                <CardDescription>Today's progress</CardDescription>
+                <CardDescription>Target vs Progress</CardDescription>
               </div>
               <Target className="h-5 w-5 text-accent" />
             </div>
@@ -250,7 +249,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="font-headline text-lg">Recent Workouts</CardTitle>
-                <CardDescription>Last logged sessions</CardDescription>
+                <CardDescription>Your latest efforts</CardDescription>
               </div>
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
@@ -280,7 +279,7 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-lg flex items-center gap-2">
               <Apple className="h-5 w-5 text-accent" /> Nutrition Tracker
             </CardTitle>
-            <CardDescription>Monitor your intake and macros</CardDescription>
+            <CardDescription>Maintain your macro balance</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
