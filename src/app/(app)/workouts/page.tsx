@@ -77,7 +77,7 @@ export default function WorkoutsPage() {
 
   const strengthForm = useForm<StrengthFormValues>({
     resolver: zodResolver(strengthSchema),
-    defaultValues: { name: "", exercises: [{ name: "", sets: 0, reps: 0, weight: 0 }] },
+    defaultValues: { name: "", exercises: [{ name: "", sets: 1, reps: 10, weight: 0 }] },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -88,15 +88,16 @@ export default function WorkoutsPage() {
   const onCardioSubmit = (values: CardioFormValues) => {
     if (!db || !user?.uid) return;
 
-    // Generate consistent IDs
     const sessionId = doc(collection(db, "users", user.uid, "workoutSessions")).id;
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
+    
+    const now = Timestamp.now();
     
     // 1. Save main session
     const sessionData = {
       id: sessionId,
       userId: user.uid,
-      sessionDateTime: serverTimestamp(),
+      sessionDateTime: now,
       durationMinutes: values.duration,
       notes: values.name,
       estimatedCaloriesBurned: values.calories,
@@ -107,18 +108,19 @@ export default function WorkoutsPage() {
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
 
-    // 2. Save nested LoggedExercise and CardioDetails for data integrity
+    // 2. Save nested LoggedExercise
     const exerciseId = doc(collection(sessionRef, "loggedExercises")).id;
     const exerciseRef = doc(sessionRef, "loggedExercises", exerciseId);
     
     setDocumentNonBlocking(exerciseRef, {
       id: exerciseId,
       workoutSessionId: sessionId,
-      exerciseId: "cardio-generic", // simplified
+      exerciseId: "cardio-generic",
       orderInSession: 1,
       notes: values.name
     }, { merge: true });
 
+    // 3. Save CardioDetails
     const detailsRef = doc(exerciseRef, "cardioDetails", exerciseId);
     setDocumentNonBlocking(detailsRef, {
       id: exerciseId,
@@ -138,14 +140,18 @@ export default function WorkoutsPage() {
 
     const sessionId = doc(collection(db, "users", user.uid, "workoutSessions")).id;
     const sessionRef = doc(db, "users", user.uid, "workoutSessions", sessionId);
+    const now = Timestamp.now();
+
+    const totalReps = values.exercises.reduce((acc, ex) => acc + (ex.sets * ex.reps), 0);
+    const totalSets = values.exercises.reduce((acc, ex) => acc + ex.sets, 0);
 
     const sessionData = {
       id: sessionId,
       userId: user.uid,
-      sessionDateTime: serverTimestamp(),
+      sessionDateTime: now,
       durationMinutes: 45, 
       notes: values.name,
-      estimatedCaloriesBurned: values.exercises.length * 50,
+      estimatedCaloriesBurned: totalReps * 0.5,
       type: "Strength",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -153,10 +159,11 @@ export default function WorkoutsPage() {
 
     setDocumentNonBlocking(sessionRef, sessionData, { merge: true });
 
-    // Save each exercise
+    // Save each exercise and its details
     values.exercises.forEach((ex, idx) => {
       const exId = doc(collection(sessionRef, "loggedExercises")).id;
       const exRef = doc(sessionRef, "loggedExercises", exId);
+      
       setDocumentNonBlocking(exRef, {
         id: exId,
         workoutSessionId: sessionId,
@@ -164,6 +171,30 @@ export default function WorkoutsPage() {
         orderInSession: idx + 1,
         notes: ex.name
       }, { merge: true });
+
+      // Save StrengthDetails
+      const strengthDetailsId = exId;
+      const strengthDetailsRef = doc(exRef, "strengthDetails", strengthDetailsId);
+      setDocumentNonBlocking(strengthDetailsRef, {
+        id: strengthDetailsId,
+        loggedExerciseId: exId,
+        totalSets: ex.sets,
+        totalReps: ex.sets * ex.reps,
+      }, { merge: true });
+
+      // Save SetDetails for each set
+      for (let i = 1; i <= ex.sets; i++) {
+        const setDetailsId = doc(collection(strengthDetailsRef, "setDetails")).id;
+        const setDetailsRef = doc(strengthDetailsRef, "setDetails", setDetailsId);
+        setDocumentNonBlocking(setDetailsRef, {
+          id: setDetailsId,
+          strengthDetailsId: strengthDetailsId,
+          setNumber: i,
+          reps: ex.reps,
+          weight: ex.weight,
+          weightUnit: "lbs"
+        }, { merge: true });
+      }
     });
 
     toast({ title: "Workout Logged", description: "Strength session saved successfully." });
@@ -239,7 +270,7 @@ export default function WorkoutsPage() {
                       date={formatDate(workout.sessionDateTime)} 
                       name={workout.notes || "Workout"} 
                       type={workout.type} 
-                      stats={`${workout.durationMinutes} mins • ${workout.estimatedCaloriesBurned} kcal`} 
+                      stats={`${workout.durationMinutes} mins • ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal`} 
                       onDelete={() => handleDelete(workout.id)}
                     />
                   ))}
@@ -352,7 +383,7 @@ export default function WorkoutsPage() {
                           <div className="flex items-center justify-between">
                             <h4 className="text-sm font-semibold">Exercise {index + 1}</h4>
                             {fields.length > 1 && (
-                              <Button variant="ghost" size="sm" onClick={() => remove(index)} className="h-8 text-destructive">
+                              <Button type="button" variant="ghost" size="sm" onClick={() => remove(index)} className="h-8 text-destructive">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             )}
@@ -413,7 +444,7 @@ export default function WorkoutsPage() {
                         </div>
                       ))}
                     </div>
-                    <Button type="button" variant="outline" className="w-full border-dashed" onClick={() => append({ name: "", sets: 0, reps: 0, weight: 0 })}>
+                    <Button type="button" variant="outline" className="w-full border-dashed" onClick={() => append({ name: "", sets: 1, reps: 10, weight: 0 })}>
                       <Plus className="h-4 w-4 mr-2" /> Add Exercise
                     </Button>
                     <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
@@ -431,7 +462,9 @@ export default function WorkoutsPage() {
 }
 
 function WorkoutRow({ id, date, name, type, stats, onDelete }: any) {
-  const [month, day] = date.includes(' ') ? date.split(' ') : [date, ""];
+  const parts = date.split(' ');
+  const month = parts[0];
+  const day = parts[1] || "";
   
   return (
     <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-muted/30 transition-all cursor-pointer">
@@ -459,7 +492,7 @@ function WorkoutRow({ id, date, name, type, stats, onDelete }: any) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem>View Details</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive" onClick={onDelete}>Delete</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
