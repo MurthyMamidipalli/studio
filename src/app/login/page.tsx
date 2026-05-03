@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -189,7 +188,7 @@ export default function LoginPage() {
                     <Label htmlFor="password">Password</Label>
                     {!isSignUp && (
                       <button 
-                        type="button"
+                        type="button" 
                         onClick={() => setIsForgotPassword(true)}
                         className="text-xs text-primary hover:underline font-semibold"
                       >
@@ -201,7 +200,7 @@ export default function LoginPage() {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="password" 
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? "text" : "password"} 
                       placeholder="••••••••" 
                       className="pl-9 pr-10 h-11"
                       value={password}

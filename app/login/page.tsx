@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw, Eye, EyeOff } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
@@ -21,6 +20,7 @@ export default function LoginPage() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const { user, isUserLoading } = useUser();
@@ -110,7 +110,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground text-lg">Your fitness journey starts here.</p>
         </div>
 
-        <Card className="border-none shadow-2xl bg-card">
+        <Card className="border-none shadow-2xl bg-card overflow-hidden">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex items-center gap-2">
               {isForgotPassword ? (
@@ -124,7 +124,7 @@ export default function LoginPage() {
             </CardTitle>
             <CardDescription className="text-base">
               {isForgotPassword 
-                ? "Enter your email and we'll send you a link to reset your password."
+                ? "Enter your email and we'll send you a reset link."
                 : isSignUp 
                 ? "Join the FitStride community today." 
                 : "Enter your credentials to access your dashboard."}
@@ -134,11 +134,11 @@ export default function LoginPage() {
             {isForgotPassword ? (
               <form onSubmit={handleResetPassword} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email-reset">Email Address</Label>
+                  <Label htmlFor="email-reset-v2">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="email-reset" 
+                      id="email-reset-v2" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -169,11 +169,11 @@ export default function LoginPage() {
             ) : (
               <form onSubmit={handleAuth} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email-v2">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="email" 
+                      id="email-v2" 
                       type="email" 
                       placeholder="name@example.com" 
                       className="pl-9 h-11"
@@ -185,10 +185,10 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password-v2">Password</Label>
                     {!isSignUp && (
                       <button 
-                        type="button"
+                        type="button" 
                         onClick={() => setIsForgotPassword(true)}
                         className="text-xs text-primary hover:underline font-semibold"
                       >
@@ -199,14 +199,21 @@ export default function LoginPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
-                      id="password" 
-                      type="password" 
+                      id="password-v2" 
+                      type={showPassword ? "text" : "password"} 
                       placeholder="••••••••" 
-                      className="pl-9 h-11"
+                      className="pl-9 pr-10 h-11"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-10"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
                 <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
