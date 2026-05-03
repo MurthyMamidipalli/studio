@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,6 +29,16 @@
     --chart-3: 195 30% 40%;
     --chart-4: 165 50% 40%;
     --chart-5: 200 60% 70%;
+    
+    /* High-contrast Sidebar Theme for mobile visibility */
+    --sidebar-background: 200 50% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 196 73% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 50% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 200 50% 15%;
+    --sidebar-ring: 196 73% 50%;
   }
 
   .dark {
@@ -52,6 +61,15 @@
     --border: 200 50% 15%;
     --input: 200 50% 15%;
     --ring: 196 73% 50%;
+
+    --sidebar-background: 200 50% 5%;
+    --sidebar-foreground: 195 47% 94%;
+    --sidebar-primary: 196 73% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 50% 10%;
+    --sidebar-accent-foreground: 195 47% 94%;
+    --sidebar-border: 200 50% 12%;
+    --sidebar-ring: 196 73% 50%;
   }
 }
 
