@@ -13,7 +13,6 @@ import {
   ChevronRight,
   Target,
   Loader2,
-  Info,
   Apple,
   Star,
   Trophy
