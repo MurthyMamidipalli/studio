@@ -134,11 +134,6 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-                {isSignUp && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Password must be at least 6 characters long.
-                  </p>
-                )}
               </div>
               <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
                 {loading ? (
