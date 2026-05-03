@@ -12,7 +12,8 @@ import {
   User, 
   LogOut,
   Activity,
-  Apple
+  Apple,
+  Trophy
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,7 @@ const navItems = [
   { icon: Apple, label: "Nutrition", href: "/nutrition" },
   { icon: Target, label: "Goals", href: "/goals" },
   { icon: Sparkles, label: "AI Coach", href: "/coach" },
+  { icon: Trophy, label: "Achievements", href: "/achievements" },
   { icon: User, label: "Profile", href: "/profile" },
 ];
 

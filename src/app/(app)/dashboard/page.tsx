@@ -14,7 +14,9 @@ import {
   Target,
   Loader2,
   Info,
-  Apple
+  Apple,
+  Star,
+  Trophy
 } from "lucide-react";
 import { 
   BarChart, 
@@ -25,8 +27,8 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy, limit, Timestamp } from "firebase/firestore";
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy, limit, doc, Timestamp } from "firebase/firestore";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -37,6 +39,13 @@ export default function DashboardPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const profileRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile } = useDoc(profileRef);
 
   const workoutsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -62,7 +71,7 @@ export default function DashboardPage() {
   const processedData = useMemo(() => {
     if (!mounted) return {
       weeklyData: [],
-      metrics: { calories: 0, minutes: 0, distance: 0, weeklyWorkouts: 0, nutritionCalories: 0 },
+      metrics: { calories: 0, minutes: 0, weeklyWorkouts: 0, nutritionCalories: 0 },
       recent: []
     };
 
@@ -76,16 +85,14 @@ export default function DashboardPage() {
 
     let totalCaloriesToday = 0;
     let totalMinutesToday = 0;
-    let totalDistanceToday = 0;
     let totalWorkoutsThisWeek = 0;
 
-    if (workouts && workouts.length > 0) {
+    if (workouts) {
       workouts.forEach(w => {
         const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
         if (workoutDate >= startOfToday) {
           totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
           totalMinutesToday += Number(w.durationMinutes) || 0;
-          totalDistanceToday += Number(w.distance) || 0;
         }
         if (workoutDate >= startOfWeek) {
           totalWorkoutsThisWeek++;
@@ -94,7 +101,7 @@ export default function DashboardPage() {
     }
 
     let nutritionCaloriesToday = 0;
-    if (nutrition && nutrition.length > 0) {
+    if (nutrition) {
       nutrition.forEach(n => {
         const logDate = n.logDate instanceof Timestamp ? n.logDate.toDate() : new Date(n.logDate);
         if (logDate >= startOfToday) {
@@ -127,7 +134,6 @@ export default function DashboardPage() {
       metrics: {
         calories: Math.round(totalCaloriesToday),
         minutes: totalMinutesToday,
-        distance: Number(totalDistanceToday.toFixed(1)),
         weeklyWorkouts: totalWorkoutsThisWeek,
         nutritionCalories: Math.round(nutritionCaloriesToday)
       },
@@ -143,73 +149,41 @@ export default function DashboardPage() {
     );
   }
 
-  const hasData = workouts && workouts.length > 0;
-
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-headline font-bold text-primary">Personal Dashboard</h1>
-        <p className="text-muted-foreground">Monitor your real fitness and nutrition progress.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-headline font-bold text-primary">Dashboard</h1>
+          <p className="text-muted-foreground">Keep pushing toward your fitness milestones.</p>
+        </div>
+        <div className="flex items-center gap-4">
+           <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
+              <Star className="h-5 w-5 text-primary fill-primary" />
+              <span className="font-bold text-primary">{profile?.points || 0} XP</span>
+           </div>
+           <div className="flex items-center gap-2 bg-orange-500/10 px-4 py-2 rounded-full">
+              <Flame className="h-5 w-5 text-orange-500 fill-orange-500" />
+              <span className="font-bold text-orange-500">{profile?.currentStreak || 0} Day Streak</span>
+           </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard 
-          title="Daily Burn" 
-          value={processedData.metrics.calories} 
-          unit="kcal" 
-          icon={Flame} 
-          color="text-orange-500"
-          trend="Workout total"
-        />
-        <MetricCard 
-          title="Calories In" 
-          value={processedData.metrics.nutritionCalories} 
-          unit="kcal" 
-          icon={Apple} 
-          color="text-green-500"
-          trend="Nutrition total"
-        />
-        <MetricCard 
-          title="Active Time" 
-          value={processedData.metrics.minutes} 
-          unit="min" 
-          icon={Timer} 
-          color="text-primary"
-          trend="Today's activity"
-        />
-        <MetricCard 
-          title="Weekly Goals" 
-          value={`${processedData.metrics.weeklyWorkouts}/5`} 
-          unit="workouts" 
-          icon={Calendar} 
-          color="text-purple-500"
-          trend={`${Math.min(Math.round((processedData.metrics.weeklyWorkouts / 5) * 100), 100)}% of goal`}
-        />
+        <MetricCard title="Daily Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
+        <MetricCard title="Calories In" value={processedData.metrics.nutritionCalories} unit="kcal" icon={Apple} color="text-green-500" />
+        <MetricCard title="Active Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
+        <MetricCard title="Weekly Goals" value={`${processedData.metrics.weeklyWorkouts}/5`} unit="workouts" icon={Calendar} color="text-purple-500" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-sm border-none bg-card/50 overflow-hidden relative">
-          {!hasData && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[1px]">
-               <div className="text-center p-6 bg-card rounded-xl shadow-lg border">
-                  <Info className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm font-medium">No workout data found</p>
-                  <Link href="/workouts" className="text-xs text-primary hover:underline mt-1 block">Log your first session</Link>
-               </div>
-            </div>
-          )}
           <CardHeader>
-            <CardTitle className="font-headline text-lg">Weekly Calories Burned</CardTitle>
-            <CardDescription>Energy expenditure over the last 7 days</CardDescription>
+            <CardTitle className="font-headline text-lg">Weekly Activity</CardTitle>
+            <CardDescription>Calories burned over the last 7 days</CardDescription>
           </CardHeader>
           <CardContent className="p-0 sm:p-6">
             <div className="h-[300px] w-full">
-              <ChartContainer 
-                config={{ 
-                  calories: { label: "Calories", color: "hsl(var(--primary))" }
-                }}
-                className="h-full w-full aspect-auto"
-              >
+              <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full aspect-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
@@ -226,18 +200,19 @@ export default function DashboardPage() {
 
         <Card className="shadow-sm border-none">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="font-headline text-lg">Daily Goals</CardTitle>
-                <CardDescription>Target vs Progress</CardDescription>
-              </div>
-              <Target className="h-5 w-5 text-accent" />
-            </div>
+            <CardTitle className="font-headline text-lg flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-yellow-500" /> Achievements
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="text-center py-2">
+               <p className="text-sm text-muted-foreground mb-4">You have earned {profile?.earnedBadges?.length || 0} badges so far.</p>
+               <Link href="/achievements">
+                  <Button variant="outline" className="w-full">View My Trophies</Button>
+               </Link>
+            </div>
             <GoalProgress title="Active minutes today" progress={Math.min((processedData.metrics.minutes / 45) * 100, 100)} current={processedData.metrics.minutes} target="45" unit="min" />
-            <GoalProgress title="Calories consumed" progress={Math.min((processedData.metrics.nutritionCalories / 2000) * 100, 100)} current={processedData.metrics.nutritionCalories} target="2000" unit="kcal" />
-            <GoalProgress title="Weekly workouts" progress={Math.min((processedData.metrics.weeklyWorkouts / 5) * 100, 100)} current={processedData.metrics.weeklyWorkouts} target="5" unit="sess" />
+            <GoalProgress title="Daily hydration" progress={40} current="2" target="5" unit="glasses" />
           </CardContent>
         </Card>
       </div>
@@ -247,8 +222,8 @@ export default function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="font-headline text-lg">Recent Workouts</CardTitle>
-                <CardDescription>Your latest efforts</CardDescription>
+                <CardTitle className="font-headline text-lg">Recent Effort</CardTitle>
+                <CardDescription>Your latest workouts</CardDescription>
               </div>
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
@@ -256,17 +231,11 @@ export default function DashboardPage() {
           <CardContent className="space-y-4">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
-                <RecentWorkoutItem 
-                  key={w.id}
-                  type={w.type} 
-                  name={w.notes || "Workout"} 
-                  time={w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"} 
-                  result={`${w.durationMinutes} min • ${Math.round(w.estimatedCaloriesBurned || 0)} kcal`} 
-                />
+                <RecentWorkoutItem key={w.id} type={w.type} name={w.notes || "Workout"} time={w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"} result={`${w.durationMinutes} min • ${Math.round(w.estimatedCaloriesBurned || 0)} kcal`} />
               ))
             ) : (
               <div className="text-center py-8">
-                <p className="text-muted-foreground text-sm">No workouts logged yet.</p>
+                <p className="text-muted-foreground text-sm">No activity recorded yet.</p>
                 <Link href="/workouts" className="text-xs text-primary font-bold mt-2 inline-block">Start your journey</Link>
               </div>
             )}
@@ -278,11 +247,11 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-lg flex items-center gap-2">
               <Apple className="h-5 w-5 text-accent" /> Nutrition Tracker
             </CardTitle>
-            <CardDescription>Maintain your macro balance</CardDescription>
+            <CardDescription>Energy balance & macros</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground">Log your meals to see macro-nutrient breakdowns and calorie trends here.</p>
+               <p className="text-sm text-muted-foreground">Log your meals to maintain your streak and earn points for healthy choices.</p>
                <Link href="/nutrition">
                   <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     Go to Nutrition Tracker <ChevronRight className="h-4 w-4 ml-1" />
@@ -296,7 +265,7 @@ export default function DashboardPage() {
   );
 }
 
-function MetricCard({ title, value, unit, icon: Icon, color, trend }: any) {
+function MetricCard({ title, value, unit, icon: Icon, color }: any) {
   return (
     <Card className="shadow-sm border-none overflow-hidden">
       <CardContent className="p-6">
@@ -304,7 +273,6 @@ function MetricCard({ title, value, unit, icon: Icon, color, trend }: any) {
           <div className={`p-2 rounded-lg bg-background ${color}`}>
             <Icon className="h-6 w-6" />
           </div>
-          <span className="text-xs font-medium text-muted-foreground">{trend}</span>
         </div>
         <div>
           <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
