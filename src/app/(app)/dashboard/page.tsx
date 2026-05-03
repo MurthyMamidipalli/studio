@@ -148,7 +148,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto px-4 md:px-0">
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary">Dashboard</h1>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
            </div>
            <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0">
               <Flame className="h-4 w-4 md:h-5 md:w-5 text-orange-500 fill-orange-500" />
-              <span className="font-bold text-sm md:text-base text-orange-500">{profile?.currentStreak || 0} Day Streak</span>
+              <span className="font-bold text-sm md:text-base text-orange-500">{profile?.currentStreak || 0}d Streak</span>
            </div>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center py-2">
-               <p className="text-sm text-muted-foreground mb-4">You have earned {profile?.earnedBadges?.length || 0} badges so far.</p>
+               <p className="text-sm text-muted-foreground mb-4">You have earned {profile?.earnedBadges?.length || 0} badges.</p>
                <Link href="/achievements" className="w-full">
                   <Button variant="outline" className="w-full">View My Trophies</Button>
                </Link>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground leading-relaxed">Log your meals to maintain your streak and earn points for healthy choices.</p>
+               <p className="text-sm text-muted-foreground leading-relaxed">Log your meals to maintain your streak and earn points.</p>
                <Link href="/nutrition">
                   <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">
                     Go to Nutrition Tracker <ChevronRight className="h-4 w-4 ml-1" />
