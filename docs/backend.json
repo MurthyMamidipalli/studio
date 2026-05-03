@@ -63,6 +63,58 @@
         "createdAt"
       ]
     },
+    "NutritionLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NutritionLog",
+      "type": "object",
+      "description": "Represents a meal or food item logged by a user for nutrition tracking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NutritionLog."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile."
+        },
+        "mealName": {
+          "type": "string",
+          "description": "Name of the meal or food item (e.g., 'Breakfast', 'Protein Shake')."
+        },
+        "calories": {
+          "type": "number",
+          "description": "Total calories for this log."
+        },
+        "protein": {
+          "type": "number",
+          "description": "Grams of protein."
+        },
+        "carbs": {
+          "type": "number",
+          "description": "Grams of carbohydrates."
+        },
+        "fat": {
+          "type": "number",
+          "description": "Grams of fat."
+        },
+        "logDate": {
+          "type": "string",
+          "description": "The date/time the entry was logged.",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mealName",
+        "calories",
+        "logDate"
+      ]
+    },
     "Exercise": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Exercise",
@@ -122,6 +174,10 @@
         "estimatedCaloriesBurned": {
           "type": "number",
           "description": "The estimated total calories burned during this workout session."
+        },
+        "distance": {
+          "type": "number",
+          "description": "The distance covered during the session (denormalized)."
         },
         "type": {
           "type": "string",
@@ -394,6 +450,26 @@
             {
               "name": "userId",
               "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/nutritionLogs/{nutritionLogId}",
+        "definition": {
+          "entityName": "NutritionLog",
+          "schema": {
+            "$ref": "#/backend/entities/NutritionLog"
+          },
+          "description": "Stores meal and macro logs.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Owner UID."
+            },
+            {
+              "name": "nutritionLogId",
+              "description": "Log ID."
             }
           ]
         }

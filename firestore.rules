@@ -25,15 +25,23 @@ service cloud.firestore {
     /** 
      * @description Rules for the UserProfile document.
      * @path /users/{userId}
-     * @allow (get) If the user is the owner of the profile.
-     * @deny (update) If the user attempts to change the internal 'id' field.
-     * @principle Validates that the internal 'id' matches the path and ensures ownership.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
+
+      /** 
+       * @description Rules for Nutrition Logs.
+       * @path /users/{userId}/nutritionLogs/{nutritionLogId}
+       */
+      match /nutritionLogs/{nutritionLogId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
 
       /** 
        * @description Rules for Workout Sessions.

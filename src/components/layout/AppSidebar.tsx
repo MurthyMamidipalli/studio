@@ -11,7 +11,8 @@ import {
   Sparkles, 
   User, 
   LogOut,
-  Activity
+  Activity,
+  Apple
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Dumbbell, label: "Workouts", href: "/workouts" },
+  { icon: Apple, label: "Nutrition", href: "/nutrition" },
   { icon: Target, label: "Goals", href: "/goals" },
   { icon: Sparkles, label: "AI Coach", href: "/coach" },
   { icon: User, label: "Profile", href: "/profile" },
