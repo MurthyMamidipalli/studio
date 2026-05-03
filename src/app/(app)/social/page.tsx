@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser, useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
-import { collection, query, orderBy, limit, doc, arrayUnion, serverTimestamp, arrayRemove } from "firebase/firestore";
+import { collection, query, orderBy, limit, doc, arrayUnion, serverTimestamp, arrayRemove, where, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,7 +24,8 @@ import {
   Search,
   UserPlus,
   DoorOpen,
-  Trash2
+  Trash2,
+  MailPlus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -47,6 +48,10 @@ export default function SocialPage() {
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDesc, setNewGroupDesc] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Invite state
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitingGroupId, setInvitingGroupId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -128,6 +133,50 @@ export default function SocialPage() {
     if (!db || !user?.uid) return;
     deleteDocumentNonBlocking(doc(db, "groups", groupId));
     toast({ title: "Group Deleted", description: "The group has been removed." });
+  };
+
+  const handleAddMemberByEmail = async (groupId: string) => {
+    if (!db || !inviteEmail) return;
+    setLoading(true);
+    
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", inviteEmail.toLowerCase().trim()));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        toast({
+          variant: "destructive",
+          title: "User Not Found",
+          description: "No user found with that email address.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const foundUser = querySnapshot.docs[0];
+      const targetUid = foundUser.id;
+      const groupRef = doc(db, "groups", groupId);
+
+      updateDocumentNonBlocking(groupRef, {
+        members: arrayUnion(targetUid)
+      });
+
+      toast({
+        title: "Member Added",
+        description: `${foundUser.data().name || inviteEmail} has been added to the group.`,
+      });
+      setInviteEmail("");
+      setInvitingGroupId(null);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add member. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!mounted) {
@@ -256,7 +305,7 @@ export default function SocialPage() {
                         <span>{group.members?.length || 0} Members</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="border-t bg-muted/5 p-4 flex gap-2">
+                    <CardFooter className="border-t bg-muted/5 p-4 flex flex-wrap gap-2">
                       {isMember ? (
                         <Button variant="outline" className="flex-1" onClick={() => handleLeaveGroup(group.id)}>
                           <DoorOpen className="h-4 w-4 mr-2" /> Leave
@@ -266,10 +315,45 @@ export default function SocialPage() {
                           <UserPlus className="h-4 w-4 mr-2" /> Join Group
                         </Button>
                       )}
+                      
                       {isOwner && (
-                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGroup(group.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <>
+                          <Dialog open={invitingGroupId === group.id} onOpenChange={(open) => setInvitingGroupId(open ? group.id : null)}>
+                            <DialogTrigger asChild>
+                              <Button variant="secondary" className="flex-1">
+                                <MailPlus className="h-4 w-4 mr-2" /> Invite
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Add Member to {group.name}</DialogTitle>
+                                <DialogDescription>Enter the email address of the user you'd like to add.</DialogDescription>
+                              </DialogHeader>
+                              <div className="py-4">
+                                <Label htmlFor="invite-email">User Email</Label>
+                                <Input 
+                                  id="invite-email" 
+                                  type="email" 
+                                  placeholder="user@example.com" 
+                                  value={inviteEmail} 
+                                  onChange={(e) => setInviteEmail(e.target.value)} 
+                                />
+                              </div>
+                              <DialogFooter>
+                                <Button 
+                                  onClick={() => handleAddMemberByEmail(group.id)} 
+                                  disabled={loading || !inviteEmail}
+                                >
+                                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Group"}
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          
+                          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGroup(group.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </CardFooter>
                   </Card>
@@ -338,3 +422,4 @@ export default function SocialPage() {
     </div>
   );
 }
+
