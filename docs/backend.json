@@ -1,0 +1,567 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's personal information and preferences within the FitStride application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name as provided during registration or profile setup."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and profile identification.",
+          "format": "email"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The user's date of birth, used for age-related fitness metrics.",
+          "format": "date"
+        },
+        "weight": {
+          "type": "number",
+          "description": "The user's current weight."
+        },
+        "height": {
+          "type": "number",
+          "description": "The user's current height."
+        },
+        "gender": {
+          "type": "string",
+          "description": "The user's self-identified gender."
+        },
+        "unitPreference": {
+          "type": "string",
+          "description": "The user's preferred unit system for measurements (e.g., 'metric', 'imperial')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "createdAt"
+      ]
+    },
+    "Exercise": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Exercise",
+      "type": "object",
+      "description": "A catalog of various exercises available in the FitStride application, used for logging workouts and AI suggestions.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Exercise entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the exercise (e.g., 'Running', 'Bench Press', 'Squats')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or instructions for the exercise."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category the exercise belongs to (e.g., 'Cardio', 'Chest', 'Legs', 'Full Body')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category"
+      ]
+    },
+    "WorkoutSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WorkoutSession",
+      "type": "object",
+      "description": "Represents a single logged workout session by a user, acting as a container for individual exercises performed.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WorkoutSession entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N WorkoutSession)"
+        },
+        "sessionDateTime": {
+          "type": "string",
+          "description": "The date and time when the workout session occurred.",
+          "format": "date-time"
+        },
+        "durationMinutes": {
+          "type": "number",
+          "description": "The total duration of the workout session in minutes."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes or comments about the workout session."
+        },
+        "estimatedCaloriesBurned": {
+          "type": "number",
+          "description": "The estimated total calories burned during this workout session."
+        },
+        "type": {
+          "type": "string",
+          "description": "The general type of workout session (e.g., 'Cardio', 'Strength', 'Mixed', 'Other')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the workout session was logged.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the workout session was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "sessionDateTime",
+        "durationMinutes",
+        "type",
+        "createdAt"
+      ]
+    },
+    "LoggedExercise": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LoggedExercise",
+      "type": "object",
+      "description": "Represents a single exercise performed as part of a WorkoutSession, linking to specific exercise details (CardioDetails or StrengthDetails).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LoggedExercise entity."
+        },
+        "workoutSessionId": {
+          "type": "string",
+          "description": "Reference to WorkoutSession. (Relationship: WorkoutSession 1:N LoggedExercise)"
+        },
+        "exerciseId": {
+          "type": "string",
+          "description": "Reference to Exercise. (Relationship: Exercise 1:N LoggedExercise)"
+        },
+        "orderInSession": {
+          "type": "number",
+          "description": "The sequential order in which this exercise was performed within the workout session."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Specific notes for this particular instance of the exercise within the session."
+        }
+      },
+      "required": [
+        "id",
+        "workoutSessionId",
+        "exerciseId",
+        "orderInSession"
+      ]
+    },
+    "CardioDetails": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CardioDetails",
+      "type": "object",
+      "description": "Stores specific details for a cardio exercise logged within a WorkoutSession.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CardioDetails entity."
+        },
+        "loggedExerciseId": {
+          "type": "string",
+          "description": "Reference to LoggedExercise. (Relationship: LoggedExercise 1:1 CardioDetails)"
+        },
+        "distance": {
+          "type": "number",
+          "description": "The distance covered during the cardio exercise."
+        },
+        "distanceUnit": {
+          "type": "string",
+          "description": "The unit of measurement for the distance (e.g., 'miles', 'km')."
+        },
+        "caloriesBurned": {
+          "type": "number",
+          "description": "The estimated calories burned during this specific cardio exercise."
+        },
+        "averageSpeed": {
+          "type": "number",
+          "description": "The average speed maintained during the cardio exercise."
+        },
+        "heartRateData": {
+          "type": "array",
+          "description": "An array of heart rate readings collected during the cardio exercise.",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "loggedExerciseId",
+        "distance",
+        "distanceUnit",
+        "caloriesBurned"
+      ]
+    },
+    "StrengthDetails": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StrengthDetails",
+      "type": "object",
+      "description": "Stores general details for a strength training exercise logged within a WorkoutSession, acting as a container for individual sets.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the StrengthDetails entity."
+        },
+        "loggedExerciseId": {
+          "type": "string",
+          "description": "Reference to LoggedExercise. (Relationship: LoggedExercise 1:1 StrengthDetails)"
+        },
+        "totalSets": {
+          "type": "number",
+          "description": "The total number of sets performed for this strength exercise."
+        },
+        "totalReps": {
+          "type": "number",
+          "description": "The total number of repetitions performed across all sets for this strength exercise."
+        },
+        "oneRepMaxEstimate": {
+          "type": "number",
+          "description": "An estimated one-repetition maximum for this exercise instance, based on logged sets and reps."
+        }
+      },
+      "required": [
+        "id",
+        "loggedExerciseId",
+        "totalSets",
+        "totalReps"
+      ]
+    },
+    "SetDetails": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SetDetails",
+      "type": "object",
+      "description": "Records the specifics of a single set performed during a strength training exercise.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SetDetails entity."
+        },
+        "strengthDetailsId": {
+          "type": "string",
+          "description": "Reference to StrengthDetails. (Relationship: StrengthDetails 1:N SetDetails)"
+        },
+        "setNumber": {
+          "type": "number",
+          "description": "The sequential number of the set within the strength exercise."
+        },
+        "reps": {
+          "type": "number",
+          "description": "The number of repetitions performed in this set."
+        },
+        "weight": {
+          "type": "number",
+          "description": "The weight lifted for this set."
+        },
+        "weightUnit": {
+          "type": "string",
+          "description": "The unit of measurement for the weight (e.g., 'lbs', 'kg')."
+        }
+      },
+      "required": [
+        "id",
+        "strengthDetailsId",
+        "setNumber",
+        "reps",
+        "weight",
+        "weightUnit"
+      ]
+    },
+    "FitnessGoal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FitnessGoal",
+      "type": "object",
+      "description": "Defines a fitness goal set by a user, allowing for tracking and progress visualization.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FitnessGoal entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N FitnessGoal)"
+        },
+        "name": {
+          "type": "string",
+          "description": "A short, descriptive name for the fitness goal."
+        },
+        "description": {
+          "type": "string",
+          "description": "A more detailed description of the goal."
+        },
+        "goalType": {
+          "type": "string",
+          "description": "The type of fitness goal (e.g., 'Frequency', 'Distance', 'WeightLoss', 'StrengthGain', 'CaloriesBurned')."
+        },
+        "targetValue": {
+          "type": "number",
+          "description": "The numerical target value for the goal (e.g., 10 for '10 miles', 3 for '3 workouts/week')."
+        },
+        "targetUnit": {
+          "type": "string",
+          "description": "The unit corresponding to the target value (e.g., 'miles', 'times/week', 'kg', 'lbs', 'calories')."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The date when the fitness goal was started.",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The date when the fitness goal is expected to be completed or reviewed.",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the goal (e.g., 'Active', 'Completed', 'Achieved', 'Failed', 'Paused')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the fitness goal was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the fitness goal was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "goalType",
+        "targetValue",
+        "targetUnit",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/profile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores a user's personal profile information. The `id` field within the document will match the `{userId}` path parameter, ensuring authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/exercises/{exerciseId}",
+        "definition": {
+          "entityName": "Exercise",
+          "schema": {
+            "$ref": "#/backend/entities/Exercise"
+          },
+          "description": "A global, read-only catalog of exercises available in the application. Accessible to all authenticated users.",
+          "params": [
+            {
+              "name": "exerciseId",
+              "description": "The unique identifier for a specific exercise in the catalog."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutSessions/{workoutSessionId}",
+        "definition": {
+          "entityName": "WorkoutSession",
+          "schema": {
+            "$ref": "#/backend/entities/WorkoutSession"
+          },
+          "description": "Stores a specific workout session logged by a user. Includes denormalized `userId` for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this workout session."
+            },
+            {
+              "name": "workoutSessionId",
+              "description": "The unique identifier for a specific workout session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutSessions/{workoutSessionId}/loggedExercises/{loggedExerciseId}",
+        "definition": {
+          "entityName": "LoggedExercise",
+          "schema": {
+            "$ref": "#/backend/entities/LoggedExercise"
+          },
+          "description": "Represents an individual exercise performed within a workout session. Includes denormalized `userId` (inherited from the parent `WorkoutSession`) for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this logged exercise."
+            },
+            {
+              "name": "workoutSessionId",
+              "description": "The unique identifier of the parent workout session."
+            },
+            {
+              "name": "loggedExerciseId",
+              "description": "The unique identifier for this specific logged exercise."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutSessions/{workoutSessionId}/loggedExercises/{loggedExerciseId}/cardioDetails/{cardioDetailsId}",
+        "definition": {
+          "entityName": "CardioDetails",
+          "schema": {
+            "$ref": "#/backend/entities/CardioDetails"
+          },
+          "description": "Stores specific details for a cardio exercise logged within a workout session. Includes denormalized `userId` for authorization independence. The `cardioDetailsId` can be the same as `loggedExerciseId` for 1:1 mapping.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns these cardio details."
+            },
+            {
+              "name": "workoutSessionId",
+              "description": "The unique identifier of the parent workout session."
+            },
+            {
+              "name": "loggedExerciseId",
+              "description": "The unique identifier of the parent logged exercise."
+            },
+            {
+              "name": "cardioDetailsId",
+              "description": "The unique identifier for these cardio details. Typically matches `loggedExerciseId`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutSessions/{workoutSessionId}/loggedExercises/{loggedExerciseId}/strengthDetails/{strengthDetailsId}",
+        "definition": {
+          "entityName": "StrengthDetails",
+          "schema": {
+            "$ref": "#/backend/entities/StrengthDetails"
+          },
+          "description": "Stores general details for a strength training exercise logged within a workout session. Includes denormalized `userId` for authorization independence. The `strengthDetailsId` can be the same as `loggedExerciseId` for 1:1 mapping.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns these strength details."
+            },
+            {
+              "name": "workoutSessionId",
+              "description": "The unique identifier of the parent workout session."
+            },
+            {
+              "name": "loggedExerciseId",
+              "description": "The unique identifier of the parent logged exercise."
+            },
+            {
+              "name": "strengthDetailsId",
+              "description": "The unique identifier for these strength details. Typically matches `loggedExerciseId`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/workoutSessions/{workoutSessionId}/loggedExercises/{loggedExerciseId}/strengthDetails/{strengthDetailsId}/setDetails/{setDetailsId}",
+        "definition": {
+          "entityName": "SetDetails",
+          "schema": {
+            "$ref": "#/backend/entities/SetDetails"
+          },
+          "description": "Records the specifics of a single set performed during a strength training exercise. Includes denormalized `userId` for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns these set details."
+            },
+            {
+              "name": "workoutSessionId",
+              "description": "The unique identifier of the parent workout session."
+            },
+            {
+              "name": "loggedExerciseId",
+              "description": "The unique identifier of the parent logged exercise."
+            },
+            {
+              "name": "strengthDetailsId",
+              "description": "The unique identifier of the parent strength details."
+            },
+            {
+              "name": "setDetailsId",
+              "description": "The unique identifier for this specific set."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/fitnessGoals/{fitnessGoalId}",
+        "definition": {
+          "entityName": "FitnessGoal",
+          "schema": {
+            "$ref": "#/backend/entities/FitnessGoal"
+          },
+          "description": "Defines a fitness goal set by a user. Includes denormalized `userId` for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this fitness goal."
+            },
+            {
+              "name": "fitnessGoalId",
+              "description": "The unique identifier for a specific fitness goal."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for FitStride prioritizes security, scalability, and debuggability by strictly adhering to the core design principles. The structure uses a hierarchical, user-centric model for all personal data and a flat, global collection for shared, read-only data. \n\n**Authorization Independence (CRITICAL):** This design achieves Authorization Independence by explicitly denormalizing the `userId` into *every* document that belongs to a specific user. For example, `WorkoutSession`, `LoggedExercise`, `CardioDetails`, `StrengthDetails`, `SetDetails`, and `FitnessGoal` documents will all contain a `userId` field matching the `id` of the owning `UserProfile`. This allows Firestore Security Rules to directly check `request.auth.uid == resource.data.userId` and `request.auth.uid == userId` (from the path wildcard) on any document operation without needing to perform `get()` calls to parent documents to verify ownership. This avoids complex rule logic, prevents breaking atomic write operations (like transactions or batched writes), and significantly improves rule performance and debuggability.\n\n**QAPs (Rules are not Filters):** This structure supports Query-Aware Permissions (QAPs) through robust structural segregation:\n1.  **Private User Data:** All user-specific data is stored under `/users/{userId}/...`. Security rules will enforce that `request.auth.uid` must match the `{userId}` wildcard in the path for any read or write operation within these subcollections. This guarantees that `list` operations (queries) for a user's `workoutSessions`, `fitnessGoals`, or nested data will *only* return data owned by the authenticated user, without needing client-side filtering or server-side rule-based filtering that incurs performance penalties and security risks. The structure inherently prevents unauthorized users from even attempting to query another user's private data.\n2.  **Public Catalog Data:** The `/exercises/{exerciseId}` collection is a global, read-only catalog. Rules will permit `read` access to all authenticated users. This clear segregation ensures that querying `/exercises` will yield a complete list of available exercises for all users, again without requiring filtering by rules.\n\n**General Principles:**\n*   **Structural Segregation:** Data with different security postures (private user data vs. public catalog) is placed in distinct top-level collections, simplifying security rules immensely.\n*   **Access Modeling:** Path-based ownership (`/users/{userId}/...`) is consistently used for all user-owned data, creating a clear and intuitive hierarchy. This ensures that a user's `WorkoutSession` is nested under their `UserProfile`, and `LoggedExercise` under `WorkoutSession`, and so on, making ownership self-evident in the path.\n*   **Data Clarity:** Wildcards are descriptive (e.g., `{userId}`, `{workoutSessionId}`), and the explicit `userId` field provides clear ownership metadata within each document."
+  }
+}

@@ -1,0 +1,148 @@
+/**
+ * FitStride Firestore Security Rules
+ * 
+ * Core Philosophy:
+ * This ruleset implements a strict user-ownership model designed for "Authorization Independence." 
+ * Every piece of user data is either stored within a user-specific path or contains a denormalized 
+ * userId to allow for immediate, high-performance authorization checks without additional database reads.
+ * 
+ * Data Structure:
+ * - /users/{userId}/profile: Personal user information.
+ * - /exercises/{exerciseId}: A global, read-only catalog of exercise definitions.
+ * - /users/{userId}/workoutSessions/{id}: User-logged workout sessions and their nested details 
+ *   (exercises, sets, cardio/strength specifics).
+ * - /users/{userId}/fitnessGoals/{id}: Individual user fitness targets.
+ * 
+ * Key Security Decisions:
+ * 1. Ownership-Based Access: All paths prefixed with /users/{userId} are strictly restricted 
+ *    to the authenticated user whose UID matches the {userId} parameter.
+ * 2. Static Catalog: The /exercises collection is world-readable for authenticated users but 
+ *    is not writable via the client to maintain data integrity.
+ * 3. Relational Integrity: On creation, documents must include a userId or ID field that matches 
+ *    the path parameter to prevent data from being saved under the wrong account.
+ * 4. Immutability: Critical relational fields (like userId) are made immutable during updates 
+ *    to prevent users from "transferring" data between accounts.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user's UID matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the user is the owner and the document exists. Used for updates and deletes. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- Collection Rules ---
+
+    /** 
+     * @description Rules for the UserProfile document.
+     * @path /users/{userId}/profile
+     * @allow (get) If the user is the owner of the profile.
+     * @deny (update) If the user attempts to change the internal 'id' field.
+     * @principle Validates that the internal 'id' matches the path and ensures ownership.
+     */
+    match /users/{userId}/profile {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /** 
+     * @description Rules for the global Exercise catalog.
+     * @path /exercises/{exerciseId}
+     * @allow (list) All authenticated users to browse exercises.
+     * @deny (create) Any client-side attempt to modify the global catalog.
+     * @principle Provides a shared, read-only resource for all app users.
+     */
+    match /exercises/{exerciseId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+    /** 
+     * @description Rules for Workout Sessions.
+     * @path /users/{userId}/workoutSessions/{workoutSessionId}
+     * @allow (create) If the incoming data's userId matches the path and the auth UID.
+     * @deny (update) If the userId field is modified.
+     * @principle Enforces path-to-data consistency for ownership.
+     */
+    match /users/{userId}/workoutSessions/{workoutSessionId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+
+      /** 
+       * @description Individual exercises within a session.
+       * @path .../loggedExercises/{loggedExerciseId}
+       */
+      match /loggedExercises/{loggedExerciseId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.workoutSessionId == workoutSessionId;
+        allow update: if isExistingOwner(userId) && request.resource.data.workoutSessionId == resource.data.workoutSessionId;
+        allow delete: if isExistingOwner(userId);
+
+        /** 
+         * @description Cardio-specific details for a logged exercise.
+         * @path .../cardioDetails/{cardioDetailsId}
+         */
+        match /cardioDetails/{cardioDetailsId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.loggedExerciseId == loggedExerciseId;
+          allow update: if isExistingOwner(userId) && request.resource.data.loggedExerciseId == resource.data.loggedExerciseId;
+          allow delete: if isExistingOwner(userId);
+        }
+
+        /** 
+         * @description Strength-specific details for a logged exercise.
+         * @path .../strengthDetails/{strengthDetailsId}
+         */
+        match /strengthDetails/{strengthDetailsId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.loggedExerciseId == loggedExerciseId;
+          allow update: if isExistingOwner(userId) && request.resource.data.loggedExerciseId == resource.data.loggedExerciseId;
+          allow delete: if isExistingOwner(userId);
+
+          /** 
+           * @description Individual sets within a strength exercise.
+           * @path .../setDetails/{setDetailsId}
+           */
+          match /setDetails/{setDetailsId} {
+            allow get, list: if isOwner(userId);
+            allow create: if isOwner(userId) && request.resource.data.strengthDetailsId == strengthDetailsId;
+            allow update: if isExistingOwner(userId) && request.resource.data.strengthDetailsId == resource.data.strengthDetailsId;
+            allow delete: if isExistingOwner(userId);
+          }
+        }
+      }
+    }
+
+    /** 
+     * @description Rules for Fitness Goals.
+     * @path /users/{userId}/fitnessGoals/{fitnessGoalId}
+     * @allow (create) If the goal is linked to the correct user.
+     * @deny (get) If a user tries to view another user's goals.
+     * @principle Restricts access to a private user data tree.
+     */
+    match /users/{userId}/fitnessGoals/{fitnessGoalId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
