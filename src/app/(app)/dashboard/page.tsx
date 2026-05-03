@@ -67,7 +67,7 @@ export default function DashboardPage() {
     if (!workouts || workouts.length === 0) {
       return { 
         weeklyData: last7Days, 
-        activityData: [{ name: "W1", min: 0 }, { name: "W2", min: 0 }, { name: "W3", min: 0 }, { name: "Current", min: 0 }], 
+        activityData: [{ name: "W1", minutes: 0 }, { name: "W2", minutes: 0 }, { name: "W3", minutes: 0 }, { name: "Current", minutes: 0 }], 
         metrics: { calories: 0, minutes: 0, distance: 0, weeklyWorkouts: 0, weeklyCalories: 0 }, 
         recent: [] 
       };
@@ -93,9 +93,6 @@ export default function DashboardPage() {
       if (workoutDate >= startOfToday) {
         totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
         totalMinutesToday += Number(w.durationMinutes) || 0;
-        // Basic distance estimation if field missing, or use logged distance if available
-        // For simplicity in this MVP, we use the logged field if present (e.g. from subcollections or notes)
-        // Here we'll just check if it's a cardio workout and extract distance if we added it to the session doc
         totalDistanceToday += Number(w.distance) || 0; 
       }
 
@@ -106,10 +103,11 @@ export default function DashboardPage() {
       }
     });
 
+    // Remove hardcoded past trend values to reflect real zeroed state
     const activityTrend = [
-      { name: "W1", minutes: 10 },
-      { name: "W2", minutes: 25 },
-      { name: "W3", minutes: 15 },
+      { name: "W1", minutes: 0 },
+      { name: "W2", minutes: 0 },
+      { name: "W3", minutes: 0 },
       { name: "Current", minutes: totalMinutesToday },
     ];
 
