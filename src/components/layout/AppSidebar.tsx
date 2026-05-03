@@ -65,46 +65,46 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="border-r">
-      <SidebarHeader className="p-6">
+      <SidebarHeader className="p-4 sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
-            <Activity className="h-6 w-6 text-primary-foreground" />
+          <div className="bg-primary p-1.5 sm:p-2 rounded-xl shadow-lg shadow-primary/20">
+            <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
           </div>
-          <span className="font-headline font-bold text-xl tracking-tight text-primary">
+          <span className="font-headline font-bold text-lg sm:text-xl tracking-tight text-primary">
             FitStride
           </span>
         </div>
       </SidebarHeader>
-      <SidebarContent className="px-3">
-        <SidebarMenu className="gap-2">
+      <SidebarContent className="px-2 sm:px-3">
+        <SidebarMenu className="gap-1 sm:gap-2">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton 
                 asChild 
                 isActive={pathname === item.href}
                 tooltip={item.label}
-                className={`transition-all duration-200 py-6 ${pathname === item.href ? 'bg-primary/10 text-primary hover:bg-primary/15' : 'hover:bg-muted'}`}
+                className={`transition-all duration-200 py-4 sm:py-6 ${pathname === item.href ? 'bg-primary/10 text-primary hover:bg-primary/15' : 'hover:bg-muted'}`}
               >
-                <Link href={item.href} className="flex items-center gap-4">
-                  <item.icon className={`h-5 w-5 ${pathname === item.href ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className="font-medium">{item.label}</span>
+                <Link href={item.href} className="flex items-center gap-3 sm:gap-4">
+                  <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${pathname === item.href ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-medium text-sm sm:text-base">{item.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarSeparator className="my-4 opacity-50" />
-      <SidebarFooter className="p-4">
+      <SidebarSeparator className="my-2 sm:my-4 opacity-50" />
+      <SidebarFooter className="p-2 sm:p-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Logout" 
               onClick={handleLogout}
-              className="hover:bg-destructive/10 hover:text-destructive text-muted-foreground py-6"
+              className="hover:bg-destructive/10 hover:text-destructive text-muted-foreground py-4 sm:py-6"
             >
-              <LogOut className="h-5 w-5" />
-              <span className="font-medium">Logout</span>
+              <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="font-medium text-sm sm:text-base">Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
