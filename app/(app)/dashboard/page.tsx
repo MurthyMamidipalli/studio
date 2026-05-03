@@ -288,7 +288,7 @@ export default function DashboardPage() {
               <CardDescription>Last 3 logged activities</CardDescription>
             </div>
             <TrendingUp className="h-5 w-5 text-primary" />
-          </Header>
+          </CardHeader>
           <CardContent className="space-y-4">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
