@@ -282,7 +282,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground">Log your meals to see calorie trends and macro-nutrient breakdowns here.</p>
+               <p className="text-sm text-muted-foreground">Log your meals to see macro-nutrient breakdowns and calorie trends here.</p>
                <Link href="/nutrition">
                   <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     Go to Nutrition Tracker <ChevronRight className="h-4 w-4 ml-1" />
