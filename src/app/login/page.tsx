@@ -11,8 +11,7 @@ import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn } from "luci
 import { useAuth, useUser } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signInAnonymously 
+  signInWithEmailAndPassword
 } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,6 +27,7 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Only redirect if user is authenticated and loading has finished
     if (user && !isUserLoading) {
       router.push("/dashboard");
     }
@@ -60,18 +60,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleAnonymous = () => {
-    setLoading(true);
-    signInAnonymously(auth).catch((error: any) => {
-      setLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Guest Login Failed",
-        description: error.message,
-      });
-    });
-  };
-
   if (isUserLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -88,7 +76,7 @@ export default function LoginPage() {
             <Activity className="h-8 w-8" />
           </div>
           <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
-          <p className="text-muted-foreground text-lg">Your journey to peak fitness starts here.</p>
+          <p className="text-muted-foreground text-lg">Please log in to your account.</p>
         </div>
 
         <Card className="border-none shadow-2xl bg-card">
@@ -146,19 +134,6 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-3 text-muted-foreground font-medium">Or continue as</span>
-              </div>
-            </div>
-
-            <Button variant="outline" className="w-full h-11" onClick={handleAnonymous} disabled={loading}>
-              Try Guest Access
-            </Button>
           </CardContent>
           <CardFooter className="justify-center border-t bg-muted/5 py-4">
             <button 

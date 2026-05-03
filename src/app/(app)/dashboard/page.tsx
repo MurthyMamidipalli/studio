@@ -96,7 +96,7 @@ export default function DashboardPage() {
                 config={{ 
                   calories: { label: "Calories", color: "hsl(var(--primary))" }
                 }}
-                className="h-full w-full"
+                className="h-full w-full aspect-auto"
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyData}>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
                 config={{ 
                   minutes: { label: "Minutes", color: "hsl(var(--accent))" }
                 }}
-                className="h-full w-full"
+                className="h-full w-full aspect-auto"
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={activityData}>
