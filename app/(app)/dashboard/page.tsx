@@ -76,7 +76,6 @@ export default function DashboardPage() {
 
     let totalCaloriesToday = 0;
     let totalMinutesToday = 0;
-    let totalDistanceToday = 0;
     let totalWorkoutsThisWeek = 0;
 
     if (workouts && workouts.length > 0) {
@@ -85,7 +84,6 @@ export default function DashboardPage() {
         if (workoutDate >= startOfToday) {
           totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
           totalMinutesToday += Number(w.durationMinutes) || 0;
-          totalDistanceToday += Number(w.distance) || 0;
         }
         if (workoutDate >= startOfWeek) {
           totalWorkoutsThisWeek++;
@@ -127,7 +125,6 @@ export default function DashboardPage() {
       metrics: {
         calories: Math.round(totalCaloriesToday),
         minutes: totalMinutesToday,
-        distance: Number(totalDistanceToday.toFixed(1)),
         weeklyWorkouts: totalWorkoutsThisWeek,
         nutritionCalories: Math.round(nutritionCaloriesToday)
       },
@@ -282,7 +279,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-               <p className="text-sm text-muted-foreground">Log your meals to see calorie trends and macro-nutrient breakdowns here.</p>
+               <p className="text-sm text-muted-foreground">Log your meals to see macro-nutrient breakdowns and calorie trends here.</p>
                <Link href="/nutrition">
                   <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                     Go to Nutrition Tracker <ChevronRight className="h-4 w-4 ml-1" />
