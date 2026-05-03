@@ -169,12 +169,12 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-1 space-y-4">
-          <Card className="border-none shadow-sm overflow-hidden">
+          <Card className="border-none shadow-sm overflow-hidden rounded-2xl">
             <CardHeader className="bg-primary/5 text-center pt-8 pb-4">
               <div className="relative inline-block mx-auto">
                 <Avatar className="h-28 w-28 border-4 border-white shadow-xl">
                   <AvatarImage src={currentPhotoURL} alt={form.getValues("name")} className="object-cover" />
-                  <AvatarFallback className="text-2xl">{form.getValues("name")?.substring(0, 2).toUpperCase() || "FT"}</AvatarFallback>
+                  <AvatarFallback className="text-2xl font-bold bg-muted">{form.getValues("name")?.substring(0, 2).toUpperCase() || "FT"}</AvatarFallback>
                 </Avatar>
                 <button 
                   type="button"
@@ -191,8 +191,8 @@ export default function ProfilePage() {
                   onChange={handleFileUpload} 
                 />
               </div>
-              <CardTitle className="font-headline text-xl mt-4">{form.watch("name") || "User"}</CardTitle>
-              <CardDescription>Level {Math.floor((profile?.points || 0) / 100) + 1} Member</CardDescription>
+              <CardTitle className="font-headline text-xl mt-4 font-bold">{form.watch("name") || "User"}</CardTitle>
+              <CardDescription className="font-medium">Level {Math.floor((profile?.points || 0) / 100) + 1} Member</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <ProfileMenuItem icon={User} label="Basic Info" active={activeSection === 'personal'} onClick={() => setActiveSection('personal')} />
@@ -208,30 +208,30 @@ export default function ProfilePage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {activeSection === 'personal' && (
-                <Card className="border-none shadow-sm">
-                  <CardHeader><CardTitle className="font-headline">Identity</CardTitle></CardHeader>
+                <Card className="border-none shadow-sm rounded-2xl">
+                  <CardHeader><CardTitle className="font-headline font-bold">Identity</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <FormField control={form.control} name="name" render={({ field }) => (
-                      <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Alex Johnson" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Alex Johnson" className="h-11 rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} disabled /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" className="h-11 rounded-xl" {...field} disabled /></FormControl><FormMessage /></FormItem>
                     )} />
                     <div className="pt-2">
-                      <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                        <Upload className="h-4 w-4 mr-2" /> {uploading ? "Processing..." : "Change Photo"}
+                      <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="rounded-xl">
+                        <Upload className="h-4 w-4 mr-2" /> {uploading ? "Processing..." : "Choose Photo from Device"}
                       </Button>
                       <p className="text-[10px] text-muted-foreground mt-2 italic">Supports JPG, PNG (Max 2MB)</p>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit">Save Changes</Button></CardFooter>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Save Changes</Button></CardFooter>
                 </Card>
               )}
 
               {activeSection === 'fitness' && (
-                <Card className="border-none shadow-sm">
+                <Card className="border-none shadow-sm rounded-2xl">
                   <CardHeader>
-                    <CardTitle className="font-headline">Body & Health Stats</CardTitle>
+                    <CardTitle className="font-headline font-bold">Body & Health Stats</CardTitle>
                     <CardDescription>Your stats help us calculate calories and goals more accurately.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -239,63 +239,63 @@ export default function ProfilePage() {
                       <FormField control={form.control} name="age" render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2"><CalendarIcon className="h-4 w-4 text-muted-foreground" /> Age</FormLabel>
-                          <FormControl><Input type="number" {...field} /></FormControl>
+                          <FormControl><Input type="number" className="h-11 rounded-xl" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                       <FormField control={form.control} name="weight" render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2"><Scale className="h-4 w-4 text-muted-foreground" /> Weight (lbs)</FormLabel>
-                          <FormControl><Input type="number" {...field} /></FormControl>
+                          <FormControl><Input type="number" className="h-11 rounded-xl" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                       <FormField control={form.control} name="height" render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2"><Ruler className="h-4 w-4 text-muted-foreground" /> Height (in)</FormLabel>
-                          <FormControl><Input type="number" {...field} /></FormControl>
+                          <FormControl><Input type="number" className="h-11 rounded-xl" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit">Update Stats</Button></CardFooter>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Update Stats</Button></CardFooter>
                 </Card>
               )}
 
               {activeSection === 'notifications' && (
-                <Card className="border-none shadow-sm">
-                  <CardHeader><CardTitle className="font-headline">Alert Preferences</CardTitle></CardHeader>
+                <Card className="border-none shadow-sm rounded-2xl">
+                  <CardHeader><CardTitle className="font-headline font-bold">Alert Preferences</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <FormField control={form.control} name="emailNotifications" render={({ field }) => (
-                      <FormItem className="flex items-center justify-between p-4 border rounded-xl">
-                        <div className="space-y-0.5"><FormLabel>Email Updates</FormLabel><FormDescription>Receive weekly health summaries.</FormDescription></div>
+                      <FormItem className="flex items-center justify-between p-4 border rounded-2xl">
+                        <div className="space-y-0.5"><FormLabel className="font-bold">Email Updates</FormLabel><FormDescription>Receive weekly health summaries.</FormDescription></div>
                         <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="pushNotifications" render={({ field }) => (
-                      <FormItem className="flex items-center justify-between p-4 border rounded-xl">
-                        <div className="space-y-0.5"><FormLabel>Push Alerts</FormLabel><FormDescription>Stay on track with workout reminders.</FormDescription></div>
+                      <FormItem className="flex items-center justify-between p-4 border rounded-2xl">
+                        <div className="space-y-0.5"><FormLabel className="font-bold">Push Alerts</FormLabel><FormDescription>Stay on track with workout reminders.</FormDescription></div>
                         <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                       </FormItem>
                     )} />
                   </CardContent>
-                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit">Save Preferences</Button></CardFooter>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Save Preferences</Button></CardFooter>
                 </Card>
               )}
 
               {activeSection === 'privacy' && (
-                <Card className="border-none shadow-sm">
-                  <CardHeader><CardTitle className="font-headline">Privacy Controls</CardTitle></CardHeader>
+                <Card className="border-none shadow-sm rounded-2xl">
+                  <CardHeader><CardTitle className="font-headline font-bold">Privacy Controls</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <FormField control={form.control} name="publicProfile" render={({ field }) => (
-                      <FormItem className="flex items-center justify-between p-4 border rounded-xl">
-                        <div className="space-y-0.5"><FormLabel>Public Visibility</FormLabel><FormDescription>Allow other users to see your achievements.</FormDescription></div>
+                      <FormItem className="flex items-center justify-between p-4 border rounded-2xl">
+                        <div className="space-y-0.5"><FormLabel className="font-bold">Public Visibility</FormLabel><FormDescription>Allow other users to see your achievements.</FormDescription></div>
                         <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                       </FormItem>
                     )} />
                   </CardContent>
-                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit">Update Privacy</Button></CardFooter>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Update Privacy</Button></CardFooter>
                 </Card>
               )}
             </form>
@@ -310,13 +310,13 @@ function ProfileMenuItem({ icon: Icon, label, active, color, onClick }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`flex items-center justify-between p-4 cursor-pointer transition-colors border-b last:border-0 ${active ? 'bg-primary/5 text-primary border-r-4 border-primary' : 'hover:bg-muted/50 text-foreground'}`}
+      className={`flex items-center justify-between p-4 cursor-pointer transition-all border-b last:border-0 ${active ? 'bg-primary/10 text-primary border-r-4 border-primary font-bold' : 'hover:bg-muted/50 text-foreground font-medium'}`}
     >
       <div className={`flex items-center gap-3 ${color || ''}`}>
-        <Icon className="h-5 w-5" />
-        <span className="text-sm font-medium">{label}</span>
+        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+        <span className="text-sm">{label}</span>
       </div>
-      <ChevronRight className={`h-4 w-4 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+      <ChevronRight className={`h-4 w-4 ${active ? 'text-primary' : 'text-muted-foreground/40'}`} />
     </div>
   );
 }

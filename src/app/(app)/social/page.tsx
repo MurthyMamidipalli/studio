@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, Suspense, useMemo } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useUser, useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase";
 import { collection, query, orderBy, limit, doc, arrayUnion, serverTimestamp, arrayRemove, where, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -30,7 +30,8 @@ import {
   Lock,
   Clock,
   UserCheck,
-  UserX
+  UserX,
+  Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -230,6 +231,12 @@ function SocialContent() {
     setLoading(false);
   };
 
+  const handleCopyLink = (groupId: string) => {
+    const url = `${window.location.origin}/social?join=${groupId}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link Copied", description: "Share this link with friends to join your group!" });
+  };
+
   const reviewGroup = allGroups?.find(g => g.id === reviewGroupId);
   const pendingUserIds = reviewGroup?.pendingRequests || [];
   const pendingUsers = allUsers?.filter(u => pendingUserIds.includes(u.id)) || [];
@@ -246,7 +253,7 @@ function SocialContent() {
         
         <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
+            <Button className="bg-primary hover:bg-primary/90 shadow-md">
               <Plus className="h-4 w-4 mr-2" /> Create Group
             </Button>
           </DialogTrigger>
@@ -287,34 +294,34 @@ function SocialContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-3">
-          <TabsTrigger value="leaderboard">Rankings</TabsTrigger>
-          <TabsTrigger value="groups">Groups</TabsTrigger>
-          <TabsTrigger value="challenges">Events</TabsTrigger>
+        <TabsList className="grid w-full max-w-[400px] grid-cols-3 bg-muted/50 p-1 rounded-xl">
+          <TabsTrigger value="leaderboard" className="rounded-lg">Rankings</TabsTrigger>
+          <TabsTrigger value="groups" className="rounded-lg">Groups</TabsTrigger>
+          <TabsTrigger value="challenges" className="rounded-lg">Events</TabsTrigger>
         </TabsList>
 
         <TabsContent value="leaderboard" className="mt-6">
-          <Card className="border-none shadow-sm">
-            <CardHeader><CardTitle className="font-headline">Global Leaderboard</CardTitle></CardHeader>
+          <Card className="border-none shadow-sm overflow-hidden">
+            <CardHeader className="pb-2"><CardTitle className="font-headline text-xl">Global Leaderboard</CardTitle></CardHeader>
             <CardContent>
               {isLeaderboardLoading ? (
                 <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
               ) : (
                 <div className="space-y-3">
                   {leaderboard?.map((p, i) => (
-                    <div key={p.id} className={`flex items-center justify-between p-4 rounded-xl border ${p.id === user?.uid ? 'bg-primary/5 border-primary/20' : 'bg-card'}`}>
+                    <div key={p.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${p.id === user?.uid ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-card hover:border-muted-foreground/20'}`}>
                       <div className="flex items-center gap-4">
-                        <span className="w-6 font-bold text-muted-foreground">{i + 1}</span>
-                        <Avatar className="h-10 w-10"><AvatarImage src={p.photoURL} /><AvatarFallback>{p.name?.[0]}</AvatarFallback></Avatar>
+                        <span className={`w-6 font-black ${i < 3 ? 'text-yellow-500' : 'text-muted-foreground'}`}>{i + 1}</span>
+                        <Avatar className="h-10 w-10 border-2 border-background shadow-sm"><AvatarImage src={p.photoURL} /><AvatarFallback>{p.name?.[0]}</AvatarFallback></Avatar>
                         <div>
-                          <p className="font-bold flex items-center gap-2">{p.name} {p.id === user?.uid && <Badge variant="outline" className="text-[10px]">YOU</Badge>}</p>
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                          <p className="font-bold flex items-center gap-2 text-sm md:text-base">{p.name} {p.id === user?.uid && <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-none">YOU</Badge>}</p>
+                          <div className="flex items-center gap-3 text-[10px] text-muted-foreground font-medium">
                              <span className="flex items-center gap-1"><Flame className="h-3 w-3 text-orange-500" /> {p.currentStreak || 0}d</span>
                              <span className="flex items-center gap-1"><Star className="h-3 w-3 text-yellow-500" /> {p.points || 0} XP</span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right"><p className="text-sm font-black text-primary">{p.points || 0} XP</p></div>
+                      <div className="text-right"><p className="text-sm md:text-base font-black text-primary">{p.points || 0} XP</p></div>
                     </div>
                   ))}
                 </div>
@@ -337,8 +344,9 @@ function SocialContent() {
                      onDelete={handleDeleteGroup}
                      onInviteClick={(id: string) => setInvitingGroupId(id)}
                      onReviewClick={(id: string) => setReviewGroupId(id)}
+                     onCopyLink={handleCopyLink}
                    />
-                 )) : <p className="col-span-full text-center py-8 text-muted-foreground text-sm italic">You haven't joined any groups yet.</p>}
+                 )) : <p className="col-span-full text-center py-12 text-muted-foreground text-sm italic border-2 border-dashed rounded-2xl">You haven't joined any groups yet. Start one or explore!</p>}
              </div>
           </div>
 
@@ -359,19 +367,19 @@ function SocialContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {isChallengesLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto col-span-full" /> : 
              challenges?.map(c => (
-               <Card key={c.id} className="border-none shadow-sm overflow-hidden flex flex-col">
-                 <div className="h-1 bg-accent w-full" />
+               <Card key={c.id} className="border-none shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all">
+                 <div className="h-1.5 bg-accent w-full" />
                  <CardHeader>
                    <div className="flex justify-between items-start">
-                     <Badge variant="secondary" className="bg-accent/10 text-accent">{c.targetType}</Badge>
-                     <span className="text-xs text-muted-foreground flex items-center gap-1"><Users className="h-3 w-3" /> {c.participants?.length || 0}</span>
+                     <Badge variant="secondary" className="bg-accent/10 text-accent font-bold border-none uppercase text-[10px]">{c.targetType}</Badge>
+                     <span className="text-xs text-muted-foreground font-bold flex items-center gap-1"><Users className="h-3 w-3" /> {c.participants?.length || 0} Joined</span>
                    </div>
-                   <CardTitle className="font-headline text-xl mt-2">{c.title}</CardTitle>
-                   <CardDescription>{c.description}</CardDescription>
+                   <CardTitle className="font-headline text-xl mt-3">{c.title}</CardTitle>
+                   <CardDescription className="line-clamp-2">{c.description}</CardDescription>
                  </CardHeader>
-                 <CardFooter className="mt-auto border-t bg-muted/5">
+                 <CardFooter className="mt-auto border-t bg-muted/5 p-4">
                    <Button 
-                    className="w-full" 
+                    className="w-full font-bold" 
                     variant={c.participants?.includes(user?.uid) ? "outline" : "default"}
                     disabled={c.participants?.includes(user?.uid)}
                     onClick={() => handleJoinChallenge(c.id)}
@@ -387,36 +395,56 @@ function SocialContent() {
 
       {/* Invite Modal */}
       <Dialog open={!!invitingGroupId} onOpenChange={o => !o && setInvitingGroupId(null)}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader><DialogTitle>Invite Member</DialogTitle></DialogHeader>
-          <div className="py-4 space-y-2">
-            <Label>User Email</Label>
-            <Input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="name@example.com" />
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">User Email</Label>
+              <div className="relative">
+                 <MailPlus className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                 <Input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="fitness.friend@example.com" className="pl-10" />
+              </div>
+            </div>
+            <div className="pt-2">
+               <Button variant="outline" className="w-full text-xs" onClick={() => handleCopyLink(invitingGroupId!)}>
+                  <Share2 className="h-3 w-3 mr-2" /> Copy Shareable Join Link
+               </Button>
+            </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => invitingGroupId && handleAddByEmail(invitingGroupId)} disabled={loading || !inviteEmail}>Add Member</Button>
+            <Button className="w-full" onClick={() => invitingGroupId && handleAddByEmail(invitingGroupId)} disabled={loading || !inviteEmail}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Group"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Review Requests Modal */}
       <Dialog open={!!reviewGroupId} onOpenChange={o => !o && setReviewGroupId(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Review Join Requests</DialogTitle><DialogDescription>Pending requests for "{reviewGroup?.name}"</DialogDescription></DialogHeader>
-          <ScrollArea className="max-h-[300px] mt-4">
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader><DialogTitle className="font-headline">Review Join Requests</DialogTitle><DialogDescription>Applicants for "{reviewGroup?.name}"</DialogDescription></DialogHeader>
+          <ScrollArea className="max-h-[400px] mt-4">
             <div className="space-y-4 pr-4">
               {pendingUsers.length > 0 ? pendingUsers.map(u => (
-                <div key={u.id} className="flex items-center justify-between p-3 rounded-xl border bg-card">
+                <div key={u.id} className="flex items-center justify-between p-4 rounded-2xl border bg-card shadow-sm">
                   <div className="flex items-center gap-3">
-                    <Avatar><AvatarImage src={u.photoURL} /><AvatarFallback>{u.name?.[0]}</AvatarFallback></Avatar>
-                    <span className="text-sm font-bold">{u.name}</span>
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm"><AvatarImage src={u.photoURL} /><AvatarFallback>{u.name?.[0]}</AvatarFallback></Avatar>
+                    <div className="flex flex-col">
+                       <span className="text-sm font-bold">{u.name}</span>
+                       <span className="text-[10px] text-muted-foreground">Level {Math.floor((u.points || 0) / 100) + 1}</span>
+                    </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-500" onClick={() => handleApproveRequest(reviewGroupId!, u.id)}><UserCheck className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeclineRequest(reviewGroupId!, u.id)}><UserX className="h-4 w-4" /></Button>
+                    <Button size="icon" variant="ghost" className="h-9 w-9 text-emerald-500 bg-emerald-50 hover:bg-emerald-100 rounded-full" onClick={() => handleApproveRequest(reviewGroupId!, u.id)}><UserCheck className="h-5 w-5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-full" onClick={() => handleDeclineRequest(reviewGroupId!, u.id)}><UserX className="h-5 w-5" /></Button>
                   </div>
                 </div>
-              )) : <p className="text-center text-sm text-muted-foreground py-8 italic">No pending requests.</p>}
+              )) : (
+                <div className="text-center py-12 space-y-3">
+                   <Clock className="h-8 w-8 text-muted-foreground mx-auto" />
+                   <p className="text-sm text-muted-foreground italic">No pending requests at the moment.</p>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </DialogContent>
@@ -425,32 +453,32 @@ function SocialContent() {
   );
 }
 
-function GroupCard({ group, user, onJoin, onRequestJoin, onLeave, onDelete, onInviteClick, onReviewClick }: any) {
+function GroupCard({ group, user, onJoin, onRequestJoin, onLeave, onDelete, onInviteClick, onReviewClick, onCopyLink }: any) {
   const isOwner = group.ownerId === user?.uid;
   const isMember = group.members?.includes(user?.uid) || isOwner;
   const isPending = group.pendingRequests?.includes(user?.uid);
   const requestCount = group.pendingRequests?.length || 0;
 
   return (
-    <Card className="border-none shadow-sm flex flex-col hover:shadow-md transition-shadow">
+    <Card className={`border-none shadow-sm flex flex-col hover:shadow-md transition-all group ${isOwner ? 'ring-1 ring-primary/20' : ''}`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="font-headline text-lg truncate pr-2">{group.name}</CardTitle>
           <div className="flex flex-col items-end gap-1 shrink-0">
-             {isOwner && <Badge className="bg-primary/10 text-primary border-none text-[10px]">OWNER</Badge>}
-             <Badge variant="outline" className="text-[9px] h-4 uppercase tracking-tighter">
-               {group.isPublic ? <Globe className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+             {isOwner && <Badge className="bg-primary text-primary-foreground border-none text-[8px] font-black tracking-widest px-1.5 h-4">ADMIN</Badge>}
+             <Badge variant="outline" className="text-[9px] h-4 uppercase font-bold tracking-tight bg-muted/20 border-none">
+               {group.isPublic ? <Globe className="h-3 w-3 mr-1 text-primary" /> : <Lock className="h-3 w-3 mr-1 text-accent" />}
                {group.isPublic ? "Public" : "Private"}
              </Badge>
           </div>
         </div>
-        <CardDescription className="line-clamp-2 h-10">{group.description}</CardDescription>
+        <CardDescription className="line-clamp-2 h-10 text-xs">{group.description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {group.members?.length || 0}</span>
+      <CardContent className="flex-grow pb-4">
+        <div className="flex items-center gap-4 text-xs font-bold">
+          <span className="flex items-center gap-1.5 text-muted-foreground bg-muted/30 px-2.5 py-1 rounded-full"><Users className="h-3.5 w-3.5" /> {group.members?.length || 0}</span>
           {isOwner && requestCount > 0 && (
-            <span className="flex items-center gap-1 text-orange-500 font-bold"><Clock className="h-3 w-3" /> {requestCount} Requests</span>
+            <span className="flex items-center gap-1.5 text-orange-500 bg-orange-50 px-2.5 py-1 rounded-full"><Clock className="h-3.5 w-3.5" /> {requestCount} PENDING</span>
           )}
         </div>
       </CardContent>
@@ -459,34 +487,39 @@ function GroupCard({ group, user, onJoin, onRequestJoin, onLeave, onDelete, onIn
           <div className="flex w-full gap-2">
             {isOwner && (
               <>
-                <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => onReviewClick(group.id)}>
-                   <UserCheck className="h-3 w-3 mr-1" /> Review {requestCount > 0 && `(${requestCount})`}
+                <Button variant="outline" size="sm" className="flex-1 text-[10px] h-9 rounded-xl font-bold" onClick={() => onReviewClick(group.id)}>
+                   <UserCheck className="h-3.5 w-3.5 mr-1" /> {requestCount > 0 ? `REVIEW (${requestCount})` : 'REQUESTS'}
                 </Button>
-                <Button variant="secondary" size="sm" className="flex-1 text-xs" onClick={() => onInviteClick(group.id)}>
-                   <MailPlus className="h-3 w-3 mr-1" /> Invite
+                <Button variant="secondary" size="sm" className="flex-1 text-[10px] h-9 rounded-xl font-bold" onClick={() => onInviteClick(group.id)}>
+                   <MailPlus className="h-3.5 w-3.5 mr-1" /> INVITE
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(group.id)}>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:bg-destructive/10 rounded-xl" onClick={() => onDelete(group.id)}>
                    <Trash2 className="h-4 w-4" />
                 </Button>
               </>
             )}
             {!isOwner && (
-              <Button variant="outline" className="w-full text-xs" onClick={() => onLeave(group.id)}>
-                 <DoorOpen className="h-4 w-4 mr-2" /> Leave Group
-              </Button>
+              <div className="flex w-full gap-2">
+                <Button variant="outline" className="flex-1 text-xs h-9 rounded-xl font-bold" onClick={() => onCopyLink(group.id)}>
+                   <Share2 className="h-3.5 w-3.5 mr-2" /> SHARE
+                </Button>
+                <Button variant="ghost" className="flex-1 text-xs h-9 rounded-xl text-destructive hover:bg-destructive/10" onClick={() => onLeave(group.id)}>
+                   LEAVE
+                </Button>
+              </div>
             )}
           </div>
         ) : isPending ? (
-          <Button disabled className="w-full bg-muted text-muted-foreground text-xs">
-            <Clock className="h-4 w-4 mr-2" /> Request Pending
+          <Button disabled className="w-full bg-muted text-muted-foreground text-xs h-10 rounded-xl">
+            <Clock className="h-4 w-4 mr-2" /> REQUEST PENDING
           </Button>
         ) : group.isPublic ? (
-          <Button className="w-full text-xs" onClick={() => onJoin(group.id)}>
-            <UserPlus className="h-4 w-4 mr-2" /> Join Community
+          <Button className="w-full text-xs h-10 rounded-xl font-bold bg-primary hover:bg-primary/90" onClick={() => onJoin(group.id)}>
+            <UserPlus className="h-4 w-4 mr-2" /> JOIN COMMUNITY
           </Button>
         ) : (
-          <Button className="w-full text-xs bg-accent text-accent-foreground" onClick={() => onRequestJoin(group.id)}>
-            <Target className="h-4 w-4 mr-2" /> Request to Join
+          <Button className="w-full text-xs h-10 rounded-xl font-bold bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => onRequestJoin(group.id)}>
+            <Target className="h-4 w-4 mr-2" /> REQUEST TO JOIN
           </Button>
         )}
       </CardFooter>

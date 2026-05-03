@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw, Eye, EyeOff } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const { user, isUserLoading } = useUser();
@@ -200,13 +201,20 @@ export default function LoginPage() {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="password" 
-                      type="password" 
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••" 
-                      className="pl-9 h-11"
+                      className="pl-9 pr-10 h-11"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
                 <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
