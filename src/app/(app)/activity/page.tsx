@@ -12,7 +12,9 @@ import {
   Loader2, 
   Activity as ActivityIcon,
   TrendingUp,
-  History
+  History,
+  RefreshCw,
+  Zap
 } from "lucide-react";
 import { 
   XAxis, 
@@ -25,6 +27,7 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy, limit, Timestamp } from "firebase/firestore";
+import { Badge } from "@/components/ui/badge";
 
 export default function ActivityInsightsPage() {
   const { user } = useUser();
@@ -107,16 +110,25 @@ export default function ActivityInsightsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary flex items-center gap-2">
-          <ActivityIcon className="h-6 w-6" /> Activity Insights
-        </h1>
-        <p className="text-muted-foreground text-sm">Detailed performance and health metrics.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary flex items-center gap-2">
+            <ActivityIcon className="h-6 w-6" /> Activity Insights
+          </h1>
+          <p className="text-muted-foreground text-sm">Real-time performance and health metrics.</p>
+        </div>
+        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-7 px-3 flex items-center gap-2">
+          <RefreshCw className="h-3 w-3 animate-spin-slow" /> Tracking Automatically
+        </Badge>
       </div>
 
-      {/* Grouped Metrics - More compact */}
-      <Card className="border-none shadow-md">
-        <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-6">
+      {/* Grouped Metrics */}
+      <Card className="border-none shadow-md overflow-hidden">
+        <div className="bg-primary/5 p-2 px-4 flex items-center gap-2 border-b">
+          <Zap className="h-3 w-3 text-primary" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Daily Snapshot</span>
+        </div>
+        <CardContent className="p-6 grid grid-cols-2 md:grid-cols-5 gap-8">
           <CompactMetric title="Steps" value={processedData.metrics.steps} icon={Footprints} color="text-blue-500" />
           <CompactMetric title="Heart Rate" value={processedData.metrics.hr || "--"} unit="bpm" icon={Heart} color="text-red-500" />
           <CompactMetric title="Distance" value={processedData.metrics.distance} unit="mi" icon={MapPin} color="text-green-500" />
@@ -127,7 +139,7 @@ export default function ActivityInsightsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-none shadow-md overflow-hidden">
-          <CardHeader className="bg-primary/5 pb-2">
+          <CardHeader className="bg-muted/5 pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" /> Step Trends
             </CardTitle>
@@ -155,8 +167,8 @@ export default function ActivityInsightsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-md">
-          <CardHeader className="bg-muted/10 pb-2">
+        <Card className="border-none shadow-md overflow-hidden">
+          <CardHeader className="bg-muted/5 pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <History className="h-4 w-4 text-muted-foreground" /> Historical Logs
             </CardTitle>
@@ -165,12 +177,12 @@ export default function ActivityInsightsPage() {
             <div className="max-h-[350px] overflow-y-auto">
               {processedData.charts.length > 0 ? (
                 [...processedData.charts].reverse().map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-muted/10 transition-colors">
+                  <div key={idx} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted/5 transition-colors">
                     <div>
                       <p className="font-bold text-xs">{item.date}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Entry Logged</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">Auto-Logged</p>
                     </div>
-                    <div className="flex gap-4 text-xs font-bold">
+                    <div className="flex gap-6 text-xs font-black">
                        <div className="text-right">
                          <p className="text-primary">{item.steps}</p>
                          <p className="text-[8px] text-muted-foreground">STEPS</p>
@@ -184,7 +196,7 @@ export default function ActivityInsightsPage() {
                 ))
               ) : (
                 <div className="p-10 text-center text-muted-foreground text-xs italic">
-                  No metrics found.
+                  No tracking data available yet.
                 </div>
               )}
             </div>
@@ -197,14 +209,14 @@ export default function ActivityInsightsPage() {
 
 function CompactMetric({ title, value, unit, icon: Icon, color }: any) {
   return (
-    <div className="flex flex-col items-center text-center gap-1.5">
-      <div className={`p-2 rounded-lg bg-muted/30 ${color}`}>
-        <Icon className="h-4 w-4" />
+    <div className="flex flex-col items-center text-center gap-2">
+      <div className={`p-2.5 rounded-xl bg-muted/50 ${color} shadow-sm`}>
+        <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">{title}</p>
-        <p className="text-lg font-headline font-bold mt-0.5 leading-none">
-          {value}<span className="text-[10px] ml-0.5 font-normal text-muted-foreground">{unit}</span>
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">{title}</p>
+        <p className="text-xl font-headline font-bold mt-1 leading-none">
+          {value}<span className="text-xs ml-0.5 font-normal text-muted-foreground">{unit}</span>
         </p>
       </div>
     </div>
