@@ -168,7 +168,7 @@ export default function FoodAdvisorPage() {
               <RefreshCcw className="mr-2 h-4 w-4" /> Reset Analysis
             </Button>
             <p className="text-[10px] text-muted-foreground font-black tracking-widest uppercase flex items-center gap-2">
-              <AlertCircle className="h-3 w-3" /> Data provided by FitStride AI based on current metabolic activity.
+              <AlertCircle className="h-3 w-3" /> Data provided by Fitify AI based on current metabolic activity.
             </p>
           </div>
         </div>

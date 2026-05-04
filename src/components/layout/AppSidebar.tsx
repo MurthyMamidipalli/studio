@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -84,7 +85,7 @@ export function AppSidebar() {
             <Activity className="h-6 w-6 text-primary-foreground" />
           </div>
           <span className="font-headline font-bold text-xl tracking-tight text-sidebar-foreground truncate">
-            FitStride
+            Fitify
           </span>
         </div>
       </SidebarHeader>

@@ -5,8 +5,8 @@ import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'FitStride | Your Modern Fitness Tracker',
-  description: 'Log workouts, set goals, and get AI-inspired routines with FitStride.',
+  title: 'Fitify | Your Modern Fitness Tracker',
+  description: 'Log workouts, set goals, and get AI-inspired routines with Fitify.',
 };
 
 export default function RootLayout({

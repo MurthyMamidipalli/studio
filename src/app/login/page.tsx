@@ -92,7 +92,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Activity className="h-12 w-12 text-primary mx-auto mb-2" />
-          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight text-center">FitStride</h1>
+          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight text-center">Fitify</h1>
           <p className="text-muted-foreground font-medium text-center">Your automated biometric ecosystem.</p>
         </div>
 
@@ -146,7 +146,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="justify-center border-t py-6 bg-muted/5">
             <button onClick={() => setIsSignUp(!isSignUp)} className="text-xs font-black text-primary uppercase tracking-[0.2em] hover:underline">
-              {isSignUp ? "Already a member? Log In" : "New to FitStride? Join Now"}
+              {isSignUp ? "Already a member? Log In" : "New to Fitify? Join Now"}
             </button>
           </CardFooter>
         </Card>

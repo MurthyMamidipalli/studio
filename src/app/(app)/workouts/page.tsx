@@ -189,7 +189,7 @@ export default function WorkoutsPage() {
   };
 
   const handleShare = (workout: any) => {
-    const text = `I just finished a ${workout.type} workout on FitStride! 🏃‍♂️💪\n\nWorkout: ${workout.notes}\nDuration: ${workout.durationMinutes} mins\nBurned: ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal\n\nJoin me on FitStride!`;
+    const text = `I just finished a ${workout.type} workout on Fitify! 🏃‍♂️💪\n\nWorkout: ${workout.notes}\nDuration: ${workout.durationMinutes} mins\nBurned: ${Math.round(workout.estimatedCaloriesBurned || 0)} kcal\n\nJoin me on Fitify!`;
     navigator.clipboard.writeText(text);
     toast({
       title: "Link Copied!",
