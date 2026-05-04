@@ -1,12 +1,6 @@
 
-# Settings to manage and configure a Firebase App Hosting backend.
-# https://firebase.google.com/docs/app-hosting/configure
-
 runConfig:
-  # Optimize for scaling during traffic spikes by increasing max instances
-  maxInstances: 15
-  # Ensure some capacity is always ready for faster initial responses
+  maxInstances: 20
   minInstances: 1
-  # Standard CPU and Memory configuration
   cpu: 1
   memoryMiB: 512

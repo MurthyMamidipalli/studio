@@ -107,13 +107,13 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">
-              Welcome back, {displayName}
+              Hello, {displayName}
             </h1>
             <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 flex items-center gap-1 h-5 text-[10px] font-bold">
               <RefreshCw className="h-2.5 w-2.5 animate-spin-slow" /> TRACKED AUTOMATICALLY
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">Your health data is synchronized in real-time.</p>
+          <p className="text-muted-foreground text-sm">Real-time biometric synchronization is active.</p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/actions">
@@ -125,10 +125,6 @@ export default function DashboardPage() {
             <Star className="h-4 w-4 text-primary fill-primary" />
             <span className="font-bold text-primary">{profile?.points || 0} XP</span>
           </div>
-          <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20">
-            <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
-            <span className="font-bold text-orange-500">{profile?.currentStreak || 0}d</span>
-          </div>
         </div>
       </div>
 
@@ -138,7 +134,7 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
             <div>
               <CardTitle className="font-headline text-xl">Weekly Energy Trends</CardTitle>
-              <CardDescription className="text-xs">Energy expenditure across the last 7 days (kcal)</CardDescription>
+              <CardDescription className="text-xs">Energy expenditure (kcal) per session</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="pt-6">
@@ -167,28 +163,20 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 bg-white rounded-2xl shadow-sm border border-primary/10">
-              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Weekly Summary</p>
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Health Summary</p>
               <p className="text-sm font-medium leading-relaxed">
-                You've burned <span className="text-primary font-bold">{processedData.stats.totalCals} kcal</span> this week. That's {processedData.stats.trend}% of your target metabolic activity.
+                You've burned <span className="text-primary font-bold">{processedData.stats.totalCals} kcal</span> this week. That's a strong trend!
               </p>
             </div>
             
             <div className="p-4 bg-white rounded-2xl shadow-sm border border-primary/10">
-              <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">AI Suggestion</p>
+              <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">AI Recommendation</p>
               <p className="text-sm font-medium leading-relaxed italic">
-                "Try generating a routine based on your last activity! You've shown high intensity recently; a recovery flow would be optimal today."
+                "Try generating a recovery workout based on your last high-intensity activity."
               </p>
               <Link href="/coach">
                 <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-3 text-primary font-bold">
-                  Start AI session <ArrowUpRight className="h-3 w-3 ml-1" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="pt-2">
-              <Link href="/activity">
-                <Button className="w-full text-xs h-11 font-bold shadow-md rounded-xl" variant="secondary">
-                  Open Activity Analysis
+                  Generate Inspiration <ArrowUpRight className="h-3 w-3 ml-1" />
                 </Button>
               </Link>
             </div>
@@ -200,50 +188,50 @@ export default function DashboardPage() {
         {/* MEDIUM CARD: Recent Activity */}
         <Card className="lg:col-span-2 shadow-md border-none rounded-3xl">
           <CardHeader className="pb-4">
-            <CardTitle className="font-headline text-lg">Recent Session History</CardTitle>
+            <CardTitle className="font-headline text-lg">Session History</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
-                <div key={w.id} className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-all hover:scale-[1.01]">
+                <div key={w.id} className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-all">
                   <div className="flex items-center gap-3">
                     <div className={`w-1.5 h-10 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
                     <div>
                       <p className="font-bold text-sm truncate">{w.notes || "Activity Log"}</p>
                       <p className="text-[10px] text-muted-foreground uppercase font-semibold">
-                        {w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "Recently"}
+                        {w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recent"}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-black text-primary">{w.durationMinutes}m • {Math.round(w.estimatedCaloriesBurned || 0)} kcal</p>
+                    <p className="text-xs font-black text-primary">{Math.round(w.estimatedCaloriesBurned || 0)} kcal</p>
                     <p className="text-[9px] uppercase tracking-tighter text-muted-foreground font-black">{w.type}</p>
                   </div>
                 </div>
               ))
             ) : (
               <div className="text-center py-12 bg-muted/10 rounded-2xl border border-dashed">
-                <p className="text-xs text-muted-foreground font-medium italic">No recent activity logs available.</p>
+                <p className="text-xs text-muted-foreground">No recent sessions found.</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* SMALL CARD: Secondary Tools */}
+        {/* SMALL CARD: Progression */}
         <Card className="shadow-md border-none bg-accent/5 rounded-3xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-primary" /> Progression
+              <Trophy className="h-4 w-4 text-primary" /> Level Progress
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-2">
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border/20 shadow-sm">
-              <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Level Progress</div>
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-border/20 shadow-sm">
+              <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Progression</div>
               <div className="text-xs font-black text-primary">{(profile?.points || 0) % 100}%</div>
             </div>
             <Link href="/goals" className="block">
               <Button variant="outline" className="w-full text-xs h-11 font-black bg-white shadow-sm border-2 rounded-xl">
-                Manage Targets <ChevronRight className="h-3 w-3 ml-1" />
+                View All Goals <ChevronRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>
           </CardContent>

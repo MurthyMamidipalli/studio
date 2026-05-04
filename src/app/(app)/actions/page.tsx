@@ -4,7 +4,6 @@
 import { Card } from "@/components/ui/card";
 import { Sparkles, Activity as ActivityIcon, ArrowRight, Dumbbell, Zap } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 
 export default function ActionsPage() {
   return (
@@ -52,7 +51,7 @@ export default function ActionsPage() {
           <Sparkles className="h-5 w-5 text-accent" /> Pro Efficiency
         </h3>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl font-medium">
-          The "Analyze" tool uses real-time data from your synchronized biometrics. For the most accurate AI routines, ensure your weight and height are updated in your profile settings.
+          These tools are designed to help you stay ahead of your goals. Use "Analyze" to see real-time biometric synchronization or "Create" for personalized AI-generated routines.
         </p>
       </div>
     </div>
@@ -73,9 +72,6 @@ function ActionBigCard({ href, title, desc, icon: Icon, color, border }: any) {
         <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full ${border ? 'bg-primary text-white' : 'bg-black/10'}`}>
           Enter <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
         </div>
-        
-        {/* Subtle decorative element */}
-        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
       </Card>
     </Link>
   );
