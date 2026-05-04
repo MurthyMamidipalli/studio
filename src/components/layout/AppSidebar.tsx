@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -16,7 +15,8 @@ import {
   Trophy,
   Users,
   LineChart,
-  Zap
+  Zap,
+  Utensils
 } from "lucide-react";
 import {
   Sidebar,
@@ -41,6 +41,7 @@ const navItems = [
   { icon: LineChart, label: "Activity", href: "/activity" },
   { icon: Dumbbell, label: "Workouts", href: "/workouts" },
   { icon: Apple, label: "Nutrition", href: "/nutrition" },
+  { icon: Utensils, label: "Food Advisor", href: "/food-advisor" },
   { icon: Target, label: "Goals", href: "/goals" },
   { icon: Sparkles, label: "AI Coach", href: "/coach" },
   { icon: Users, label: "Social", href: "/social" },
