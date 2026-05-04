@@ -7,18 +7,14 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { 
   Flame, 
-  Timer, 
   TrendingUp, 
   ChevronRight,
   Trophy,
   Loader2,
-  Apple,
   Star,
-  Footprints,
-  Heart,
-  MapPin,
   Calendar,
-  Zap
+  Zap,
+  Activity as ActivityIcon
 } from "lucide-react";
 import { 
   BarChart, 
@@ -61,31 +57,25 @@ export default function DashboardPage() {
   const { data: workouts, isLoading: isWorkoutsLoading } = useCollection(workoutsQuery);
 
   const processedData = useMemo(() => {
-    if (!mounted) return {
-      weeklyData: [],
-      metrics: { calories: 0, minutes: 0, steps: 0, heartRate: 0, distance: 0 },
-      recent: []
-    };
+    if (!mounted) return { weeklyData: [], recent: [], metrics: { steps: 0, calories: 0, distance: 0, minutes: 0 } };
 
     const now = new Date();
     const startOfToday = new Date(now);
     startOfToday.setHours(0,0,0,0);
 
-    let totalCaloriesToday = 0;
-    let totalMinutesToday = 0;
     let totalStepsToday = 0;
+    let totalCaloriesToday = 0;
     let totalDistanceToday = 0;
-    let latestHeartRate = 0;
+    let totalMinutesToday = 0;
 
     if (workouts) {
       workouts.forEach(w => {
         const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
         if (workoutDate >= startOfToday) {
-          totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
-          totalMinutesToday += Number(w.durationMinutes) || 0;
           totalStepsToday += Number(w.steps) || 0;
+          totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
           totalDistanceToday += Number(w.distance) || 0;
-          if (w.heartRate > 0) latestHeartRate = w.heartRate;
+          totalMinutesToday += Number(w.durationMinutes) || 0;
         }
       });
     }
@@ -111,14 +101,13 @@ export default function DashboardPage() {
 
     return {
       weeklyData: last7Days,
+      recent: workouts ? workouts.slice(0, 3) : [],
       metrics: {
-        calories: Math.round(totalCaloriesToday),
-        minutes: totalMinutesToday,
         steps: totalStepsToday,
-        heartRate: latestHeartRate,
-        distance: totalDistanceToday.toFixed(1)
-      },
-      recent: workouts ? workouts.slice(0, 3) : []
+        calories: Math.round(totalCaloriesToday),
+        distance: totalDistanceToday.toFixed(1),
+        minutes: totalMinutesToday
+      }
     };
   }, [workouts, mounted]);
 
@@ -140,7 +129,7 @@ export default function DashboardPage() {
             Welcome back, {firstName}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            Here's how your health and fitness metrics look today.
+            Ready for your next session? Here is your daily summary.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -155,14 +144,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <MetricCard title="Steps" value={processedData.metrics.steps} unit="steps" icon={Footprints} color="text-blue-500" />
-        <MetricCard title="Heart Rate" value={processedData.metrics.heartRate || "--"} unit="bpm" icon={Heart} color="text-red-500" />
-        <MetricCard title="Distance" value={processedData.metrics.distance} unit="mi" icon={MapPin} color="text-green-500" />
-        <MetricCard title="Active Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
-        <MetricCard title="Active Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 shadow-xl border-none bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -172,7 +153,7 @@ export default function DashboardPage() {
             </div>
             <Link href="/activity">
               <Button variant="ghost" size="sm" className="text-primary font-bold">
-                View Full History <ChevronRight className="h-4 w-4 ml-1" />
+                Detailed Insights <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
@@ -196,7 +177,7 @@ export default function DashboardPage() {
         <Card className="shadow-xl border-none bg-card">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-yellow-500" /> Daily Goals
+              <Trophy className="h-6 w-6 text-yellow-500" /> Goal Progress
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-8 pt-4">
@@ -206,7 +187,7 @@ export default function DashboardPage() {
             <div className="pt-6">
               <Link href="/goals">
                 <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 text-lg font-bold shadow-lg">
-                  Set New Goals
+                  Set New Targets
                 </Button>
               </Link>
             </div>
@@ -248,48 +229,31 @@ export default function DashboardPage() {
           <div className="h-1 bg-accent w-full" />
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <Zap className="h-6 w-6 text-accent" /> Quick Insights
+              <ActivityIcon className="h-6 w-6 text-accent" /> Quick Actions
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
               <p className="text-sm font-medium leading-relaxed">
-                You're currently at {processedData.metrics.steps} steps! Keep walking to reach your daily goal of 10,000 steps.
+                Looking for detailed stats like Heart Rate, Distance, and Steps? Head over to the Activity Insights page.
               </p>
             </div>
-            <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
-              <p className="text-sm font-medium leading-relaxed">
-                Your heart rate was last tracked at {processedData.metrics.heartRate || "--"} bpm. Maintaining a steady pace improves cardio health.
-              </p>
+            <div className="flex flex-col gap-3">
+              <Link href="/activity">
+                <Button variant="outline" className="w-full rounded-xl h-12 font-bold">
+                  View Full Metrics
+                </Button>
+              </Link>
+              <Link href="/coach">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
+                  Ask AI Coach for Advice
+                </Button>
+              </Link>
             </div>
-            <Link href="/coach">
-              <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
-                Ask AI Coach for Advice
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>
     </div>
-  );
-}
-
-function MetricCard({ title, value, unit, icon: Icon, color }: any) {
-  return (
-    <Card className="shadow-md border-none overflow-hidden hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
-      <CardContent className="p-5 md:p-6">
-        <div className={`p-3 w-fit rounded-2xl bg-muted/50 ${color} shadow-inner mb-4 group-hover:scale-110 transition-transform`}>
-          <Icon className="h-6 w-6" />
-        </div>
-        <div>
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{title}</h3>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl md:text-3xl font-headline font-bold">{value}</span>
-            <span className="text-[10px] text-muted-foreground font-bold">{unit}</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
