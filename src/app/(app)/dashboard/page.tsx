@@ -53,7 +53,7 @@ export default function DashboardPage() {
     return query(
       collection(db, "users", user.uid, "workoutSessions"),
       orderBy("sessionDateTime", "desc"),
-      limit(50)
+      limit(10)
     );
   }, [db, user?.uid]);
 
@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
     return {
       weeklyData: last7Days,
-      recent: workouts ? workouts.slice(0, 5) : [],
+      recent: workouts || [],
     };
   }, [workouts, mounted]);
 
@@ -99,7 +99,8 @@ export default function DashboardPage() {
   const firstName = profile?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || "User";
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
+    <div className="space-y-10 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
+      {/* HEADER SECTION */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end justify-between">
         <div className="space-y-2">
           <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary tracking-tight">
@@ -121,7 +122,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions CTA Section */}
+      {/* QUICK ACTIONS (CTA SECTION) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link href="/coach" className="group">
           <Card className="bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
@@ -131,7 +132,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold">Create</h3>
-                <p className="text-xs opacity-80 font-medium">Generate AI Workout Routine</p>
+                <p className="text-xs opacity-80 font-medium">AI Workout Routine</p>
               </div>
             </CardContent>
           </Card>
@@ -145,7 +146,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold">Analyze</h3>
-                <p className="text-xs opacity-80 font-medium">View Performance Trends</p>
+                <p className="text-xs opacity-80 font-medium">Performance Hub</p>
               </div>
             </CardContent>
           </Card>
@@ -159,99 +160,56 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-foreground">Start</h3>
-                <p className="text-xs text-muted-foreground font-medium">Log a New Workout Session</p>
+                <p className="text-xs text-muted-foreground font-medium">Log New Session</p>
               </div>
             </CardContent>
           </Card>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 shadow-xl border-none bg-card/50 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between">
+      {/* BIG CARDS (KEY METRICS) */}
+      <div className="grid grid-cols-1 gap-8">
+        <Card className="shadow-2xl border-none bg-card/50 backdrop-blur-sm overflow-hidden ring-1 ring-border">
+          <CardHeader className="flex flex-row items-center justify-between bg-primary/5 pb-8">
             <div>
-              <CardTitle className="font-headline text-2xl">Calories Burned</CardTitle>
-              <CardDescription>Activity overview for the last 7 days</CardDescription>
+              <CardTitle className="font-headline text-2xl">Weekly Calorie Burn</CardTitle>
+              <CardDescription>Comprehensive overview of your energy expenditure</CardDescription>
             </div>
             <Link href="/activity">
               <Button variant="ghost" size="sm" className="text-primary font-bold">
-                Detailed Analysis <ChevronRight className="h-4 w-4 ml-1" />
+                View Full Analytics <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
-          <CardContent className="px-2">
-            <div className="h-[300px] w-full mt-4">
+          <CardContent className="px-4 py-10">
+            <div className="h-[400px] w-full mt-4">
               <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={12} />
-                    <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={14} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} fontSize={14} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="calories" fill="var(--color-calories)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="calories" fill="var(--color-calories)" radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
             </div>
           </CardContent>
         </Card>
-
-        <div className="space-y-8">
-          <Card className="shadow-lg border-none bg-accent/5 overflow-hidden">
-            <div className="h-1 bg-accent w-full" />
-            <CardHeader>
-              <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <Award className="h-6 w-6 text-yellow-500" /> Milestone Tracking
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
-                <p className="text-sm font-medium leading-relaxed">
-                  Your performance data is now centralized in the <strong>Activity Hub</strong>. Use the <strong>Analyze</strong> CTA to see your full history.
-                </p>
-              </div>
-              <Link href="/achievements">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
-                  Browse Achievements
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-xl border-none bg-card">
-            <CardHeader>
-              <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <Trophy className="h-6 w-6 text-yellow-500" /> Progression
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-                <div className="text-sm font-medium">Daily Goal Bonus</div>
-                <div className="text-sm font-bold text-primary">+10 XP</div>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-                <div className="text-sm font-medium">Workout Logged</div>
-                <div className="text-sm font-bold text-primary">+50 XP</div>
-              </div>
-              <Link href="/goals">
-                <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  Manage Fitness Goals <ChevronRight className="h-3 w-3 ml-2" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 pb-10">
-        <Card className="shadow-lg border-none">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+        {/* MEDIUM CARDS (RECENT ACTIVITY) */}
+        <Card className="lg:col-span-2 shadow-xl border-none">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="font-headline text-2xl">Recent Activity Log</CardTitle>
+              <CardTitle className="font-headline text-2xl">Recent Activity</CardTitle>
               <TrendingUp className="h-6 w-6 text-primary" />
             </div>
+            <CardDescription>Your latest workout sessions at a glance</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <CardContent className="grid gap-4 md:grid-cols-2">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
                 <RecentWorkoutItem 
@@ -263,15 +221,56 @@ export default function DashboardPage() {
                 />
               ))
             ) : (
-              <div className="col-span-full text-center py-10">
+              <div className="col-span-full text-center py-10 bg-muted/20 rounded-2xl border-2 border-dashed">
                 <p className="text-muted-foreground mb-4">No activity recorded yet.</p>
                 <Link href="/workouts">
-                  <Button variant="outline" className="rounded-xl">Start Your First Workout</Button>
+                  <Button variant="outline" className="rounded-xl">Log Your First Workout</Button>
                 </Link>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* SMALL CARDS (SECONDARY TOOLS) */}
+        <div className="space-y-6">
+          <Card className="shadow-lg border-none bg-accent/5 overflow-hidden">
+            <div className="h-1 bg-accent w-full" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Award className="h-5 w-5 text-yellow-500" /> Milestones
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Unlock new badges and climb the leaderboard by staying consistent with your routines.
+              </p>
+              <Link href="/achievements">
+                <Button variant="outline" className="w-full text-xs font-bold uppercase tracking-widest h-10">
+                  Browse Rewards <ChevronRight className="h-3 w-3 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg border-none bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-primary" /> Progression
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <div className="text-xs font-medium">Session Bonus</div>
+                <div className="text-xs font-bold text-primary">+50 XP</div>
+              </div>
+              <Link href="/goals">
+                <Button variant="outline" className="w-full text-xs font-bold uppercase tracking-widest h-10">
+                  Set New Goal <ChevronRight className="h-3 w-3 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -279,17 +278,17 @@ export default function DashboardPage() {
 
 function RecentWorkoutItem({ type, name, time, result }: any) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/50 transition-all border border-border/50">
+    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/50 transition-all border border-border/50 bg-card shadow-sm">
       <div className="flex items-center gap-4">
-        <div className={`w-1.5 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
-        <div>
-          <p className="font-bold text-sm truncate max-w-[120px]">{name}</p>
+        <div className={`w-1 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
+        <div className="min-w-0">
+          <p className="font-bold text-sm truncate">{name}</p>
           <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
             <Calendar className="h-3 w-3" /> {time}
           </p>
         </div>
       </div>
-      <div className="text-right">
+      <div className="text-right shrink-0">
         <p className="text-xs font-black text-primary">{result}</p>
         <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{type}</p>
       </div>
