@@ -77,7 +77,7 @@ export default function FoodAdvisorPage() {
     );
   }
 
-  // Improved check for new accounts with no data
+  // Improved check for accounts with no data
   const noWorkouts = !workouts || workouts.length === 0;
   const noStats = !profile || (!profile.weight && !profile.height && !profile.age);
   const hasNoData = noWorkouts && noStats;
