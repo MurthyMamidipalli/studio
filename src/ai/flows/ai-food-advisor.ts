@@ -38,7 +38,23 @@ export type FoodRecommendationOutput = z.infer<typeof FoodRecommendationOutputSc
 export async function generateFoodRecommendations(
   input: FoodRecommendationInput
 ): Promise<FoodRecommendationOutput> {
-  return foodRecommendationFlow(input);
+  try {
+    return await foodRecommendationFlow(input);
+  } catch (error) {
+    console.error("AI Food Advisor Flow Error:", error);
+    // Return a graceful fallback if the LLM fails to generate a valid response
+    return {
+      recommendations: [
+        {
+          mealType: 'post-workout',
+          name: 'Protein-Rich Recovery Bowl',
+          description: 'A balanced blend of complex carbs and lean protein to support your muscle recovery after any activity.',
+          macros: { protein: '25g', carbs: '40g', fats: '10g' }
+        }
+      ],
+      advisorNote: "We encountered a minor issue generating specific data, but always remember to stay hydrated and prioritize protein after any physical exertion."
+    };
+  }
 }
 
 const foodRecommendationPrompt = ai.definePrompt({
@@ -46,14 +62,19 @@ const foodRecommendationPrompt = ai.definePrompt({
   input: {schema: FoodRecommendationInputSchema},
   output: {schema: FoodRecommendationOutputSchema},
   prompt: `You are an expert sports nutritionist AI. 
-Analyze the user's recent workout intensity and their goals to provide highly specific meal recommendations.
+Analyze the user's data to provide meal recommendations.
 
-Workouts: {{{recentWorkouts}}}
-Goals: {{{userGoals}}}
-Stats: {{{bodyStats}}}
+User Context:
+- Recent Workouts: {{{recentWorkouts}}}
+- Goals: {{{userGoals}}}
+- Body Stats: {{{bodyStats}}}
 
-Provide a balanced set of recommendations for the day, prioritizing a post-workout recovery meal if they worked out recently. 
-Explain the nutritional logic for each choice (e.g., "High protein for muscle repair after your heavy lifting session").`,
+Requirements:
+1. Provide 3-4 balanced meal suggestions.
+2. If specific data is missing (e.g., "None recent" or "?"), provide high-quality general fitness nutrition advice based on common goals.
+3. Prioritize a recovery-focused meal if workouts are mentioned.
+4. Explain the nutritional logic for each choice.
+5. Return the output strictly in the requested JSON format.`,
 });
 
 const foodRecommendationFlow = ai.defineFlow(
