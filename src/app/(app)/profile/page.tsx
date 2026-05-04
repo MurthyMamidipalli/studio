@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
-import { User, Bell, Shield, LogOut, ChevronRight, Loader2, Camera, Activity, Scale, Ruler, Calendar as CalendarIcon, Upload } from "lucide-react";
+import { User, Bell, Shield, LogOut, ChevronRight, Loader2, Camera, Activity, Scale, Ruler, Calendar as CalendarIcon, Upload, Save } from "lucide-react";
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking, useAuth } from "@/firebase";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { useForm } from "react-hook-form";
@@ -25,6 +25,7 @@ const profileSchema = z.object({
   age: z.coerce.number().min(0).optional(),
   weight: z.coerce.number().optional(),
   height: z.coerce.number().optional(),
+  autoSave: z.boolean().default(true),
   emailNotifications: z.boolean().default(true),
   pushNotifications: z.boolean().default(true),
   publicProfile: z.boolean().default(false),
@@ -59,6 +60,7 @@ export default function ProfilePage() {
       age: 0,
       weight: 0,
       height: 0,
+      autoSave: true,
       emailNotifications: true,
       pushNotifications: true,
       publicProfile: false,
@@ -74,6 +76,7 @@ export default function ProfilePage() {
         age: profile.age || 0,
         weight: profile.weight || 0,
         height: profile.height || 0,
+        autoSave: profile.autoSave ?? true,
         emailNotifications: profile.settings?.emailNotifications ?? true,
         pushNotifications: profile.settings?.pushNotifications ?? true,
         publicProfile: profile.settings?.publicProfile ?? false,
@@ -86,6 +89,7 @@ export default function ProfilePage() {
         age: 0,
         weight: 0,
         height: 0,
+        autoSave: true,
         emailNotifications: true,
         pushNotifications: true,
         publicProfile: false,
@@ -198,7 +202,7 @@ export default function ProfilePage() {
               <ProfileMenuItem icon={User} label="Basic Info" active={activeSection === 'personal'} onClick={() => setActiveSection('personal')} />
               <ProfileMenuItem icon={Activity} label="Body Stats" active={activeSection === 'fitness'} onClick={() => setActiveSection('fitness')} />
               <ProfileMenuItem icon={Bell} label="Alerts" active={activeSection === 'notifications'} onClick={() => setActiveSection('notifications')} />
-              <ProfileMenuItem icon={Shield} label="Privacy" active={activeSection === 'privacy'} onClick={() => setActiveSection('privacy')} />
+              <ProfileMenuItem icon={Shield} label="Privacy & Cloud" active={activeSection === 'privacy'} onClick={() => setActiveSection('privacy')} />
               <ProfileMenuItem icon={LogOut} label="Log Out" color="text-destructive" onClick={handleLogout} />
             </CardContent>
           </Card>
@@ -217,12 +221,6 @@ export default function ProfilePage() {
                     <FormField control={form.control} name="email" render={({ field }) => (
                       <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" className="h-11 rounded-xl" {...field} disabled /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <div className="pt-2">
-                      <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="rounded-xl">
-                        <Upload className="h-4 w-4 mr-2" /> {uploading ? "Processing..." : "Choose Photo from Device"}
-                      </Button>
-                      <p className="text-[10px] text-muted-foreground mt-2 italic">Supports JPG, PNG (Max 2MB)</p>
-                    </div>
                   </CardContent>
                   <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Save Changes</Button></CardFooter>
                 </Card>
@@ -286,8 +284,19 @@ export default function ProfilePage() {
 
               {activeSection === 'privacy' && (
                 <Card className="border-none shadow-sm rounded-2xl">
-                  <CardHeader><CardTitle className="font-headline font-bold">Privacy Controls</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="font-headline font-bold">Privacy & Cloud Sync</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
+                    <FormField control={form.control} name="autoSave" render={({ field }) => (
+                      <FormItem className="flex items-center justify-between p-4 border rounded-2xl bg-primary/5 border-primary/20">
+                        <div className="space-y-0.5">
+                          <FormLabel className="font-bold flex items-center gap-2">
+                            <Save className="h-4 w-4 text-primary" /> Auto-Save Data
+                          </FormLabel>
+                          <FormDescription>Automatically sync all metrics and logs to the cloud.</FormDescription>
+                        </div>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )} />
                     <FormField control={form.control} name="publicProfile" render={({ field }) => (
                       <FormItem className="flex items-center justify-between p-4 border rounded-2xl">
                         <div className="space-y-0.5"><FormLabel className="font-bold">Public Visibility</FormLabel><FormDescription>Allow other users to see your achievements.</FormDescription></div>
@@ -295,7 +304,7 @@ export default function ProfilePage() {
                       </FormItem>
                     )} />
                   </CardContent>
-                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Update Privacy</Button></CardFooter>
+                  <CardFooter className="flex justify-end border-t bg-muted/5 p-4"><Button type="submit" className="rounded-xl px-6">Update Settings</Button></CardFooter>
                 </Card>
               )}
             </form>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, Eye, EyeOff, User } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
@@ -68,6 +68,7 @@ export default function LoginPage() {
             currentStreak: 0,
             bestStreak: 0,
             earnedBadges: [],
+            autoSave: true,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           }, { merge: true });
@@ -91,8 +92,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Activity className="h-12 w-12 text-primary mx-auto mb-2" />
-          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
-          <p className="text-muted-foreground font-medium">Your automated biometric ecosystem.</p>
+          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight text-center">FitStride</h1>
+          <p className="text-muted-foreground font-medium text-center">Your automated biometric ecosystem.</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
@@ -116,17 +117,13 @@ export default function LoginPage() {
               )}
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold uppercase tracking-wider">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="pl-10 rounded-xl h-11" placeholder="jane@example.com" />
-                </div>
+                <Input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="rounded-xl h-11" placeholder="jane@example.com" />
               </div>
               <div className="space-y-1.5 relative">
                 <Label className="text-xs font-bold uppercase tracking-wider">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required className="pl-10 rounded-xl h-11" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 opacity-50 hover:opacity-100 transition-opacity">
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required className="rounded-xl h-11" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 opacity-50 hover:opacity-100 transition-opacity">
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -135,9 +132,8 @@ export default function LoginPage() {
                 <div className="space-y-1.5 relative">
                   <Label className="text-xs font-bold uppercase tracking-wider">Confirm Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                    <Input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="pl-10 rounded-xl h-11" />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 opacity-50 hover:opacity-100 transition-opacity">
+                    <Input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="rounded-xl h-11" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3 opacity-50 hover:opacity-100 transition-opacity">
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>

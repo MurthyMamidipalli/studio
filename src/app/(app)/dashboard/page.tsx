@@ -5,7 +5,6 @@ import { useMemo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  Flame, 
   ChevronRight,
   Trophy,
   Loader2,
@@ -13,7 +12,8 @@ import {
   RefreshCw,
   Lightbulb,
   ArrowUpRight,
-  Zap
+  Zap,
+  Save
 } from "lucide-react";
 import { 
   BarChart, 
@@ -106,6 +106,7 @@ export default function DashboardPage() {
   }
 
   const displayName = profile?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || "Athlete";
+  const autoSaveOn = profile?.autoSave ?? true;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
@@ -115,9 +116,14 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">
               Hello, {displayName}
             </h1>
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 flex items-center gap-1.5 h-6 text-[10px] font-black uppercase tracking-widest">
-              <RefreshCw className="h-3 w-3 animate-spin-slow" /> Tracking Active
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={`${autoSaveOn ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-muted text-muted-foreground'} flex items-center gap-1.5 h-6 text-[10px] font-black uppercase tracking-widest`}>
+                <Save className="h-3 w-3" /> {autoSaveOn ? "Auto-Save Active" : "Manual Save Mode"}
+              </Badge>
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 flex items-center gap-1.5 h-6 text-[10px] font-black uppercase tracking-widest">
+                <RefreshCw className="h-3 w-3 animate-spin-slow" /> Tracking On
+              </Badge>
+            </div>
           </div>
           <p className="text-muted-foreground text-sm font-medium">Your real-time biometric hub is synchronized.</p>
         </div>
@@ -149,7 +155,7 @@ export default function DashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={12} dy={10} fontStyle="bold" />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={12} dy={10} />
                     <YAxis axisLine={false} tickLine={false} fontSize={12} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar dataKey="calories" fill="var(--color-calories)" radius={[8, 8, 0, 0]} />
@@ -201,7 +207,7 @@ export default function DashboardPage() {
               processedData.recent.slice(0, 4).map((w: any) => (
                 <div key={w.id} className="flex items-center justify-between p-5 rounded-[1.5rem] border border-border/40 bg-card hover:bg-muted/30 hover:border-primary/20 transition-all group shadow-sm">
                   <div className="flex items-center gap-4">
-                    <div className={`w-2 h-12 rounded-full ${w.type === 'Strength' ? 'bg-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]' : 'bg-accent shadow-[0_0_10px_rgba(var(--accent),0.3)]'}`} />
+                    <div className={`w-2 h-12 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
                     <div>
                       <p className="font-black text-base truncate max-w-[150px] sm:max-w-none">{w.notes || "Activity Log"}</p>
                       <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-0.5">
@@ -233,7 +239,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-6 pt-4 flex-1">
             <div className="flex flex-col gap-4 p-5 rounded-[1.5rem] bg-white border border-border/20 shadow-md">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Level Progression</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Progression</span>
                 <span className="text-sm font-black text-primary">{(profile?.points || 0) % 100}%</span>
               </div>
               <div className="w-full bg-muted/50 h-3 rounded-full overflow-hidden shadow-inner">

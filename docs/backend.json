@@ -19,6 +19,7 @@
         "weight": { "type": "number", "description": "Weight in lbs." },
         "height": { "type": "number", "description": "Height in inches." },
         "age": { "type": "number" },
+        "autoSave": { "type": "boolean", "default": true, "description": "Whether metrics are saved automatically." },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },

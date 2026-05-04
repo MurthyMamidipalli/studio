@@ -15,7 +15,7 @@ import {
   History,
   RefreshCw,
   Zap,
-  ArrowUpRight
+  Save
 } from "lucide-react";
 import { 
   XAxis, 
@@ -26,8 +26,8 @@ import {
   Area
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy, limit, Timestamp } from "firebase/firestore";
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy, limit, doc, Timestamp } from "firebase/firestore";
 import { Badge } from "@/components/ui/badge";
 
 export default function ActivityInsightsPage() {
@@ -38,6 +38,13 @@ export default function ActivityInsightsPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const profileRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile } = useDoc(profileRef);
 
   const workoutsQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -109,6 +116,8 @@ export default function ActivityInsightsPage() {
     );
   }
 
+  const autoSaveOn = profile?.autoSave ?? true;
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -118,9 +127,14 @@ export default function ActivityInsightsPage() {
           </h1>
           <p className="text-muted-foreground text-sm font-medium">Real-time performance and biometric tracking.</p>
         </div>
-        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-8 px-4 flex items-center gap-2 font-black tracking-widest text-[10px]">
-          <RefreshCw className="h-3 w-3 animate-spin-slow" /> AUTO-SYNC ACTIVE
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className={`${autoSaveOn ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-muted text-muted-foreground'} flex items-center gap-1.5 h-8 px-4 font-black tracking-widest text-[10px]`}>
+            <Save className="h-3 w-3 mr-1" /> {autoSaveOn ? "AUTO-SAVE ENABLED" : "MANUAL SYNC"}
+          </Badge>
+          <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/10 h-8 px-4 flex items-center gap-2 font-black tracking-widest text-[10px]">
+            <RefreshCw className="h-3 w-3 animate-spin-slow" /> SYNC ACTIVE
+          </Badge>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden bg-white">
@@ -165,48 +179,7 @@ export default function ActivityInsightsPage() {
               </ChartContainer>
             </div>
           </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-md overflow-hidden h-full">
-          <CardHeader className="bg-muted/5 pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <History className="h-4 w-4 text-muted-foreground" /> Historical Log Data
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="max-h-[400px] overflow-y-auto">
-              {processedData.charts.length > 0 ? (
-                [...processedData.charts].reverse().map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-5 border-b last:border-0 hover:bg-muted/5 transition-colors">
-                    <div className="flex gap-4 items-center">
-                      <div className="bg-muted/30 p-2 rounded-lg">
-                        <History className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-black text-xs">{item.date}</p>
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black">SYNCED LOG</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-8 text-xs font-black">
-                       <div className="text-right min-w-[60px]">
-                         <p className="text-primary">{item.steps}</p>
-                         <p className="text-[8px] text-muted-foreground uppercase">Steps</p>
-                       </div>
-                       <div className="text-right min-w-[60px]">
-                         <p className="text-red-500">{item.hr || "--"}</p>
-                         <p className="text-[8px] text-muted-foreground uppercase">HR</p>
-                       </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-16 text-center text-muted-foreground text-sm font-medium italic">
-                  No automated tracking data available yet.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        </AreaChart>
       </div>
     </div>
   );
