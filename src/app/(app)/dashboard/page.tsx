@@ -103,7 +103,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
-      {/* HEADER SECTION */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -133,8 +132,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* BIG CARDS - Weekly Trends & AI Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* BIG CARD: Weekly Trend */}
         <Card className="lg:col-span-2 shadow-lg border-none overflow-hidden h-full">
           <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
             <div>
@@ -159,7 +158,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* INSIGHTS PANEL - Smart Summaries */}
+        {/* INSIGHTS PANEL (Smart Summaries) */}
         <Card className="shadow-lg border-none bg-primary/5 h-full">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -197,8 +196,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* MEDIUM CARD - Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* MEDIUM CARD: Recent Activity */}
         <Card className="lg:col-span-2 shadow-md border-none">
           <CardHeader className="pb-4">
             <CardTitle className="font-headline text-lg">Recent Session History</CardTitle>
@@ -230,7 +229,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* SMALL CARD - Secondary Tools */}
+        {/* SMALL CARD: Secondary Tools */}
         <Card className="shadow-md border-none bg-accent/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
