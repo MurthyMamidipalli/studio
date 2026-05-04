@@ -224,7 +224,7 @@ function SocialContent() {
   const handleCopyLink = (groupId: string) => {
     const url = `${window.location.origin}/social?join=${groupId}`;
     navigator.clipboard.writeText(url);
-    toast({ title: "Link Copied", description: "Share this link with friends to join your group!" });
+    toast({ title: "Link Copies", description: "Share this link with friends to join your group!" });
   };
 
   const reviewGroup = allGroups?.find(g => g.id === reviewGroupId);
