@@ -15,7 +15,8 @@ import {
   Apple,
   Trophy,
   Users,
-  LineChart
+  LineChart,
+  Zap
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: Zap, label: "Actions", href: "/actions" },
   { icon: LineChart, label: "Activity", href: "/activity" },
   { icon: Dumbbell, label: "Workouts", href: "/workouts" },
   { icon: Apple, label: "Nutrition", href: "/nutrition" },

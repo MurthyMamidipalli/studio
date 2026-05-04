@@ -10,12 +10,10 @@ import {
   Trophy,
   Loader2,
   Star,
-  Activity as ActivityIcon,
-  Sparkles,
-  Zap,
   RefreshCw,
   Lightbulb,
-  ArrowUpRight
+  ArrowUpRight,
+  Zap
 } from "lucide-react";
 import { 
   BarChart, 
@@ -119,6 +117,11 @@ export default function DashboardPage() {
           <p className="text-muted-foreground text-sm">Your health data is synchronized in real-time.</p>
         </div>
         <div className="flex items-center gap-3">
+          <Link href="/actions">
+            <Button size="sm" className="bg-primary font-bold shadow-md hover:scale-105 transition-transform">
+              <Zap className="h-4 w-4 mr-2" /> Quick Actions
+            </Button>
+          </Link>
           <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
             <Star className="h-4 w-4 text-primary fill-primary" />
             <span className="font-bold text-primary">{profile?.points || 0} XP</span>
@@ -128,13 +131,6 @@ export default function DashboardPage() {
             <span className="font-bold text-orange-500">{profile?.currentStreak || 0}d</span>
           </div>
         </div>
-      </div>
-
-      {/* QUICK ACTIONS - CTA BUTTONS */}
-      <div className="grid grid-cols-3 gap-4">
-        <ActionCard href="/workouts" title="Start" desc="Log Session" icon={Zap} color="bg-primary" />
-        <ActionCard href="/coach" title="Create" desc="AI Routine" icon={Sparkles} color="bg-accent" />
-        <ActionCard href="/activity" title="Analyze" desc="Performance" icon={ActivityIcon} color="bg-card" border />
       </div>
 
       {/* BIG CARDS - Weekly Trends & AI Insights */}
@@ -255,23 +251,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  );
-}
-
-function ActionCard({ href, title, desc, icon: Icon, color, border }: any) {
-  return (
-    <Link href={href}>
-      <Card className={`${color} ${border ? 'border-2 border-primary/20 bg-card' : 'border-none'} ${color === 'bg-card' ? 'text-foreground' : 'text-primary-foreground'} hover:translate-y-[-4px] transition-all shadow-md group h-full cursor-pointer`}>
-        <CardContent className="p-5 flex flex-col items-center justify-center text-center gap-2">
-          <div className={`p-2.5 rounded-xl ${color === 'bg-card' ? 'bg-primary/10 text-primary' : 'bg-white/20'}`}>
-            <Icon className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="font-black text-sm uppercase tracking-tight leading-none">{title}</h3>
-            <p className="text-[10px] opacity-70 mt-1.5 uppercase tracking-widest font-black leading-none">{desc}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
   );
 }
