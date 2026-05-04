@@ -13,7 +13,6 @@ import {
   Calendar,
   Activity as ActivityIcon,
   TrendingUp,
-  Award,
   PlusCircle,
   PlayCircle,
   BarChart3,
@@ -53,7 +52,7 @@ export default function DashboardPage() {
     return query(
       collection(db, "users", user.uid, "workoutSessions"),
       orderBy("sessionDateTime", "desc"),
-      limit(10)
+      limit(5)
     );
   }, [db, user?.uid]);
 
@@ -99,199 +98,133 @@ export default function DashboardPage() {
   const firstName = profile?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || "User";
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-end justify-between">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary tracking-tight">
-            Welcome back, {firstName}!
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
+      {/* HEADER SECTION - Simplified */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">
+            Welcome, {firstName}
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Ready for your next session? Here is your summary.
-          </p>
+          <p className="text-muted-foreground text-sm">Summary of your fitness progress.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-2xl shadow-sm border border-primary/20">
-            <Star className="h-5 w-5 text-primary fill-primary" />
-            <span className="font-bold text-lg text-primary">{profile?.points || 0} XP</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+            <Star className="h-4 w-4 text-primary fill-primary" />
+            <span className="font-bold text-primary">{profile?.points || 0} XP</span>
           </div>
-          <div className="flex items-center gap-2 bg-orange-500/10 px-4 py-2 rounded-2xl shadow-sm border border-orange-500/20">
-            <Flame className="h-5 w-5 text-orange-500 fill-orange-500" />
-            <span className="font-bold text-lg text-orange-500">{profile?.currentStreak || 0}d</span>
+          <div className="flex items-center gap-2 bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20">
+            <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
+            <span className="font-bold text-orange-500">{profile?.currentStreak || 0}d</span>
           </div>
         </div>
       </div>
 
-      {/* QUICK ACTIONS (CTA SECTION) */}
+      {/* QUICK ACTIONS - Grouped & Consistent Spacing */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/coach" className="group">
-          <Card className="bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
-                <Sparkles className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Create</h3>
-                <p className="text-xs opacity-80 font-medium">AI Workout Routine</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/activity" className="group">
-          <Card className="bg-accent hover:bg-accent/90 text-accent-foreground border-none transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
-                <BarChart3 className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Analyze</h3>
-                <p className="text-xs opacity-80 font-medium">Performance Hub</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/workouts" className="group">
-          <Card className="bg-card hover:bg-muted/50 border-2 border-primary/20 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:scale-110 transition-transform">
-                <PlayCircle className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-foreground">Start</h3>
-                <p className="text-xs text-muted-foreground font-medium">Log New Session</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+        <ActionCard href="/coach" title="AI Coach" desc="Personal Routine" icon={Sparkles} color="bg-primary" />
+        <ActionCard href="/activity" title="Analyze" desc="Health Hub" icon={BarChart3} color="bg-accent" />
+        <ActionCard href="/workouts" title="Workout" desc="Log Session" icon={PlayCircle} color="bg-card" border />
       </div>
 
-      {/* BIG CARDS (KEY METRICS) */}
-      <div className="grid grid-cols-1 gap-8">
-        <Card className="shadow-2xl border-none bg-card/50 backdrop-blur-sm overflow-hidden ring-1 ring-border">
-          <CardHeader className="flex flex-row items-center justify-between bg-primary/5 pb-8">
-            <div>
-              <CardTitle className="font-headline text-2xl">Weekly Calorie Burn</CardTitle>
-              <CardDescription>Comprehensive overview of your energy expenditure</CardDescription>
-            </div>
-            <Link href="/activity">
-              <Button variant="ghost" size="sm" className="text-primary font-bold">
-                View Full Analytics <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </Link>
-          </CardHeader>
-          <CardContent className="px-4 py-10">
-            <div className="h-[400px] w-full mt-4">
-              <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={processedData.weeklyData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={14} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} fontSize={14} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="calories" fill="var(--color-calories)" radius={[10, 10, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* BIG CARD - Key Metrics */}
+      <Card className="shadow-lg border-none overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <CardTitle className="font-headline text-xl">Weekly Energy</CardTitle>
+            <CardDescription className="text-xs">Energy expenditure (kcal)</CardDescription>
+          </div>
+          <Link href="/activity">
+            <Button variant="ghost" size="sm" className="text-primary h-8 px-2 font-bold">
+              Details <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="h-[300px] w-full mt-2">
+            <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={processedData.weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} fontSize={12} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="calories" fill="var(--color-calories)" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
-        {/* MEDIUM CARDS (RECENT ACTIVITY) */}
-        <Card className="lg:col-span-2 shadow-xl border-none">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="font-headline text-2xl">Recent Activity</CardTitle>
-              <TrendingUp className="h-6 w-6 text-primary" />
-            </div>
-            <CardDescription>Your latest workout sessions at a glance</CardDescription>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* MEDIUM CARD - Recent Activity */}
+        <Card className="lg:col-span-2 shadow-md border-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="font-headline text-lg">Recent History</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className="space-y-3">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
-                <RecentWorkoutItem 
-                  key={w.id} 
-                  type={w.type} 
-                  name={w.notes || "Workout"} 
-                  time={w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"} 
-                  result={`${w.durationMinutes} min • ${Math.round(w.estimatedCaloriesBurned || 0)} kcal`} 
-                />
+                <div key={w.id} className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-1 h-8 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
+                    <div>
+                      <p className="font-bold text-sm truncate">{w.notes || "Workout"}</p>
+                      <p className="text-[10px] text-muted-foreground">{w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-primary">{w.durationMinutes}m • {Math.round(w.estimatedCaloriesBurned || 0)} kcal</p>
+                    <p className="text-[8px] uppercase tracking-tighter text-muted-foreground">{w.type}</p>
+                  </div>
+                </div>
               ))
             ) : (
-              <div className="col-span-full text-center py-10 bg-muted/20 rounded-2xl border-2 border-dashed">
-                <p className="text-muted-foreground mb-4">No activity recorded yet.</p>
-                <Link href="/workouts">
-                  <Button variant="outline" className="rounded-xl">Log Your First Workout</Button>
-                </Link>
+              <div className="text-center py-10 bg-muted/10 rounded-xl border border-dashed">
+                <p className="text-xs text-muted-foreground">No recent workouts.</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* SMALL CARDS (SECONDARY TOOLS) */}
-        <div className="space-y-6">
-          <Card className="shadow-lg border-none bg-accent/5 overflow-hidden">
-            <div className="h-1 bg-accent w-full" />
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-500" /> Milestones
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Unlock new badges and climb the leaderboard by staying consistent with your routines.
-              </p>
-              <Link href="/achievements">
-                <Button variant="outline" className="w-full text-xs font-bold uppercase tracking-widest h-10">
-                  Browse Rewards <ChevronRight className="h-3 w-3 ml-2" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg border-none bg-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-primary" /> Progression
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
-                <div className="text-xs font-medium">Session Bonus</div>
-                <div className="text-xs font-bold text-primary">+50 XP</div>
-              </div>
-              <Link href="/goals">
-                <Button variant="outline" className="w-full text-xs font-bold uppercase tracking-widest h-10">
-                  Set New Goal <ChevronRight className="h-3 w-3 ml-2" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+        {/* SMALL CARD - Secondary Tools */}
+        <Card className="shadow-md border-none bg-accent/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-primary" /> Progression
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/20">
+              <div className="text-xs font-medium">Session Bonus</div>
+              <div className="text-xs font-bold text-primary">+50 XP</div>
+            </div>
+            <Link href="/goals" className="block">
+              <Button variant="outline" className="w-full text-xs h-9 font-bold tracking-tight">
+                Update Goals <ChevronRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
 
-function RecentWorkoutItem({ type, name, time, result }: any) {
+function ActionCard({ href, title, desc, icon: Icon, color, border }: any) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/50 transition-all border border-border/50 bg-card shadow-sm">
-      <div className="flex items-center gap-4">
-        <div className={`w-1 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
-        <div className="min-w-0">
-          <p className="font-bold text-sm truncate">{name}</p>
-          <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
-            <Calendar className="h-3 w-3" /> {time}
-          </p>
-        </div>
-      </div>
-      <div className="text-right shrink-0">
-        <p className="text-xs font-black text-primary">{result}</p>
-        <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{type}</p>
-      </div>
-    </div>
+    <Link href={href}>
+      <Card className={`${color} ${border ? 'border-2 border-primary/20' : 'border-none'} ${color === 'bg-card' ? 'text-foreground' : 'text-primary-foreground'} hover:opacity-90 transition-all shadow-md group`}>
+        <CardContent className="p-5 flex items-center gap-4">
+          <div className={`p-2 rounded-lg ${color === 'bg-card' ? 'bg-primary/10 text-primary' : 'bg-white/20'} group-hover:scale-110 transition-transform`}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-base leading-none">{title}</h3>
+            <p className="text-[10px] opacity-70 mt-1">{desc}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

@@ -12,8 +12,7 @@ import {
   Loader2, 
   Activity as ActivityIcon,
   TrendingUp,
-  History,
-  Target
+  History
 } from "lucide-react";
 import { 
   XAxis, 
@@ -41,7 +40,7 @@ export default function ActivityInsightsPage() {
     return query(
       collection(db, "users", user.uid, "workoutSessions"),
       orderBy("sessionDateTime", "desc"),
-      limit(100)
+      limit(50)
     );
   }, [db, user?.uid]);
 
@@ -107,38 +106,40 @@ export default function ActivityInsightsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary flex items-center gap-3">
-          <ActivityIcon className="h-8 w-8" /> Activity Insights
+    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl md:text-3xl font-headline font-bold text-primary flex items-center gap-2">
+          <ActivityIcon className="h-6 w-6" /> Activity Insights
         </h1>
-        <p className="text-muted-foreground text-lg">In-depth performance data and health metrics.</p>
+        <p className="text-muted-foreground text-sm">Detailed performance and health metrics.</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <MetricCard title="Steps" value={processedData.metrics.steps} unit="steps" icon={Footprints} color="text-blue-500" />
-        <MetricCard title="Heart Rate" value={processedData.metrics.hr || "--"} unit="bpm" icon={Heart} color="text-red-500" />
-        <MetricCard title="Distance" value={processedData.metrics.distance} unit="mi" icon={MapPin} color="text-green-500" />
-        <MetricCard title="Active Burn" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
-        <MetricCard title="Active Time" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
-      </div>
+      {/* Grouped Metrics - More compact */}
+      <Card className="border-none shadow-md">
+        <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-6">
+          <CompactMetric title="Steps" value={processedData.metrics.steps} icon={Footprints} color="text-blue-500" />
+          <CompactMetric title="Heart Rate" value={processedData.metrics.hr || "--"} unit="bpm" icon={Heart} color="text-red-500" />
+          <CompactMetric title="Distance" value={processedData.metrics.distance} unit="mi" icon={MapPin} color="text-green-500" />
+          <CompactMetric title="Calories" value={processedData.metrics.calories} unit="kcal" icon={Flame} color="text-orange-500" />
+          <CompactMetric title="Minutes" value={processedData.metrics.minutes} unit="min" icon={Timer} color="text-primary" />
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="border-none shadow-xl bg-card overflow-hidden">
-          <CardHeader className="bg-primary/5">
-            <CardTitle className="font-headline flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" /> Step Frequency
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-none shadow-md overflow-hidden">
+          <CardHeader className="bg-primary/5 pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" /> Step Trends
             </CardTitle>
-            <CardDescription>Step count trends across recent activities</CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="h-[350px] w-full mt-4">
+          <CardContent className="p-4">
+            <div className="h-[280px] w-full mt-2">
               <ChartContainer config={{ steps: { label: "Steps", color: "hsl(var(--primary))" } }} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={processedData.charts}>
                     <defs>
                       <linearGradient id="colorSteps" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
@@ -154,37 +155,36 @@ export default function ActivityInsightsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-xl bg-card">
-          <CardHeader className="bg-accent/5">
-            <CardTitle className="font-headline flex items-center gap-2">
-              <History className="h-5 w-5 text-accent" /> Metric History
+        <Card className="border-none shadow-md">
+          <CardHeader className="bg-muted/10 pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <History className="h-4 w-4 text-muted-foreground" /> Historical Logs
             </CardTitle>
-            <CardDescription>Breakdown of recently logged session data</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="max-h-[350px] overflow-y-auto">
               {processedData.charts.length > 0 ? (
                 [...processedData.charts].reverse().map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted/30 transition-colors">
-                    <div className="space-y-1">
-                      <p className="font-bold text-sm">{item.date}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Logged Activity</p>
+                  <div key={idx} className="flex items-center justify-between p-3 border-b last:border-0 hover:bg-muted/10 transition-colors">
+                    <div>
+                      <p className="font-bold text-xs">{item.date}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Entry Logged</p>
                     </div>
-                    <div className="flex gap-4 text-xs font-bold text-right">
-                       <div>
+                    <div className="flex gap-4 text-xs font-bold">
+                       <div className="text-right">
                          <p className="text-primary">{item.steps}</p>
                          <p className="text-[8px] text-muted-foreground">STEPS</p>
                        </div>
-                       <div>
+                       <div className="text-right">
                          <p className="text-red-500">{item.hr || "--"}</p>
-                         <p className="text-[8px] text-muted-foreground">BPM</p>
+                         <p className="text-[8px] text-muted-foreground">HR</p>
                        </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="p-12 text-center text-muted-foreground italic">
-                  Log your first workout to see analytics here.
+                <div className="p-10 text-center text-muted-foreground text-xs italic">
+                  No metrics found.
                 </div>
               )}
             </div>
@@ -195,21 +195,18 @@ export default function ActivityInsightsPage() {
   );
 }
 
-function MetricCard({ title, value, unit, icon: Icon, color }: any) {
+function CompactMetric({ title, value, unit, icon: Icon, color }: any) {
   return (
-    <Card className="shadow-md border-none overflow-hidden hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
-      <CardContent className="p-5 md:p-6">
-        <div className={`p-3 w-fit rounded-2xl bg-muted/50 ${color} shadow-inner mb-4 group-hover:scale-110 transition-transform`}>
-          <Icon className="h-6 w-6" />
-        </div>
-        <div>
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{title}</h3>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl md:text-2xl font-headline font-bold">{value}</span>
-            <span className="text-[8px] text-muted-foreground font-bold">{unit}</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center text-center gap-1.5">
+      <div className={`p-2 rounded-lg bg-muted/30 ${color}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">{title}</p>
+        <p className="text-lg font-headline font-bold mt-0.5 leading-none">
+          {value}<span className="text-[10px] ml-0.5 font-normal text-muted-foreground">{unit}</span>
+        </p>
+      </div>
+    </div>
   );
 }

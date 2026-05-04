@@ -52,18 +52,18 @@ export default function AppLayout({
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen">
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur-md md:px-6">
-          <SidebarTrigger className="text-primary hover:bg-primary/10 rounded-lg p-2" />
+      <SidebarInset className="flex flex-col min-h-screen bg-background">
+        <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background/90 px-4 backdrop-blur-md md:px-6">
+          <SidebarTrigger className="text-primary hover:bg-primary/5 rounded-lg p-2" />
           <div className="flex-1" />
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="text-sm font-medium hidden sm:inline-block">Welcome, {displayName}</span>
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="text-xs font-semibold hidden sm:inline-block">Hi, {displayName}</span>
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full overflow-hidden border border-primary/20 shadow-sm shrink-0">
               <img src={photoURL} alt={displayName} className="h-full w-full object-cover" />
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden w-full">
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
