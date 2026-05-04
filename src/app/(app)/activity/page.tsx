@@ -20,9 +20,7 @@ import {
   CartesianGrid, 
   ResponsiveContainer,
   AreaChart,
-  Area,
-  LineChart,
-  Line
+  Area
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -49,7 +47,7 @@ export default function ActivityInsightsPage() {
   const { data: workouts, isLoading } = useCollection(workoutsQuery);
 
   const processedData = useMemo(() => {
-    if (!workouts || !mounted) return { charts: [], metrics: { steps: 0, hr: 0, distance: 0, calories: 0, minutes: 0 } };
+    if (!workouts || !mounted) return { charts: [], metrics: { steps: 0, hr: 0, distance: "0.0", calories: 0, minutes: 0 } };
     
     const now = new Date();
     const startOfToday = new Date(now);
