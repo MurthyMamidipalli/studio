@@ -12,7 +12,6 @@ import {
   Loader2, 
   Activity as ActivityIcon,
   TrendingUp,
-  History,
   RefreshCw,
   Zap,
   Save
@@ -151,7 +150,7 @@ export default function ActivityInsightsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card className="border-none shadow-md overflow-hidden">
           <CardHeader className="bg-muted/5 pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -179,7 +178,7 @@ export default function ActivityInsightsPage() {
               </ChartContainer>
             </div>
           </CardContent>
-        </AreaChart>
+        </Card>
       </div>
     </div>
   );
