@@ -118,7 +118,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
-      <div className="w-full max-w-sm space-y-6 animate-in fade-in zoom-in-95 duration-500">
+      <div className="w-full max-sm:max-w-sm space-y-6 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center">
           <Activity className="h-10 w-10 text-primary mx-auto mb-2" />
           <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
