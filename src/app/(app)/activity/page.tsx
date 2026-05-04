@@ -123,7 +123,6 @@ export default function ActivityInsightsPage() {
         </Badge>
       </div>
 
-      {/* GROUPED METRICS - SNAPSHOT */}
       <Card className="border-none shadow-md overflow-hidden bg-white">
         <div className="bg-primary/5 p-2.5 px-6 flex items-center gap-2 border-b">
           <Zap className="h-3.5 w-3.5 text-primary" />

@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Zap, Sparkles, Activity as ActivityIcon, ArrowRight } from "lucide-react";
+import { Zap, Sparkles, Activity as ActivityIcon, ArrowRight, Dumbbell } from "lucide-react";
 import Link from "next/link";
 
 export default function ActionsPage() {
@@ -18,7 +18,7 @@ export default function ActionsPage() {
           href="/workouts" 
           title="Start" 
           desc="Log a new workout session manually" 
-          icon={Zap} 
+          icon={Dumbbell} 
           color="bg-primary" 
         />
         <ActionBigCard 
@@ -33,7 +33,7 @@ export default function ActionsPage() {
           title="Analyze" 
           desc="Deep dive into your performance metrics" 
           icon={ActivityIcon} 
-          color="bg-white"
+          color="bg-card"
           border
         />
       </div>
