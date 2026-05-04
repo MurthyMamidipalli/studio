@@ -126,9 +126,9 @@ export default function ActivityInsightsPage() {
         <Card className="border-none shadow-xl bg-card overflow-hidden">
           <CardHeader className="bg-primary/5">
             <CardTitle className="font-headline flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" /> Step History
+              <TrendingUp className="h-5 w-5 text-primary" /> Performance Trend
             </CardTitle>
-            <CardDescription>Visualizing your step counts over recent sessions.</CardDescription>
+            <CardDescription>Step count visualization over time</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="h-[350px] w-full mt-4">
@@ -156,9 +156,9 @@ export default function ActivityInsightsPage() {
         <Card className="border-none shadow-xl bg-card">
           <CardHeader className="bg-accent/5">
             <CardTitle className="font-headline flex items-center gap-2">
-              <History className="h-5 w-5 text-accent" /> Data History
+              <History className="h-5 w-5 text-accent" /> Tracked History
             </CardTitle>
-            <CardDescription>A chronological view of all your tracked health metrics.</CardDescription>
+            <CardDescription>Recent metrics recorded from your sessions</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="max-h-[400px] overflow-y-auto">
@@ -167,7 +167,7 @@ export default function ActivityInsightsPage() {
                   <div key={idx} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <div className="space-y-1">
                       <p className="font-bold text-sm">{item.date}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">LOGGED STATS</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Logged Data</p>
                     </div>
                     <div className="flex gap-4 text-xs font-bold text-right">
                        <div>
@@ -178,16 +178,12 @@ export default function ActivityInsightsPage() {
                          <p className="text-red-500">{item.hr || "--"}</p>
                          <p className="text-[8px] text-muted-foreground">BPM</p>
                        </div>
-                       <div>
-                         <p className="text-green-500">{item.distance}</p>
-                         <p className="text-[8px] text-muted-foreground">MILES</p>
-                       </div>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="p-12 text-center text-muted-foreground italic">
-                  Start logging workouts to see your insights here.
+                  Start logging sessions to see your health data here.
                 </div>
               )}
             </div>
@@ -206,10 +202,10 @@ function MetricCard({ title, value, unit, icon: Icon, color }: any) {
           <Icon className="h-6 w-6" />
         </div>
         <div>
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">{title}</h3>
+          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{title}</h3>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl md:text-3xl font-headline font-bold">{value}</span>
-            <span className="text-[10px] text-muted-foreground font-bold">{unit}</span>
+            <span className="text-xl md:text-2xl font-headline font-bold">{value}</span>
+            <span className="text-[8px] text-muted-foreground font-bold">{unit}</span>
           </div>
         </div>
       </CardContent>

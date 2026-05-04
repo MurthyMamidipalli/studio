@@ -3,18 +3,17 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { 
   Flame, 
-  TrendingUp, 
   ChevronRight,
   Trophy,
   Loader2,
   Star,
   Calendar,
-  Zap,
-  Activity as ActivityIcon
+  Activity as ActivityIcon,
+  TrendingUp,
+  Award
 } from "lucide-react";
 import { 
   BarChart, 
@@ -50,36 +49,16 @@ export default function DashboardPage() {
     return query(
       collection(db, "users", user.uid, "workoutSessions"),
       orderBy("sessionDateTime", "desc"),
-      limit(100)
+      limit(50)
     );
   }, [db, user?.uid]);
 
   const { data: workouts, isLoading: isWorkoutsLoading } = useCollection(workoutsQuery);
 
   const processedData = useMemo(() => {
-    if (!mounted) return { weeklyData: [], recent: [], metrics: { steps: 0, calories: 0, distance: 0, minutes: 0 } };
+    if (!mounted) return { weeklyData: [], recent: [] };
 
     const now = new Date();
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0,0,0,0);
-
-    let totalStepsToday = 0;
-    let totalCaloriesToday = 0;
-    let totalDistanceToday = 0;
-    let totalMinutesToday = 0;
-
-    if (workouts) {
-      workouts.forEach(w => {
-        const workoutDate = w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate() : new Date(w.sessionDateTime);
-        if (workoutDate >= startOfToday) {
-          totalStepsToday += Number(w.steps) || 0;
-          totalCaloriesToday += Number(w.estimatedCaloriesBurned) || 0;
-          totalDistanceToday += Number(w.distance) || 0;
-          totalMinutesToday += Number(w.durationMinutes) || 0;
-        }
-      });
-    }
-
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(now.getDate() - (6 - i));
@@ -101,13 +80,7 @@ export default function DashboardPage() {
 
     return {
       weeklyData: last7Days,
-      recent: workouts ? workouts.slice(0, 3) : [],
-      metrics: {
-        steps: totalStepsToday,
-        calories: Math.round(totalCaloriesToday),
-        distance: totalDistanceToday.toFixed(1),
-        minutes: totalMinutesToday
-      }
+      recent: workouts ? workouts.slice(0, 5) : [],
     };
   }, [workouts, mounted]);
 
@@ -129,7 +102,7 @@ export default function DashboardPage() {
             Welcome back, {firstName}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            Ready for your next session? Here is your daily summary.
+            Ready for your next session? Here is your summary.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -148,12 +121,12 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2 shadow-xl border-none bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="font-headline text-2xl">Weekly Activity</CardTitle>
-              <CardDescription>Calories burned over the last 7 days</CardDescription>
+              <CardTitle className="font-headline text-2xl">Calories Burned</CardTitle>
+              <CardDescription>Activity overview for the last 7 days</CardDescription>
             </div>
             <Link href="/activity">
               <Button variant="ghost" size="sm" className="text-primary font-bold">
-                Detailed Insights <ChevronRight className="h-4 w-4 ml-1" />
+                View Full Activity <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
@@ -174,36 +147,62 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl border-none bg-card">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-yellow-500" /> Goal Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8 pt-4">
-            <GoalProgress title="Daily Steps" progress={Math.min((processedData.metrics.steps / 10000) * 100, 100)} current={processedData.metrics.steps} target="10,000" unit="steps" />
-            <GoalProgress title="Active Time" progress={Math.min((processedData.metrics.minutes / 45) * 100, 100)} current={processedData.metrics.minutes} target="45" unit="min" />
-            <GoalProgress title="Distance Goal" progress={Math.min((Number(processedData.metrics.distance) / 3) * 100, 100)} current={processedData.metrics.distance} target="3" unit="mi" />
-            <div className="pt-6">
-              <Link href="/goals">
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 text-lg font-bold shadow-lg">
-                  Set New Targets
+        <div className="space-y-8">
+          <Card className="shadow-lg border-none bg-accent/5 overflow-hidden">
+            <div className="h-1 bg-accent w-full" />
+            <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2">
+                <ActivityIcon className="h-6 w-6 text-accent" /> Active Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
+                <p className="text-sm font-medium leading-relaxed">
+                  Your detailed stats (Steps, HR, Distance) have moved to the <strong>Activity Insights</strong> page for a better focused experience.
+                </p>
+              </div>
+              <Link href="/activity">
+                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
+                  Check Activity Metrics
                 </Button>
               </Link>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-xl border-none bg-card">
+            <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2">
+                <Award className="h-6 w-6 text-yellow-500" /> Recent XP
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <div className="text-sm font-medium">Daily Goal Bonus</div>
+                <div className="text-sm font-bold text-primary">+10 XP</div>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <div className="text-sm font-medium">Workout Logged</div>
+                <div className="text-sm font-bold text-primary">+50 XP</div>
+              </div>
+              <Link href="/achievements">
+                <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  View Achievements <Trophy className="h-3 w-3 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
+      <div className="grid grid-cols-1 gap-8 pb-10">
         <Card className="shadow-lg border-none">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="font-headline text-xl">Recent Efforts</CardTitle>
+              <CardTitle className="font-headline text-2xl">Recent Activity Log</CardTitle>
               <TrendingUp className="h-6 w-6 text-primary" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
                 <RecentWorkoutItem 
@@ -215,7 +214,7 @@ export default function DashboardPage() {
                 />
               ))
             ) : (
-              <div className="text-center py-10">
+              <div className="col-span-full text-center py-10">
                 <p className="text-muted-foreground mb-4">No activity recorded yet.</p>
                 <Link href="/workouts">
                   <Button variant="outline" className="rounded-xl">Start Your First Workout</Button>
@@ -224,66 +223,26 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        
-        <Card className="shadow-lg border-none bg-accent/5 overflow-hidden">
-          <div className="h-1 bg-accent w-full" />
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <ActivityIcon className="h-6 w-6 text-accent" /> Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
-              <p className="text-sm font-medium leading-relaxed">
-                Looking for detailed stats like Heart Rate, Distance, and Steps? Head over to the Activity Insights page.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Link href="/activity">
-                <Button variant="outline" className="w-full rounded-xl h-12 font-bold">
-                  View Full Metrics
-                </Button>
-              </Link>
-              <Link href="/coach">
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
-                  Ask AI Coach for Advice
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </div>
-  );
-}
-
-function GoalProgress({ title, progress, current, target, unit }: any) {
-  return (
-    <div className="space-y-3">
-      <div className="flex justify-between text-sm md:text-base">
-        <span className="font-bold text-foreground/80">{title}</span>
-        <span className="text-muted-foreground font-mono">{current}/{target} {unit}</span>
-      </div>
-      <Progress value={progress} className="h-3 rounded-full" />
     </div>
   );
 }
 
 function RecentWorkoutItem({ type, name, time, result }: any) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/50 transition-all border border-transparent hover:border-border/50">
+    <div className="flex items-center justify-between p-4 rounded-2xl hover:bg-muted/50 transition-all border border-border/50">
       <div className="flex items-center gap-4">
-        <div className={`w-2 h-12 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
+        <div className={`w-1.5 h-10 rounded-full ${type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
         <div>
-          <p className="font-bold text-base truncate max-w-[150px]">{name}</p>
-          <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+          <p className="font-bold text-sm truncate max-w-[120px]">{name}</p>
+          <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
             <Calendar className="h-3 w-3" /> {time}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className="text-sm font-black text-primary">{result}</p>
-        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{type}</p>
+        <p className="text-xs font-black text-primary">{result}</p>
+        <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{type}</p>
       </div>
     </div>
   );

@@ -62,10 +62,8 @@ export default function LoginPage() {
         const newUser = userCredential.user;
         const fullName = `${firstName} ${lastName}`.trim();
 
-        // Update Auth Profile
         await updateProfile(newUser, { displayName: fullName });
 
-        // Create Firestore Profile
         if (db) {
           const profileRef = doc(db, "users", newUser.uid);
           setDocumentNonBlocking(profileRef, {
@@ -165,14 +163,14 @@ export default function LoginPage() {
               ) : (
                 <LogIn className="h-6 w-6 text-accent" />
               )}
-              {isForgotPassword ? "Reset Password" : isSignUp ? "Create an Account" : "Welcome Back"}
+              {isForgotPassword ? "Reset Password" : isSignUp ? "Create Account" : "Welcome Back"}
             </CardTitle>
             <CardDescription className="text-base">
               {isForgotPassword 
-                ? "Enter your email and we'll send you a reset link."
+                ? "Enter your email for a reset link."
                 : isSignUp 
-                ? "Join the FitStride community today." 
-                : "Enter your credentials to access your dashboard."}
+                ? "Join the community today." 
+                : "Enter credentials to access your dashboard."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -194,22 +192,9 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
-                  {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  ) : (
-                    <>
-                      Send Reset Link
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Send Reset Link"}
                 </Button>
-                <button 
-                  type="button"
-                  onClick={() => setIsForgotPassword(false)}
-                  className="w-full text-sm text-muted-foreground hover:text-primary transition-colors mt-2 font-medium"
-                >
-                  Back to Login
-                </button>
+                <button type="button" onClick={() => setIsForgotPassword(false)} className="w-full text-sm text-muted-foreground hover:text-primary transition-colors font-medium">Back to Login</button>
               </form>
             ) : (
               <form onSubmit={handleAuth} className="space-y-5">
@@ -219,28 +204,14 @@ export default function LoginPage() {
                       <Label htmlFor="firstName">First Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="firstName" 
-                          placeholder="John" 
-                          className="pl-9 h-11"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          required={isSignUp}
-                        />
+                        <Input id="firstName" placeholder="John" className="pl-9 h-11" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="lastName" 
-                          placeholder="Doe" 
-                          className="pl-9 h-11"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          required={isSignUp}
-                        />
+                        <Input id="lastName" placeholder="Doe" className="pl-9 h-11" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                       </div>
                     </div>
                   </div>
@@ -250,30 +221,14 @@ export default function LoginPage() {
                   <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      className="pl-9 h-11"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <Input id="email" type="email" placeholder="name@example.com" className="pl-9 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    {!isSignUp && (
-                      <button 
-                        type="button" 
-                        onClick={() => setIsForgotPassword(true)}
-                        className="text-xs text-primary hover:underline font-semibold"
-                      >
-                        Forgot password?
-                      </button>
-                    )}
+                    {!isSignUp && <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-primary hover:underline font-semibold">Forgot password?</button>}
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -286,11 +241,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-20"
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-20">
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -308,13 +259,9 @@ export default function LoginPage() {
                         className="pl-9 pr-10 h-11"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        required={isSignUp}
+                        required
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-20"
-                      >
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-20">
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -322,32 +269,15 @@ export default function LoginPage() {
                 )}
 
                 <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
-                  {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  ) : (
-                    <>
-                      {isSignUp ? "Sign Up" : "Log In"}
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : (isSignUp ? "Sign Up" : "Log In")}
                 </Button>
               </form>
             )}
           </CardContent>
           <CardFooter className="justify-center border-t bg-muted/5 py-4">
             {!isForgotPassword && (
-              <button 
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setEmail("");
-                  setPassword("");
-                  setConfirmPassword("");
-                  setFirstName("");
-                  setLastName("");
-                }}
-                className="text-sm text-primary hover:underline font-bold transition-all"
-              >
-                {isSignUp ? "Already have an account? Log In" : "New to FitStride? Create an Account"}
+              <button onClick={() => setIsSignUp(!isSignUp)} className="text-sm text-primary hover:underline font-bold transition-all">
+                {isSignUp ? "Already have an account? Log In" : "New to FitStride? Create Account"}
               </button>
             )}
           </CardFooter>
