@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -87,10 +88,10 @@ export default function FoodAdvisorPage() {
 
       {advice && (
         <div className="space-y-6 animate-in zoom-in-95 duration-500">
-          <Card className="border-none shadow-xl bg-primary/5">
+          <Card className="border-none shadow-xl bg-primary/5 rounded-3xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <BrainCircuit className="h-5 w-5" /> Nutritionist Insights
+              <CardTitle className="flex items-center gap-2 text-primary font-headline">
+                <BrainCircuit className="h-5 w-5" /> AI Nutritionist Insights
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -102,14 +103,14 @@ export default function FoodAdvisorPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {advice.recommendations.map((meal, idx) => (
-              <Card key={idx} className="border-none shadow-md hover:scale-[1.02] transition-transform">
+              <Card key={idx} className="border-none shadow-md hover:scale-[1.02] transition-transform rounded-2xl">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <Badge variant="outline" className="bg-muted text-[10px] uppercase font-black tracking-widest px-2 py-0.5 border-none">
                       {meal.mealType}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl font-bold mt-2">{meal.name}</CardTitle>
+                  <CardTitle className="text-xl font-bold mt-2 font-headline">{meal.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground leading-relaxed">

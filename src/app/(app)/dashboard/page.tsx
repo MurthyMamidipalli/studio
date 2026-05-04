@@ -134,7 +134,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* BIG CARD: Weekly Trend */}
-        <Card className="lg:col-span-2 shadow-lg border-none overflow-hidden h-full">
+        <Card className="lg:col-span-2 shadow-lg border-none overflow-hidden h-full rounded-3xl">
           <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
             <div>
               <CardTitle className="font-headline text-xl">Weekly Energy Trends</CardTitle>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* INSIGHTS PANEL (Smart Summaries) */}
-        <Card className="shadow-lg border-none bg-primary/5 h-full">
+        <Card className="shadow-lg border-none bg-primary/5 h-full rounded-3xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-yellow-500" /> Smart Insights
@@ -187,7 +187,7 @@ export default function DashboardPage() {
 
             <div className="pt-2">
               <Link href="/activity">
-                <Button className="w-full text-xs h-11 font-bold shadow-md" variant="secondary">
+                <Button className="w-full text-xs h-11 font-bold shadow-md rounded-xl" variant="secondary">
                   Open Activity Analysis
                 </Button>
               </Link>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* MEDIUM CARD: Recent Activity */}
-        <Card className="lg:col-span-2 shadow-md border-none">
+        <Card className="lg:col-span-2 shadow-md border-none rounded-3xl">
           <CardHeader className="pb-4">
             <CardTitle className="font-headline text-lg">Recent Session History</CardTitle>
           </CardHeader>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* SMALL CARD: Secondary Tools */}
-        <Card className="shadow-md border-none bg-accent/5">
+        <Card className="shadow-md border-none bg-accent/5 rounded-3xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Trophy className="h-4 w-4 text-primary" /> Progression
@@ -242,7 +242,7 @@ export default function DashboardPage() {
               <div className="text-xs font-black text-primary">{(profile?.points || 0) % 100}%</div>
             </div>
             <Link href="/goals" className="block">
-              <Button variant="outline" className="w-full text-xs h-11 font-black bg-white shadow-sm border-2">
+              <Button variant="outline" className="w-full text-xs h-11 font-black bg-white shadow-sm border-2 rounded-xl">
                 Manage Targets <ChevronRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>

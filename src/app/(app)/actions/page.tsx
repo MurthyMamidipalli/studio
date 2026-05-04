@@ -1,15 +1,15 @@
 
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Zap, Sparkles, Activity as ActivityIcon, ArrowRight, Dumbbell } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Sparkles, Activity as ActivityIcon, ArrowRight, Dumbbell } from "lucide-react";
 import Link from "next/link";
 
 export default function ActionsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-headline font-bold text-primary">Quick Actions</h1>
+        <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">Quick Actions</h1>
         <p className="text-muted-foreground text-lg font-medium">What would you like to accomplish today?</p>
       </div>
 
@@ -51,10 +51,7 @@ export default function ActionsPage() {
 function ActionBigCard({ href, title, desc, icon: Icon, color, border }: any) {
   return (
     <Link href={href} className="group">
-      <Card className={`${color} ${border ? 'border-2 border-primary/20 bg-card' : 'border-none'} ${color === 'bg-card' || border ? 'text-foreground' : 'text-primary-foreground'} hover:scale-[1.05] transition-all shadow-xl h-[300px] flex flex-col justify-center items-center text-center p-8 cursor-pointer relative overflow-hidden`}>
-        {!border && <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Icon className="h-32 w-32 -mr-8 -mt-8" />
-        </div>}
+      <Card className={`${color} ${border ? 'border-2 border-primary/20 bg-card' : 'border-none'} ${color === 'bg-card' || border ? 'text-foreground' : 'text-primary-foreground'} hover:scale-[1.05] transition-all shadow-xl h-[300px] flex flex-col justify-center items-center text-center p-8 cursor-pointer relative overflow-hidden rounded-3xl`}>
         <div className={`p-5 rounded-2xl mb-6 ${border ? 'bg-primary/10 text-primary' : 'bg-white/20'}`}>
           <Icon className="h-10 w-10" />
         </div>
