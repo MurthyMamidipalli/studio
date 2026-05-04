@@ -6,13 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw, Eye, EyeOff } from "lucide-react";
-import { useAuth, useUser } from "@/firebase";
+import { Activity, Mail, Lock, Loader2, ArrowRight, UserPlus, LogIn, RefreshCcw, Eye, EyeOff, User } from "lucide-react";
+import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  updateProfile
 } from "firebase/auth";
+import { doc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
@@ -20,11 +22,16 @@ export default function LoginPage() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -39,15 +46,52 @@ export default function LoginPage() {
     setLoading(true);
     
     if (isSignUp) {
-      createUserWithEmailAndPassword(auth, email, password)
-        .catch((error: any) => {
-          setLoading(false);
-          toast({
-            variant: "destructive",
-            title: "Registration Failed",
-            description: error.message,
-          });
+      if (password !== confirmPassword) {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Passwords do not match.",
         });
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const newUser = userCredential.user;
+        const fullName = `${firstName} ${lastName}`.trim();
+
+        // Update Auth Profile
+        await updateProfile(newUser, { displayName: fullName });
+
+        // Create Firestore Profile
+        if (db) {
+          const profileRef = doc(db, "users", newUser.uid);
+          setDocumentNonBlocking(profileRef, {
+            id: newUser.uid,
+            name: fullName,
+            email: email.toLowerCase(),
+            points: 0,
+            currentStreak: 0,
+            bestStreak: 0,
+            earnedBadges: [],
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          }, { merge: true });
+        }
+
+        toast({
+          title: "Account Created",
+          description: `Welcome to FitStride, ${firstName}!`,
+        });
+      } catch (error: any) {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Registration Failed",
+          description: error.message,
+        });
+      }
     } else {
       signInWithEmailAndPassword(auth, email, password)
         .catch((error: any) => {
@@ -168,6 +212,39 @@ export default function LoginPage() {
               </form>
             ) : (
               <form onSubmit={handleAuth} className="space-y-5">
+                {isSignUp && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="firstName" 
+                          placeholder="John" 
+                          className="pl-9 h-11"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          required={isSignUp}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="lastName" 
+                          placeholder="Doe" 
+                          className="pl-9 h-11"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required={isSignUp}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
@@ -183,6 +260,7 @@ export default function LoginPage() {
                     />
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
@@ -216,6 +294,32 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
+
+                {isSignUp && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="confirmPassword" 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        placeholder="••••••••" 
+                        className="pl-9 pr-10 h-11"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required={isSignUp}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-3 h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-10"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -236,6 +340,9 @@ export default function LoginPage() {
                   setIsSignUp(!isSignUp);
                   setEmail("");
                   setPassword("");
+                  setConfirmPassword("");
+                  setFirstName("");
+                  setLastName("");
                 }}
                 className="text-sm text-primary hover:underline font-bold transition-all"
               >
