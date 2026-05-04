@@ -53,7 +53,7 @@ function SocialContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const [activeTab, setActiveTab] = useState("leaderboard");
+  const [activeTab, setActiveTab] = useState("groups");
   const [mounted, setMounted] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -70,15 +70,6 @@ function SocialContent() {
     setMounted(true);
   }, []);
 
-  const leaderboardQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(
-      collection(db, "users"),
-      orderBy("points", "desc"),
-      limit(10)
-    );
-  }, [db]);
-
   const challengesQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, "challenges"), limit(10));
@@ -94,7 +85,6 @@ function SocialContent() {
     return query(collection(db, "users"), limit(100));
   }, [db]);
 
-  const { data: leaderboard, isLoading: isLeaderboardLoading } = useCollection(leaderboardQuery);
   const { data: challenges, isLoading: isChallengesLoading } = useCollection(challengesQuery);
   const { data: allGroups, isLoading: isGroupsLoading } = useCollection(groupsQuery);
   const { data: allUsers } = useCollection(usersQuery);
@@ -294,41 +284,10 @@ function SocialContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-3 bg-muted/50 p-1 rounded-xl">
-          <TabsTrigger value="leaderboard" className="rounded-lg">Rankings</TabsTrigger>
+        <TabsList className="grid w-full max-w-[300px] grid-cols-2 bg-muted/50 p-1 rounded-xl">
           <TabsTrigger value="groups" className="rounded-lg">Groups</TabsTrigger>
           <TabsTrigger value="challenges" className="rounded-lg">Events</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="leaderboard" className="mt-6">
-          <Card className="border-none shadow-sm overflow-hidden">
-            <CardHeader className="pb-2"><CardTitle className="font-headline text-xl">Global Leaderboard</CardTitle></CardHeader>
-            <CardContent>
-              {isLeaderboardLoading ? (
-                <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-              ) : (
-                <div className="space-y-3">
-                  {leaderboard?.map((p, i) => (
-                    <div key={p.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${p.id === user?.uid ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-card hover:border-muted-foreground/20'}`}>
-                      <div className="flex items-center gap-4">
-                        <span className={`w-6 font-black ${i < 3 ? 'text-yellow-500' : 'text-muted-foreground'}`}>{i + 1}</span>
-                        <Avatar className="h-10 w-10 border-2 border-background shadow-sm"><AvatarImage src={p.photoURL} /><AvatarFallback>{p.name?.[0]}</AvatarFallback></Avatar>
-                        <div>
-                          <p className="font-bold flex items-center gap-2 text-sm md:text-base">{p.name} {p.id === user?.uid && <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-none">YOU</Badge>}</p>
-                          <div className="flex items-center gap-3 text-[10px] text-muted-foreground font-medium">
-                             <span className="flex items-center gap-1"><Flame className="h-3 w-3 text-orange-500" /> {p.currentStreak || 0}d</span>
-                             <span className="flex items-center gap-1"><Star className="h-3 w-3 text-yellow-500" /> {p.points || 0} XP</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right"><p className="text-sm md:text-base font-black text-primary">{p.points || 0} XP</p></div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="groups" className="mt-6 space-y-10">
           <div className="space-y-4">
