@@ -118,19 +118,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
-      <div className="w-full max-sm:max-w-sm space-y-6 animate-in fade-in zoom-in-95 duration-500">
+      <div className="w-full max-w-md space-y-6 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center">
           <Activity className="h-10 w-10 text-primary mx-auto mb-2" />
           <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
         </div>
 
         <Card className="border-none shadow-xl bg-card">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-6">
             <CardTitle className="text-xl flex items-center gap-2">
-              {isForgotPassword ? "Reset" : isSignUp ? "Sign Up" : "Log In"}
+              {isForgotPassword ? "Reset Password" : isSignUp ? "Create Account" : "Welcome Back"}
             </CardTitle>
-            <CardDescription className="text-xs">
-              {isForgotPassword ? "Get a reset link via email." : isSignUp ? "Join the community." : "Access your dashboard."}
+            <CardDescription className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              {isForgotPassword ? "Get a reset link via email" : isSignUp ? "Join the FitStride community" : "Log in to your dashboard"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -139,26 +139,26 @@ export default function LoginPage() {
                 <div className="space-y-1.5">
                   <Label htmlFor="email-reset">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="email-reset" type="email" placeholder="name@example.com" className="pl-9" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="email-reset" type="email" placeholder="name@example.com" className="pl-9 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                 </div>
-                <Button type="submit" className="w-full h-10 font-bold" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Link"}
+                <Button type="submit" className="w-full h-11 font-bold shadow-lg" disabled={loading}>
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Reset Link"}
                 </Button>
-                <button type="button" onClick={() => setIsForgotPassword(false)} className="w-full text-xs text-muted-foreground hover:text-primary transition-colors">Back to Login</button>
+                <button type="button" onClick={() => setIsForgotPassword(false)} className="w-full text-xs font-bold text-muted-foreground hover:text-primary transition-colors">Back to Login</button>
               </form>
             ) : (
               <form onSubmit={handleAuth} className="space-y-4">
                 {isSignUp && (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                      <Input id="firstName" placeholder="John" className="h-11" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                      <Input id="lastName" placeholder="Doe" className="h-11" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                     </div>
                   </div>
                 )}
@@ -166,20 +166,20 @@ export default function LoginPage() {
                 <div className="space-y-1.5">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder="name@example.com" className="pl-9" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="email" type="email" placeholder="name@example.com" className="pl-9 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    {!isSignUp && <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[10px] text-primary hover:underline">Forgot?</button>}
+                    {!isSignUp && <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[10px] font-bold text-primary hover:underline">Forgot password?</button>}
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" className="pl-9 pr-10" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                    <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" className="pl-9 pr-10 h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-muted-foreground hover:text-primary transition-colors">
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -189,25 +189,25 @@ export default function LoginPage() {
                   <div className="space-y-1.5">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" className="pl-9 pr-10" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                      <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                      <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" className="pl-9 pr-10 h-11" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-muted-foreground hover:text-primary transition-colors">
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
                 )}
 
-                <Button type="submit" className="w-full h-10 font-bold" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isSignUp ? "Sign Up" : "Log In")}
+                <Button type="submit" className="w-full h-11 font-bold shadow-lg mt-2" disabled={loading}>
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isSignUp ? "Sign Up Free" : "Log In")}
                 </Button>
               </form>
             )}
           </CardContent>
-          <CardFooter className="justify-center border-t bg-muted/5 py-3">
+          <CardFooter className="justify-center border-t bg-muted/5 py-4">
             {!isForgotPassword && (
-              <button onClick={() => setIsSignUp(!isSignUp)} className="text-[11px] text-primary font-bold hover:underline">
-                {isSignUp ? "Already have an account? Log In" : "New to FitStride? Create Account"}
+              <button onClick={() => setIsSignUp(!isSignUp)} className="text-[11px] text-primary font-black uppercase tracking-widest hover:underline">
+                {isSignUp ? "Already a member? Log In" : "New to FitStride? Create Account"}
               </button>
             )}
           </CardFooter>

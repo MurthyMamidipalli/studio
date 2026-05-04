@@ -88,7 +88,7 @@ export default function DashboardPage() {
       recent: workouts || [],
       stats: {
         totalCals,
-        trend: Math.round((totalCals / 3500) * 100) // Mock trend percentage
+        trend: Math.round((totalCals / 3500) * 100)
       }
     };
   }, [workouts, mounted]);
@@ -101,22 +101,22 @@ export default function DashboardPage() {
     );
   }
 
-  const firstName = profile?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || "User";
+  const displayName = profile?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || "User";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
       {/* HEADER SECTION */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-headline font-bold text-primary tracking-tight">
-              Welcome back, {firstName}
+              Welcome back, {displayName}
             </h1>
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 flex items-center gap-1 h-5 text-[10px]">
-              <RefreshCw className="h-2 w-2 animate-spin-slow" /> Auto-sync active
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 flex items-center gap-1 h-5 text-[10px] font-bold">
+              <RefreshCw className="h-2.5 w-2.5 animate-spin-slow" /> TRACKED AUTOMATICALLY
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">Everything is being tracked automatically.</p>
+          <p className="text-muted-foreground text-sm">Your health data is synchronized in real-time.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
@@ -130,24 +130,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* QUICK ACTIONS */}
+      {/* QUICK ACTIONS - CTA BUTTONS */}
       <div className="grid grid-cols-3 gap-4">
         <ActionCard href="/workouts" title="Start" desc="Log Session" icon={Zap} color="bg-primary" />
         <ActionCard href="/coach" title="Create" desc="AI Routine" icon={Sparkles} color="bg-accent" />
-        <ActionCard href="/activity" title="Analyze" desc="Health Hub" icon={ActivityIcon} color="bg-card" border />
+        <ActionCard href="/activity" title="Analyze" desc="Performance" icon={ActivityIcon} color="bg-card" border />
       </div>
 
-      {/* BIG CARD - Weekly Trends & AI Insights */}
+      {/* BIG CARDS - Weekly Trends & AI Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-lg border-none overflow-hidden h-full">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/5">
             <div>
-              <CardTitle className="font-headline text-xl">Weekly Energy</CardTitle>
-              <CardDescription className="text-xs">Energy expenditure (kcal)</CardDescription>
+              <CardTitle className="font-headline text-xl">Weekly Energy Trends</CardTitle>
+              <CardDescription className="text-xs">Energy expenditure across the last 7 days (kcal)</CardDescription>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="h-[240px] w-full mt-4">
+          <CardContent className="pt-6">
+            <div className="h-[260px] w-full">
               <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
@@ -163,37 +163,37 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* INSIGHTS PANEL */}
+        {/* INSIGHTS PANEL - Smart Summaries */}
         <Card className="shadow-lg border-none bg-primary/5 h-full">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-yellow-500" /> Smart Insights
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-3 bg-white rounded-xl shadow-sm border border-primary/10">
-              <p className="text-[11px] font-bold text-primary uppercase tracking-wider mb-1">Weekly Summary</p>
+            <div className="p-4 bg-white rounded-2xl shadow-sm border border-primary/10">
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Weekly Summary</p>
               <p className="text-sm font-medium leading-relaxed">
-                You've burned <span className="text-primary font-bold">{processedData.stats.totalCals} kcal</span> this week. That's {processedData.stats.trend}% of your target!
+                You've burned <span className="text-primary font-bold">{processedData.stats.totalCals} kcal</span> this week. That's {processedData.stats.trend}% of your target metabolic activity.
               </p>
             </div>
             
-            <div className="p-3 bg-white rounded-xl shadow-sm border border-primary/10">
-              <p className="text-[11px] font-bold text-accent uppercase tracking-wider mb-1">AI Suggestion</p>
+            <div className="p-4 bg-white rounded-2xl shadow-sm border border-primary/10">
+              <p className="text-[10px] font-black text-accent uppercase tracking-widest mb-1">AI Suggestion</p>
               <p className="text-sm font-medium leading-relaxed italic">
-                "Based on your high active time today, try a quick 15min yoga flow to cool down."
+                "Try generating a routine based on your last activity! You've shown high intensity recently; a recovery flow would be optimal today."
               </p>
               <Link href="/coach">
-                <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-2 text-primary font-bold">
-                  Try generating this routine <ArrowUpRight className="h-3 w-3 ml-1" />
+                <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-3 text-primary font-bold">
+                  Start AI session <ArrowUpRight className="h-3 w-3 ml-1" />
                 </Button>
               </Link>
             </div>
 
             <div className="pt-2">
               <Link href="/activity">
-                <Button variant="outline" className="w-full text-xs h-9 bg-white">
-                  View full analysis
+                <Button className="w-full text-xs h-11 font-bold shadow-md" variant="secondary">
+                  Open Activity Analysis
                 </Button>
               </Link>
             </div>
@@ -205,28 +205,30 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-md border-none">
           <CardHeader className="pb-4">
-            <CardTitle className="font-headline text-lg">Recent History</CardTitle>
+            <CardTitle className="font-headline text-lg">Recent Session History</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {processedData.recent.length > 0 ? (
               processedData.recent.map((w: any) => (
-                <div key={w.id} className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-colors">
+                <div key={w.id} className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-all hover:scale-[1.01]">
                   <div className="flex items-center gap-3">
-                    <div className={`w-1 h-8 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
+                    <div className={`w-1.5 h-10 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
                     <div>
-                      <p className="font-bold text-sm truncate">{w.notes || "Workout"}</p>
-                      <p className="text-[10px] text-muted-foreground">{w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString() : "Recently"}</p>
+                      <p className="font-bold text-sm truncate">{w.notes || "Activity Log"}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-semibold">
+                        {w.sessionDateTime instanceof Timestamp ? w.sessionDateTime.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "Recently"}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-primary">{w.durationMinutes}m • {Math.round(w.estimatedCaloriesBurned || 0)} kcal</p>
-                    <p className="text-[8px] uppercase tracking-tighter text-muted-foreground">{w.type}</p>
+                    <p className="text-xs font-black text-primary">{w.durationMinutes}m • {Math.round(w.estimatedCaloriesBurned || 0)} kcal</p>
+                    <p className="text-[9px] uppercase tracking-tighter text-muted-foreground font-black">{w.type}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center py-10 bg-muted/10 rounded-xl border border-dashed">
-                <p className="text-xs text-muted-foreground">No recent workouts recorded.</p>
+              <div className="text-center py-12 bg-muted/10 rounded-2xl border border-dashed">
+                <p className="text-xs text-muted-foreground font-medium italic">No recent activity logs available.</p>
               </div>
             )}
           </CardContent>
@@ -240,13 +242,13 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-2">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/20 shadow-sm">
-              <div className="text-xs font-bold uppercase tracking-tight">Session Bonus</div>
-              <div className="text-xs font-black text-primary">+50 XP</div>
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border/20 shadow-sm">
+              <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Level Progress</div>
+              <div className="text-xs font-black text-primary">{(profile?.points || 0) % 100}%</div>
             </div>
             <Link href="/goals" className="block">
-              <Button variant="outline" className="w-full text-xs h-10 font-bold bg-white shadow-sm">
-                Update Targets <ChevronRight className="h-3 w-3 ml-1" />
+              <Button variant="outline" className="w-full text-xs h-11 font-black bg-white shadow-sm border-2">
+                Manage Targets <ChevronRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>
           </CardContent>
@@ -259,14 +261,14 @@ export default function DashboardPage() {
 function ActionCard({ href, title, desc, icon: Icon, color, border }: any) {
   return (
     <Link href={href}>
-      <Card className={`${color} ${border ? 'border-2 border-primary/20 bg-card' : 'border-none'} ${color === 'bg-card' ? 'text-foreground' : 'text-primary-foreground'} hover:scale-[1.02] transition-all shadow-md group h-full`}>
-        <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-          <div className={`p-2 rounded-lg ${color === 'bg-card' ? 'bg-primary/10 text-primary' : 'bg-white/20'}`}>
+      <Card className={`${color} ${border ? 'border-2 border-primary/20 bg-card' : 'border-none'} ${color === 'bg-card' ? 'text-foreground' : 'text-primary-foreground'} hover:translate-y-[-4px] transition-all shadow-md group h-full cursor-pointer`}>
+        <CardContent className="p-5 flex flex-col items-center justify-center text-center gap-2">
+          <div className={`p-2.5 rounded-xl ${color === 'bg-card' ? 'bg-primary/10 text-primary' : 'bg-white/20'}`}>
             <Icon className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-bold text-sm leading-none">{title}</h3>
-            <p className="text-[9px] opacity-70 mt-1 uppercase tracking-wider font-bold">{desc}</p>
+            <h3 className="font-black text-sm uppercase tracking-tight leading-none">{title}</h3>
+            <p className="text-[10px] opacity-70 mt-1.5 uppercase tracking-widest font-black leading-none">{desc}</p>
           </div>
         </CardContent>
       </Card>
