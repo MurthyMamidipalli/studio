@@ -50,14 +50,29 @@ export default function DashboardPage() {
     return query(
       collection(db, "users", user.uid, "workoutSessions"),
       orderBy("sessionDateTime", "desc"),
-      limit(5)
+      limit(10)
     );
   }, [db, user?.uid]);
 
   const { data: workouts, isLoading: isWorkoutsLoading } = useCollection(workoutsQuery);
 
   const processedData = useMemo(() => {
-    if (!mounted) return { weeklyData: [], recent: [], stats: { totalCals: 0, trend: 0 } };
+    // Return stable defaults during SSR to prevent hydration mismatch
+    if (!mounted) {
+      return { 
+        weeklyData: [
+          { day: 'Mon', calories: 0 },
+          { day: 'Tue', calories: 0 },
+          { day: 'Wed', calories: 0 },
+          { day: 'Thu', calories: 0 },
+          { day: 'Fri', calories: 0 },
+          { day: 'Sat', calories: 0 },
+          { day: 'Sun', calories: 0 }
+        ], 
+        recent: [], 
+        stats: { totalCals: 0, trend: 0 } 
+      };
+    }
 
     const now = new Date();
     let totalCals = 0;
@@ -138,7 +153,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="h-[260px] w-full">
+            <div className="h-[280px] w-full">
               <ChartContainer config={{ calories: { label: "Calories", color: "hsl(var(--primary))" } }} className="h-full w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={processedData.weeklyData}>
@@ -192,7 +207,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {processedData.recent.length > 0 ? (
-              processedData.recent.map((w: any) => (
+              processedData.recent.slice(0, 4).map((w: any) => (
                 <div key={w.id} className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-all">
                   <div className="flex items-center gap-3">
                     <div className={`w-1.5 h-10 rounded-full ${w.type === 'Strength' ? 'bg-primary' : 'bg-accent'}`} />
