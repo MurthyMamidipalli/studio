@@ -4,7 +4,7 @@
 
 runConfig:
   # Optimize for scaling during traffic spikes by increasing max instances
-  maxInstances: 10
+  maxInstances: 15
   # Ensure some capacity is always ready for faster initial responses
   minInstances: 1
   # Standard CPU and Memory configuration
