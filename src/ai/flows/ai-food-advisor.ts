@@ -1,11 +1,7 @@
 
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow to generate customized nutritional recommendations based on workout history.
- *
- * - generateFoodRecommendations - A function that handles the generation of meal suggestions.
- * - FoodRecommendationInput - The input type for the generateFoodRecommendations function.
- * - FoodRecommendationOutput - The return type for the generateFoodRecommendations function.
+ * @fileOverview This file implements a Genkit flow to generate customized nutritional recommendations.
  */
 
 import {ai} from '@/ai/genkit';
@@ -42,17 +38,16 @@ export async function generateFoodRecommendations(
     return await foodRecommendationFlow(input);
   } catch (error) {
     console.error("AI Food Advisor Flow Error:", error);
-    // Return a graceful fallback if the LLM fails to generate a valid response
     return {
       recommendations: [
         {
           mealType: 'post-workout',
-          name: 'Protein-Rich Recovery Bowl',
-          description: 'A balanced blend of complex carbs and lean protein to support your muscle recovery after any activity.',
+          name: 'Balanced Protein Bowl',
+          description: 'A reliable post-activity meal focusing on muscle repair and energy replenishment.',
           macros: { protein: '25g', carbs: '40g', fats: '10g' }
         }
       ],
-      advisorNote: "We encountered a minor issue generating specific data, but always remember to stay hydrated and prioritize protein after any physical exertion."
+      advisorNote: "We encountered a temporary issue generating specific plans, but remember to prioritize lean protein and hydration throughout your day."
     };
   }
 }
@@ -62,7 +57,7 @@ const foodRecommendationPrompt = ai.definePrompt({
   input: {schema: FoodRecommendationInputSchema},
   output: {schema: FoodRecommendationOutputSchema},
   prompt: `You are an expert sports nutritionist AI. 
-Analyze the user's data to provide meal recommendations.
+Analyze the following context to provide meal recommendations.
 
 User Context:
 - Recent Workouts: {{{recentWorkouts}}}
@@ -71,8 +66,8 @@ User Context:
 
 Requirements:
 1. Provide 3-4 balanced meal suggestions.
-2. If specific data is missing (e.g., "None recent" or "?"), provide high-quality general fitness nutrition advice based on common goals.
-3. Prioritize a recovery-focused meal if workouts are mentioned.
+2. If data is missing or generic (e.g., "None recent"), provide high-quality general fitness nutrition advice suitable for an active lifestyle.
+3. Prioritize recovery-focused meals if workouts are mentioned.
 4. Explain the nutritional logic for each choice.
 5. Return the output strictly in the requested JSON format.`,
 });

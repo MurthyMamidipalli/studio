@@ -160,7 +160,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* INSIGHTS PANEL: BIG/Medium/Small - SMALL panel with Smart Summaries */}
+        {/* INSIGHTS PANEL: Smart Summaries */}
         <Card className="shadow-xl border-none bg-primary/5 h-full rounded-[2.5rem] flex flex-col border-2 border-primary/5">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-headline font-bold flex items-center gap-3 text-primary">
