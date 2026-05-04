@@ -77,10 +77,10 @@ export default function FoodAdvisorPage() {
     );
   }
 
-  // Improved check for accounts with no data
-  const noWorkouts = !workouts || workouts.length === 0;
-  const noStats = !profile || (!profile.weight && !profile.height && !profile.age);
-  const hasNoData = noWorkouts && noStats;
+  // Detect if user has any useful data
+  const hasWorkouts = workouts && workouts.length > 0;
+  const hasStats = profile && (profile.weight || profile.height || profile.age);
+  const hasNoData = !hasWorkouts && !hasStats;
 
   if (hasNoData && !advice) {
     return (
@@ -153,9 +153,18 @@ export default function FoodAdvisorPage() {
                   <p className="text-sm text-muted-foreground leading-relaxed font-medium">{meal.description}</p>
                   {meal.macros && (
                     <div className="grid grid-cols-3 gap-2 bg-muted/20 p-5 rounded-[1.5rem] border border-muted/50">
-                      <MacroBox label="PROTEIN" value={meal.macros.protein} color="text-red-500" />
-                      <MacroBox label="CARBS" value={meal.macros.carbs} color="text-orange-500" />
-                      <MacroBox label="FATS" value={meal.macros.fats} color="text-sky-600" />
+                      <div className="text-center space-y-1">
+                        <p className="text-[9px] font-black tracking-tighter text-red-500 uppercase">PROTEIN</p>
+                        <p className="text-sm font-black text-foreground">{meal.macros.protein}</p>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-[9px] font-black tracking-tighter text-orange-500 uppercase">CARBS</p>
+                        <p className="text-sm font-black text-foreground">{meal.macros.carbs}</p>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-[9px] font-black tracking-tighter text-sky-600 uppercase">FATS</p>
+                        <p className="text-sm font-black text-foreground">{meal.macros.fats}</p>
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -173,15 +182,6 @@ export default function FoodAdvisorPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function MacroBox({ label, value, color }: any) {
-  return (
-    <div className="text-center space-y-1">
-      <p className={`text-[9px] font-black tracking-tighter ${color} uppercase`}>{label}</p>
-      <p className="text-sm font-black text-foreground">{value}</p>
     </div>
   );
 }

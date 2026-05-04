@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, Eye, EyeOff, User } from "lucide-react";
 import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { 
   createUserWithEmailAndPassword, 
@@ -84,54 +84,73 @@ export default function LoginPage() {
     }
   };
 
-  if (isUserLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (isUserLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <Activity className="h-10 w-10 text-primary mx-auto mb-2" />
-          <h1 className="text-3xl font-headline font-bold text-primary">FitStride</h1>
+          <Activity className="h-12 w-12 text-primary mx-auto mb-2" />
+          <h1 className="text-4xl font-headline font-bold text-primary tracking-tight">FitStride</h1>
+          <p className="text-muted-foreground font-medium">Your automated biometric ecosystem.</p>
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden">
-          <CardHeader>
-            <CardTitle>{isSignUp ? "Sign Up" : "Log In"}</CardTitle>
-            <CardDescription>{isSignUp ? "Enter your details to begin" : "Welcome back to your dashboard"}</CardDescription>
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <CardHeader className="pt-10">
+            <CardTitle className="text-2xl font-headline font-bold">{isSignUp ? "Join the Stride" : "Welcome Back"}</CardTitle>
+            <CardDescription>{isSignUp ? "Start your automated fitness journey today." : "Your health metrics are waiting for you."}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAuth} className="space-y-4">
+            <form onSubmit={handleAuth} className="space-y-5">
               {isSignUp && (
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1"><Label>First Name</Label><Input value={firstName} onChange={e => setFirstName(e.target.value)} required /></div>
-                  <div className="space-y-1"><Label>Last Name</Label><Input value={lastName} onChange={e => setLastName(e.target.value)} required /></div>
-                </div>
-              )}
-              <div className="space-y-1"><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-              <div className="space-y-1 relative">
-                <Label>Password</Label>
-                <div className="relative">
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 opacity-50">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
-                </div>
-              </div>
-              {isSignUp && (
-                <div className="space-y-1 relative">
-                  <Label>Confirm Password</Label>
-                  <div className="relative">
-                    <Input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-2.5 opacity-50">{showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider">First Name</Label>
+                    <Input value={firstName} onChange={e => setFirstName(e.target.value)} required className="rounded-xl h-11" placeholder="Jane" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider">Last Name</Label>
+                    <Input value={lastName} onChange={e => setLastName(e.target.value)} required className="rounded-xl h-11" placeholder="Doe" />
                   </div>
                 </div>
               )}
-              <Button type="submit" className="w-full h-12 rounded-xl" disabled={loading}>
-                {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? "Create Account" : "Log In")}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="pl-10 rounded-xl h-11" placeholder="jane@example.com" />
+                </div>
+              </div>
+              <div className="space-y-1.5 relative">
+                <Label className="text-xs font-bold uppercase tracking-wider">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required className="pl-10 rounded-xl h-11" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 opacity-50 hover:opacity-100 transition-opacity">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              {isSignUp && (
+                <div className="space-y-1.5 relative">
+                  <Label className="text-xs font-bold uppercase tracking-wider">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <Input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="pl-10 rounded-xl h-11" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 opacity-50 hover:opacity-100 transition-opacity">
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+              <Button type="submit" className="w-full h-12 rounded-2xl shadow-lg bg-primary font-black uppercase tracking-widest mt-4" disabled={loading}>
+                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (isSignUp ? "Create My Account" : "Access Dashboard")}
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="justify-center border-t py-4">
-            <button onClick={() => setIsSignUp(!isSignUp)} className="text-xs font-bold text-primary uppercase">
-              {isSignUp ? "Already a member? Log In" : "New? Create Account"}
+          <CardFooter className="justify-center border-t py-6 bg-muted/5">
+            <button onClick={() => setIsSignUp(!isSignUp)} className="text-xs font-black text-primary uppercase tracking-[0.2em] hover:underline">
+              {isSignUp ? "Already a member? Log In" : "New to FitStride? Join Now"}
             </button>
           </CardFooter>
         </Card>
