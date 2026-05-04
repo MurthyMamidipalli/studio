@@ -153,7 +153,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground text-lg">Your fitness journey starts here.</p>
         </div>
 
-        <Card className="border-none shadow-2xl bg-card overflow-hidden">
+        <Card className="border-none shadow-2xl bg-card overflow-hidden relative">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex items-center gap-2">
               {isForgotPassword ? (
@@ -236,7 +236,7 @@ export default function LoginPage() {
                       id="password" 
                       type={showPassword ? "text" : "password"} 
                       placeholder="••••••••" 
-                      className="pl-9 pr-10 h-11"
+                      className="pl-9 pr-12 h-11"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -256,7 +256,7 @@ export default function LoginPage() {
                         id="confirmPassword" 
                         type={showConfirmPassword ? "text" : "password"} 
                         placeholder="••••••••" 
-                        className="pl-9 pr-10 h-11"
+                        className="pl-9 pr-12 h-11"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required

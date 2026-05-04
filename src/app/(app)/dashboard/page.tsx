@@ -13,7 +13,11 @@ import {
   Calendar,
   Activity as ActivityIcon,
   TrendingUp,
-  Award
+  Award,
+  PlusCircle,
+  PlayCircle,
+  BarChart3,
+  Sparkles
 } from "lucide-react";
 import { 
   BarChart, 
@@ -117,6 +121,51 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Quick Actions CTA Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link href="/coach" className="group">
+          <Card className="bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">Create</h3>
+                <p className="text-xs opacity-80 font-medium">Generate AI Workout Routine</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/activity" className="group">
+          <Card className="bg-accent hover:bg-accent/90 text-accent-foreground border-none transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
+                <BarChart3 className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">Analyze</h3>
+                <p className="text-xs opacity-80 font-medium">View Performance Trends</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/workouts" className="group">
+          <Card className="bg-card hover:bg-muted/50 border-2 border-primary/20 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:scale-110 transition-transform">
+                <PlayCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Start</h3>
+                <p className="text-xs text-muted-foreground font-medium">Log a New Workout Session</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 shadow-xl border-none bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -126,7 +175,7 @@ export default function DashboardPage() {
             </div>
             <Link href="/activity">
               <Button variant="ghost" size="sm" className="text-primary font-bold">
-                View Full Activity <ChevronRight className="h-4 w-4 ml-1" />
+                Detailed Analysis <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
@@ -152,18 +201,18 @@ export default function DashboardPage() {
             <div className="h-1 bg-accent w-full" />
             <CardHeader>
               <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <ActivityIcon className="h-6 w-6 text-accent" /> Active Status
+                <Award className="h-6 w-6 text-yellow-500" /> Milestone Tracking
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm">
                 <p className="text-sm font-medium leading-relaxed">
-                  Your detailed stats (Steps, HR, Distance) have moved to the <strong>Activity Insights</strong> page for a better focused experience.
+                  Your performance data is now centralized in the <strong>Activity Hub</strong>. Use the <strong>Analyze</strong> CTA to see your full history.
                 </p>
               </div>
-              <Link href="/activity">
+              <Link href="/achievements">
                 <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-12 font-bold shadow-md">
-                  Check Activity Metrics
+                  Browse Achievements
                 </Button>
               </Link>
             </CardContent>
@@ -172,7 +221,7 @@ export default function DashboardPage() {
           <Card className="shadow-xl border-none bg-card">
             <CardHeader>
               <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <Award className="h-6 w-6 text-yellow-500" /> Recent XP
+                <Trophy className="h-6 w-6 text-yellow-500" /> Progression
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -184,9 +233,9 @@ export default function DashboardPage() {
                 <div className="text-sm font-medium">Workout Logged</div>
                 <div className="text-sm font-bold text-primary">+50 XP</div>
               </div>
-              <Link href="/achievements">
+              <Link href="/goals">
                 <Button variant="ghost" className="w-full text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  View Achievements <Trophy className="h-3 w-3 ml-2" />
+                  Manage Fitness Goals <ChevronRight className="h-3 w-3 ml-2" />
                 </Button>
               </Link>
             </CardContent>

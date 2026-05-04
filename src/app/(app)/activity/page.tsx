@@ -12,7 +12,8 @@ import {
   Loader2, 
   Activity as ActivityIcon,
   TrendingUp,
-  History
+  History,
+  Target
 } from "lucide-react";
 import { 
   XAxis, 
@@ -109,9 +110,9 @@ export default function ActivityInsightsPage() {
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary flex items-center gap-3">
-          <ActivityIcon className="h-8 w-8" /> Health & Activity Insights
+          <ActivityIcon className="h-8 w-8" /> Activity Insights
         </h1>
-        <p className="text-muted-foreground text-lg">Detailed analysis of your daily steps, heart rate, and performance trends.</p>
+        <p className="text-muted-foreground text-lg">In-depth performance data and health metrics.</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -126,9 +127,9 @@ export default function ActivityInsightsPage() {
         <Card className="border-none shadow-xl bg-card overflow-hidden">
           <CardHeader className="bg-primary/5">
             <CardTitle className="font-headline flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" /> Performance Trend
+              <TrendingUp className="h-5 w-5 text-primary" /> Step Frequency
             </CardTitle>
-            <CardDescription>Step count visualization over time</CardDescription>
+            <CardDescription>Step count trends across recent activities</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="h-[350px] w-full mt-4">
@@ -156,9 +157,9 @@ export default function ActivityInsightsPage() {
         <Card className="border-none shadow-xl bg-card">
           <CardHeader className="bg-accent/5">
             <CardTitle className="font-headline flex items-center gap-2">
-              <History className="h-5 w-5 text-accent" /> Tracked History
+              <History className="h-5 w-5 text-accent" /> Metric History
             </CardTitle>
-            <CardDescription>Recent metrics recorded from your sessions</CardDescription>
+            <CardDescription>Breakdown of recently logged session data</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="max-h-[400px] overflow-y-auto">
@@ -167,7 +168,7 @@ export default function ActivityInsightsPage() {
                   <div key={idx} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <div className="space-y-1">
                       <p className="font-bold text-sm">{item.date}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Logged Data</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Logged Activity</p>
                     </div>
                     <div className="flex gap-4 text-xs font-bold text-right">
                        <div>
@@ -183,7 +184,7 @@ export default function ActivityInsightsPage() {
                 ))
               ) : (
                 <div className="p-12 text-center text-muted-foreground italic">
-                  Start logging sessions to see your health data here.
+                  Log your first workout to see analytics here.
                 </div>
               )}
             </div>
